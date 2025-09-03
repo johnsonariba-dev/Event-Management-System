@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import  {useState} from "react";
 
 import Button from "../../../components/button";
 
@@ -13,7 +13,7 @@ function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmite = async () =>{
     try{
@@ -32,11 +32,15 @@ function Register() {
       localStorage.setItem("token", data.token);
       window.location.href = "/dashboard";
     }
-    catch(err: Any){
-      setError(err.message);
+    catch(err: unknown){
+      if(err instanceof Error){
+        setError(err.message);
+      }
+      else{
+        setError("An unknown error occured")
+      }
     }
-  }
-  // ***REMOVED***;
+  }   
 
 
 
@@ -52,7 +56,7 @@ function Register() {
             Create an account
           </h1>
           <div className="w-full px-4 flex flex-col gap-2">
-            <p>{error} </p>
+            {error && ( <p> {error} </p>)}
             <input
               type="text"
               placeholder="Name"
@@ -87,7 +91,12 @@ function Register() {
                   Remember Me
                 </label>
               </div>
-             
+              <a
+                href="http://"
+                className="text-sm px-2 text-secondary w-full flex justify-end transition-transform duration-300 hover:text-violet-500"
+              >
+                Forgot Password?
+              </a>{" "}
             </div>
           </div>
           <Button
