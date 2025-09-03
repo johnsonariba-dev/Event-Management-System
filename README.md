@@ -1,4 +1,5 @@
 # Event-Management-System
+
 Appstech event management system [PlanVibes]
 
 # install
@@ -24,3 +25,6 @@ pip install pydantic
 pip install sqlalchemy
 pip install "python-jose[cryptography]"
 
+pip install "pydantic[email]"
+pip install "passlib[bcrypt]"
+pip install faker
