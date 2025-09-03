@@ -18,14 +18,12 @@ const Events:React.FC<eventProps> = () => {
 
   const [events, setEvents] = useState<eventProps[]>([]);
 
-  // useEffect(() => {
-  //   axios
-  //     .get("http://localhost:8000", {
-  //       params: { search, category, price, date },
-  //     })
-  //     .then((res) => setEvents(res.data))
-  //     .catch((err) => console.error("Error fetching events:", err));
-  // }, [search, category, price, date]);
+  useEffect(() => {
+    axios
+      .get("http://localhost:8000")
+      .then((res) => setEvents(res.data))
+      .catch((err) => console.error("Error fetching events:", err));
+  }, []);
 
 
   return (
@@ -34,7 +32,7 @@ const Events:React.FC<eventProps> = () => {
       <div className="relative bg-accent">
         <div className="absolute inset-0 bg-[url(/src/assets/images/EventHero.png)] bg-cover brightness-30 blur-xs"></div>
 
-        <div className="relative flex flex-col items-center justify-center p-70 text-center">
+        <div className="relative flex flex-col items-center justify-center h- text-center">
           <h1 className="text-primary font-bold text-8xl pb-10">
             Discover <span className="text-secondary">Events</span>
           </h1>
@@ -107,8 +105,6 @@ const Events:React.FC<eventProps> = () => {
           </div>
         ))}
       </div>
-
-
     </div>
   );
 }
