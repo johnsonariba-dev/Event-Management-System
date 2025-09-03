@@ -30,14 +30,15 @@ class Event(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, unique=True, index=True)
     description = Column(Text, index=True)
-    date = Column(DateTime, index=True)
+    # date = Column(DateTime, index=True)
     venue = Column(String, index=True)
     ticket_price = Column(Float, index=True)
     category = Column(String, index=True)
     image_url = Column(String)
-    status = Column(Boolean, default=True) # completed or not
-    attendees_count = Column(Integer, default=0)
-    organizer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    
+    # status = Column(Boolean, default=True) # completed or not
+    # attendees_count = Column(Integer, default=0)
+    # organizer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
 # Relations
     # organizer = relationship("User", back_populates="event")

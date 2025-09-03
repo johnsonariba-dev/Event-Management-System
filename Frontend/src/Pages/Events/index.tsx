@@ -9,7 +9,7 @@ interface eventProps{
   category: string;
   venue: string;
   ticket_price: number;
-  date: string;
+  // date: string;
   image_url: string;
 
 }
@@ -20,8 +20,10 @@ const Events:React.FC<eventProps> = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000")
-      .then((res) => setEvents(res.data))
+      .get("http://localhost:8000/events/events")
+      .then((res) => {console.log(res.data);
+       setEvents(res.data) }
+      )
       .catch((err) => console.error("Error fetching events:", err));
   }, []);
 
@@ -32,7 +34,7 @@ const Events:React.FC<eventProps> = () => {
       <div className="relative bg-accent">
         <div className="absolute inset-0 bg-[url(/src/assets/images/EventHero.png)] bg-cover brightness-30 blur-xs"></div>
 
-        <div className="relative flex flex-col items-center justify-center h- text-center">
+        <div className="relative flex flex-col items-center justify-center h-screen text-center">
           <h1 className="text-primary font-bold text-8xl pb-10">
             Discover <span className="text-secondary">Events</span>
           </h1>
