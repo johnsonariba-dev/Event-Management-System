@@ -2,8 +2,8 @@
 
 @theme{
     --color-primary: #47348A;
-    --color-secondary: #F1A255
-
+    --color-secondary: #F1A255;
+    --color-accent: #F2F2F2
 }
 body {
   font-family: "Rubik", sans-serif;
