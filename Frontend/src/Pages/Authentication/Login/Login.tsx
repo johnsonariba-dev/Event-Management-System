@@ -3,41 +3,43 @@ import images from "../../../types/images";
 import Button from "../../../components/button";
 import { Link } from "react-router-dom";
 
-const URL_API = ""
+const URL_API = "http://127.0.0.1:8000/user/login";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, ssetPassword] = useState("");
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmite = async () =>{
-    try{
+  const handleSubmite = async () => {
+    try {
       const response = await fetch(URL_API, {
-        method:"post",
-        headers:{"content-type":"applisation/json"},
-        body: JSON.stringify({email, password}),
-
-      })
-      if(!response.ok){
-        throw new Error("Login fial")
+        method: "post",
+        headers: { "content-type": "applisation/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!response.ok) {
+        throw new Error("Login fial");
       }
       const data = await response.json();
       localStorage.setItem("token", data.token);
-      window.location.href = "/Dashboard";
+      window.location.href = "/";
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occured");
+      }
     }
-    catch(err: Any){
-      setError(err.message);
-    }
-  }
-
-
-
+  };
 
   return (
     <div className="p-20 w-full flex flex-cool items-center justify-center bg-gray-100">
       <div className="w-[50vw] flex items-center justify-center bg-white border-violet-500 border-3 p-4 rounded-md max-md:flex-col shadow-2xl mt-10 max-sm:flex-col-reverse">
         <form
-          action=""
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmite();
+          }}
           method="post"
           className="w-full flex flex-col items-center justify-center gap-10 p-4"
         >
@@ -93,4 +95,4 @@ function Login() {
   );
 }
 
-export default Login
+export default Login;

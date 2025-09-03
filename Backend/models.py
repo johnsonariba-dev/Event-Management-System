@@ -16,12 +16,12 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
  # Relations
-    event = relationship("Event", back_populates="organizer")   # "back_populates" fait référence à l'attribut dans la classe Message
-    ticket = relationship("Ticket", back_populates="user")
-    review = relationship("Review", back_populates="user")
-    notification = relationship("Notification", back_populates="user")
-    message = relationship("MessageChat", back_populates="user")
-    preference = relationship("UserPreference", back_populates="user")
+    # event = relationship("Event", back_populates="organizer")   # "back_populates" fait référence à l'attribut dans la classe Message
+    # ticket = relationship("Ticket", back_populates="user")
+    # review = relationship("Review", back_populates="user")
+    # notification = relationship("Notification", back_populates="user")
+    # message = relationship("MessageChat", back_populates="user")
+    # preference = relationship("UserPreference", back_populates="user")
 
 # -------------------- EVENT --------------------
 class Event(Base):
@@ -40,11 +40,11 @@ class Event(Base):
     organizer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
 # Relations
-    organizer = relationship("User", back_populates="event")
-    ticket = relationship("Ticket", back_populates="event")
-    review = relationship("Review", back_populates="event")
-    update = relationship("Update", back_populates="event")
-    message = relationship("MessageChat", back_populates="event")
+    # organizer = relationship("User", back_populates="event")
+    # ticket = relationship("Ticket", back_populates="event")
+    # review = relationship("Review", back_populates="event")
+    # update = relationship("Update", back_populates="event")
+    # message = relationship("MessageChat", back_populates="event")
 
 # -------------------- TICKET --------------------
 class Ticket(Base):
@@ -57,8 +57,8 @@ class Ticket(Base):
     purchase_date = Column(DateTime, default=datetime.utcnow)
 
  # Relations
-    user = relationship("User", back_populates="ticket")
-    event = relationship("Event", back_populates="ticket")
+    # user = relationship("User", back_populates="ticket")
+    # event = relationship("Event", back_populates="ticket")
 
 # -------------------- REVIEW --------------------
 class Review(Base):
@@ -70,8 +70,8 @@ class Review(Base):
     comment = Column(Text, index=True)
 
 # Relations
-    user = relationship("User", back_populates="review")
-    event = relationship("Event", back_populates="review")
+    # user = relationship("User", back_populates="review")
+    # event = relationship("Event", back_populates="review")
 
 # -------------------- NOTIFICATION --------------------
 class Notification(Base):
@@ -83,7 +83,7 @@ class Notification(Base):
     message = Column(Text, index=True)
 
 # Relation
-    user = relationship("User", back_populates="notification")
+    # user = relationship("User", back_populates="notification")
 
 # -------------------- USER PREFERENCES --------------------
 class UserPreference(Base):
@@ -95,7 +95,7 @@ class UserPreference(Base):
     last_activity = Column(DateTime, default=datetime.utcnow)
 
     # Relation
-    user = relationship("User", back_populates="preference")
+    # user = relationship("User", back_populates="preference")
 
 # -------------------- MESSAGE CHAT --------------------
 class MessageChat(Base):
@@ -110,5 +110,5 @@ class MessageChat(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 # Relations
-    user = relationship("User", back_populates="messages")
-    event = relationship("Event", back_populates="messages")
+    # user = relationship("User", back_populates="messages")
+    # event = relationship("Event", back_populates="messages")
