@@ -1,4 +1,4 @@
-import  {useState} from "react";
+import { useState } from "react";
 
 import Button from "../../../components/button";
 
@@ -7,42 +7,35 @@ import { Link } from "react-router-dom";
 
 const URL_API = "";
 
-
-
 function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmite = async () =>{
-    try{
-      const response = await fetch(URL_API,{
+  const handleSubmite = async () => {
+    try {
+      const response = await fetch(URL_API, {
         method: "post",
-        headers: {"content-type": "application/json"},
-        body:JSON.stringify({name, email, password}),
-
-      })
-      if(!response.ok){
-        throw new Error("registration failed ")
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+      if (!response.ok) {
+        throw new Error("registration failed ");
       }
-      
-      const data = await response.json()
+
+      const data = await response.json();
 
       localStorage.setItem("token", data.token);
       window.location.href = "/dashboard";
-    }
-    catch(err: unknown){
-      if(err instanceof Error){
+    } catch (err: unknown) {
+      if (err instanceof Error) {
         setError(err.message);
-      }
-      else{
-        setError("An unknown error occured")
+      } else {
+        setError("An unknown error occured");
       }
     }
-  }   
-
-
+  };
 
   return (
     <div className="p-20 w-full flex flex-cool items-center justify-center bg-gray-100">
@@ -56,7 +49,7 @@ function Register() {
             Create an account
           </h1>
           <div className="w-full px-4 flex flex-col gap-2">
-            {error && ( <p> {error} </p>)}
+            {error && <p> {error} </p>}
             <input
               type="text"
               placeholder="Name"
@@ -91,12 +84,7 @@ function Register() {
                   Remember Me
                 </label>
               </div>
-              <a
-                href="http://"
-                className="text-sm px-2 text-secondary w-full flex justify-end transition-transform duration-300 hover:text-violet-500"
-              >
-                Forgot Password?
-              </a>{" "}
+             
             </div>
           </div>
           <Button
@@ -121,4 +109,4 @@ function Register() {
   );
 }
 
-export default Register
+export default Register;

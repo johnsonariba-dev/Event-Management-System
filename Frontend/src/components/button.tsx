@@ -3,7 +3,7 @@ interface ButtonProps {
   title: string;
   icon?: React.ReactNode;
   className?: string;
-  onclick: () => void
+  onclick?: () => void
 }
 
 const Button: React.FC<ButtonProps> = ({ title, icon, className, onclick }) => {
