@@ -46,8 +46,11 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
               </li>
             ))}
           </ul>
-          <NavLink to="/Login">
+          <NavLink to="/CreateEvent">
             <Button icon={<FaPlus />} title="Create Event" />
+          </NavLink>
+          <NavLink to="/Register">
+            <Button title="Register" />
           </NavLink>
           <NavLink to="/Login">
             <Button title="Login" />
@@ -82,11 +85,14 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
                 </li>
               ))}
             </ul>
-            <NavLink to="/Login">
+            <NavLink to="/CreateEvent">
               <Button title="Create Event" icon={<FaPlus />} className="my-4" />
             </NavLink>
             <NavLink to="/Login">
               <Button title="Login" />
+            </NavLink>
+            <NavLink to="/Register">
+              <Button title="Register" />
             </NavLink>
           </div>
         )}
