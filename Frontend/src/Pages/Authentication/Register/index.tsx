@@ -85,6 +85,12 @@ function Register() {
                 </label>
               </div>
              
+              <a
+                href="http://"
+                className="text-sm px-2 text-secondary w-full flex justify-end transition-transform duration-300 hover:text-violet-500"
+              >
+                Forgot Password?
+              </a>{" "}
             </div>
           </div>
           <Button
