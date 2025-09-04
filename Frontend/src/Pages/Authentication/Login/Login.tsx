@@ -22,7 +22,7 @@ function Login() {
       }
       const data = await response.json();
       localStorage.setItem("token", data.token);
-      window.location.href = "/Dashboard";
+      window.location.href = "/";
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -32,11 +32,15 @@ function Login() {
     }
   };
 
+ 
   return (
     <div className="p-20 w-full flex h-screen flex-cool items-center justify-center bg-gray-100">
       <div className="w-[50vw] flex items-center justify-center bg-white border-violet-500 border-3 p-4 rounded-md max-md:flex-col shadow-2xl mt-10 max-sm:flex-col-reverse">
         <form
-          action=""
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmite();
+          }}
           method="post"
           className="w-full flex flex-col items-center justify-center gap-10 p-4"
         >
@@ -71,6 +75,7 @@ function Login() {
           </div>
           <Button
             title="Login"
+            type=""
             onclick={handleSubmite}
             className="transition-transform duration-300 hover:scale-105"
           />

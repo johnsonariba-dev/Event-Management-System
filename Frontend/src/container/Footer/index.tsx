@@ -15,7 +15,7 @@ const Footer: React.FC = () => {
   return (
     <div className="bg-primary text-gray-300 font-light text-sm px-8 py-6 w-100% ">
       <div className="flex justify-between max-lg:flex-col">
-        <div className="w-100 mt-5">
+        <div className="w-100 max-lg:w-full mt-5">
           <h1 className="font-bold mb-3">
             Plan <span className="text-secondary">Vibes.</span>{" "}
           </h1>
@@ -54,12 +54,12 @@ const Footer: React.FC = () => {
             <FaPhoneAlt size={20}/>
             <p> (+237) 652-173-171</p>
           </div>
-          <Button title="Buy A Ticket" className="bg-secondary mt-3" />
+          <Button title="Buy A Ticket" className="bg-secondary mt-3" type="" />
         </div>
       </div>
       <hr className="mt-3"/>
       <div className="flex flex-col justify-center items-center mt-3">
-        <p>©Copyright 2025 | Plan Vibes - Events | All right reserved.</p>
+        <p>©Copyright 2025 | Plan Vibes - Events | All right reserved.</p>
       </div>
     </div>
   );

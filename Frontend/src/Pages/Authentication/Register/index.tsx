@@ -27,7 +27,7 @@ function Register() {
       const data = await response.json();
 
       localStorage.setItem("token", data.token);
-      window.location.href = "/dashboard";
+      window.location.href = "/Dashboard";
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -41,7 +41,7 @@ function Register() {
     <div className="p-20 w-full flex flex-cool items-center justify-center bg-gray-100">
       <div className="w-[50vw] flex items-center justify-center bg-white border-violet-500 border-3 p-4 rounded-md max-md:flex-col shadow-2xl mt-10 max-sm:flex-col-reverse">
         <form
-          action=""
+          onSubmit={(e) =>{e.preventDefault(); handleSubmite();}}
           method="post"
           className="w-full flex flex-col items-center justify-center gap-10 p-4 max-md:p-1"
         >
@@ -90,6 +90,7 @@ function Register() {
           <Button
             title="Register"
             onclick={handleSubmite}
+            type=""
             className="transition-transform duration-300 hover:scale-105"
           />
           <div className="w-full flex items-center justify-center space-x-4 max-sm:flex-col max-sm:items-center">
