@@ -35,10 +35,10 @@ const Events:React.FC<eventProps> = () => {
         <div className="absolute inset-0 bg-[url(/src/assets/images/EventHero.png)] bg-cover brightness-30 blur-xs"></div>
 
         <div className="relative flex flex-col items-center justify-center h-screen text-center">
-          <h1 className="text-primary font-bold text-8xl pb-10">
+          <h1 className="text-primary font-bold text-[7vw] pb-10">
             Discover <span className="text-secondary">Events</span>
           </h1>
-          <p className="text-gray-300 text-2xl max-w-3xl">
+          <p className="text-gray-300 text-[2vw] max-w-3xl">
             Explore thousands of events happening around you and connect with
             like-minded people
           </p>
@@ -94,7 +94,7 @@ const Events:React.FC<eventProps> = () => {
               <p className="text-gray-600 text-sm mt-1 line-clamp-2">
                 {event.description}
               </p>
-              <p className="text-red-500 mt-2 text-sm">
+              <p className="text-red-500 mt-2 text-sm">  
                 📍 {event.venue}
               </p>
               <p className="text-gray-800 font-medium mt-1">
