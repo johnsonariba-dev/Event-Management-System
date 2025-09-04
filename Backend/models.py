@@ -12,6 +12,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
     username = Column(String, index=True, nullable=False)
+    role = Column(String, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -36,9 +37,9 @@ class Event(Base):
     ticket_price = Column(Float, index=True)
     category = Column(String, index=True)
     image_url = Column(String)
-    
+
+    # capacity_max = Column(Integer, default=0)
     # status = Column(Boolean, default=True) # completed or not
-    # attendees_count = Column(Integer, default=0)
     # organizer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
 # Relations
@@ -70,6 +71,7 @@ class Review(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
     comment = Column(Text, index=True)
+    rating = Column(Integer)
 
 # Relations
     # user = relationship("User", back_populates="review")

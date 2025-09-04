@@ -3,16 +3,17 @@ interface ButtonProps {
   title: string;
   icon?: React.ReactNode;
   className?: string;
-  onclick?: () => void
+  onClick?: () => void;
+  type: string;
 }
 
-const Button: React.FC<ButtonProps> = ({ title, icon, className, onclick }) => {
+const Button: React.FC<ButtonProps> = ({ title, icon, className, onClick, type }) => {
   return (
     <button 
-      onClick={onclick}
+      onClick={onClick}
       className={`px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-colors duration-200 bg-primary text-white hover:bg-secondary ${className ?? ""}`}
     >
-      {title} {icon}
+      {title} {icon} {type}
     </button>
   );
 };

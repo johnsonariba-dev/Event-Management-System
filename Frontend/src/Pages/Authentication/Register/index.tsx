@@ -84,6 +84,7 @@ function Register() {
                   Remember Me
                 </label>
               </div>
+             
               <a
                 href="#"
                 className="text-sm px-2 text-secondary w-full flex justify-end transition-transform duration-300 hover:text-violet-500"
@@ -95,6 +96,7 @@ function Register() {
           <Button
             title="Register"
             onclick={handleSubmite}
+            type=""
             className="transition-transform duration-300 hover:scale-105"
           />
           <div className="w-full flex items-center justify-center space-x-4 max-sm:flex-col max-sm:items-center">

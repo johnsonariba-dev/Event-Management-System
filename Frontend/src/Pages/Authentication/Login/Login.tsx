@@ -32,8 +32,9 @@ function Login() {
     }
   };
 
+ 
   return (
-    <div className="p-20 w-full flex flex-cool items-center justify-center bg-gray-100">
+    <div className="p-20 w-full flex h-screen flex-cool items-center justify-center bg-gray-100">
       <div className="w-[50vw] flex items-center justify-center bg-white border-violet-500 border-3 p-4 rounded-md max-md:flex-col shadow-2xl mt-10 max-sm:flex-col-reverse">
         <form
           onSubmit={(e) => {
@@ -74,6 +75,7 @@ function Login() {
           </div>
           <Button
             title="Login"
+            type=""
             onclick={handleSubmite}
             className="transition-transform duration-300 hover:scale-105"
           />
