@@ -1,4 +1,4 @@
-import  {useState} from "react";
+import { useState } from "react";
 
 import Button from "../../../components/button";
 
@@ -14,19 +14,18 @@ function Register() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmite = async () =>{
-    try{
-      const response = await fetch(URL_API,{
+  const handleSubmite = async () => {
+    try {
+      const response = await fetch(URL_API, {
         method: "post",
-        headers: {"content-type": "application/json"},
-        body:JSON.stringify({username, email, password}),
-
-      })
-      if(!response.ok){
-        throw new Error("registration failed ")
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+      if (!response.ok) {
+        throw new Error("registration failed ");
       }
-      
-      const data = await response.json()
+
+      const data = await response.json();
 
       localStorage.setItem("access_token", data.access_token);
       window.location.href = "/";
@@ -39,9 +38,7 @@ function Register() {
         setError("❌ An unknown error occured")
       }
     }
-  }   
-
-
+  };
 
 
   return (
@@ -88,6 +85,7 @@ function Register() {
                   Remember Me
                 </label>
               </div>
+             
               <a
                 href="#"
                 className="text-sm px-2 text-secondary w-full flex justify-end transition-transform duration-300 hover:text-violet-500"
@@ -100,6 +98,7 @@ function Register() {
             title="Register"
             
             onclick={handleSubmite}
+            type=""
             className="transition-transform duration-300 hover:scale-105"
           />
           <div className="w-full flex items-center justify-center space-x-4 max-sm:flex-col max-sm:items-center">
@@ -119,4 +118,4 @@ function Register() {
   );
 }
 
-export default Register
+export default Register;
