@@ -40,7 +40,7 @@ for _ in range(30):
         venue=fake.address().replace("\n", ", "),
         ticket_price=random.choice([0, round(random.uniform(10, 100), 2)]),  # free or paid
         # date=(datetime.now() + timedelta(days=random.randint(1, 90))).strftime("%Y-%m-%d"),
-        # date=fake.future_datetime(end_date="+30d"),  # ✅ déjà un datetime
+        date=fake.future_datetime(end_date="+30d"),  # ✅ déjà un datetime
 
         image_url=random.choice(COVER_IMAGES),
     )

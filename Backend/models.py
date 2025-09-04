@@ -31,6 +31,7 @@ class Event(Base):
     title = Column(String, unique=True, index=True)
     description = Column(Text, index=True)
     # date = Column(DateTime, index=True)
+    date = Column(String, index=True)
     venue = Column(String, index=True)
     ticket_price = Column(Float, index=True)
     category = Column(String, index=True)

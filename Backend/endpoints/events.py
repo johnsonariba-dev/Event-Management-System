@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from pydantic import BaseModel
 from database import SessionLocal, get_db
-from datetime import date
+from datetime import  datetime
 import models
 
 
@@ -17,7 +17,7 @@ class EventSchema(BaseModel):
     category: str
     venue: str
     ticket_price: float
-    # date: date
+    date: str
     image_url: str
 
     class Config:

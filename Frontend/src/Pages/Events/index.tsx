@@ -9,7 +9,7 @@ interface eventProps{
   category: string;
   venue: string;
   ticket_price: number;
-  // date: string;
+  date: Date;
   image_url: string;
 
 }
