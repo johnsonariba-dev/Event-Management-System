@@ -1,12 +1,11 @@
-import  {useState} from "react";
+import { useState } from "react";
 
 import Button from "../../../components/button";
 
 import images from "../../../types/images";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const URL_API = "http://127.0.0.1:8000/user/register";
-
 
 function Register() {
   const [username, setName] = useState("");
@@ -14,41 +13,38 @@ function Register() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmite = async () =>{
-    try{
-      const response = await fetch(URL_API,{
+  const handleSubmite = async () => {
+    try {
+      const response = await fetch(URL_API, {
         method: "post",
-        headers: {"content-type": "application/json"},
-        body:JSON.stringify({username, email, password}),
-
-      })
-      if(!response.ok){
-        throw new Error("registration failed ")
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ username, email, password }),
+      });
+      if (!response.ok) {
+        throw new Error("registration failed ");
       }
-      
-      const data = await response.json()
+
+      const data = await response.json();
 
       localStorage.setItem("access_token", data.access_token);
       window.location.href = "/";
-    }
-    catch(err: unknown){
-      if(err instanceof Error){
+    } catch (err: unknown) {
+      if (err instanceof Error) {
         setError(err.message);
-      }
-      else{
-        setError("❌ An unknown error occured")
+      } else {
+        setError("❌ An unknown error occured");
       }
     }
-  }   
-
-
-
+  };
 
   return (
     <div className="p-20 w-full flex flex-cool items-center justify-center bg-gray-100">
       <div className="w-[50vw] flex items-center justify-center bg-white border-violet-500 border-3 p-4 rounded-md max-md:flex-col shadow-2xl mt-10 max-sm:flex-col-reverse">
         <form
-        onSubmit={(e) =>{e.preventDefault(); handleSubmite();}}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmite();
+          }}
           method="post"
           className="w-full flex flex-col items-center justify-center gap-10 p-4 max-md:p-1"
         >
@@ -56,7 +52,7 @@ function Register() {
             Create an account
           </h1>
           <div className="w-full px-4 flex flex-col gap-2">
-            {error && ( <p className="text-red-600"> {error} </p>)}
+            {error && <p className="text-red-600"> {error} </p>}
             <input
               type="text"
               placeholder="Name"
@@ -98,7 +94,6 @@ function Register() {
           </div>
           <Button
             title="Register"
-            
             onclick={handleSubmite}
             className="transition-transform duration-300 hover:scale-105"
           />
@@ -119,4 +114,4 @@ function Register() {
   );
 }
 
-export default Register
+export default Register;

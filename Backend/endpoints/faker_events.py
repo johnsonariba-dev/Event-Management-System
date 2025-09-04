@@ -1,33 +1,30 @@
 import random
 from datetime import datetime, timedelta
 from faker import Faker
-from database import SessionLocal, engine,Base
-from models import Event 
+from database import SessionLocal, engine, Base
+from models import Event
 
 fake = Faker()
 
 # # Categories for events
 CATEGORIES = ["music", "tech", "art", "business", "sports", "food"]
 
-# Some sample cover images (replace with your real ones later)
 COVER_IMAGES = [
-    "https://source.unsplash.com/800x600/?concert",
-    "https://source.unsplash.com/800x600/?art",
-    "https://source.unsplash.com/800x600/?conference",
-    "https://source.unsplash.com/800x600/?food",
-    "https://source.unsplash.com/800x600/?sports",
-    "https://source.unsplash.com/800x600/?technology",
+    "https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2",
+    "https://images.unsplash.com/photo-1529101091764-c3526daf38fe",
+    "https://images.unsplash.com/photo-1551836022-d5d88e9218df",
+    "https://images.unsplash.com/photo-1551218808-94e220e084d2",
+    "https://images.unsplash.com/photo-1517649763962-0c623066013b",
+    "https://images.unsplash.com/photo-1504384308090-c894fdcc538d",
 ]
 
-# Create tables if not exist
 Base.metadata.create_all(bind=engine)
 
-# Open session
 db = SessionLocal()
 
 # Clear old data
-# db.query(Event).delete()
-# db.commit()
+db.query(Event).delete()
+db.commit()
 
 events = []
 
@@ -38,7 +35,8 @@ for _ in range(30):
         description=fake.text(max_nb_chars=150),
         category=random.choice(CATEGORIES),
         venue=fake.address().replace("\n", ", "),
-        ticket_price=random.choice([0, round(random.uniform(10, 100), 2)]),  # free or paid
+        ticket_price=random.choice(
+            [0, round(random.uniform(10, 100), 2)]),  # free or paid
         # date=(datetime.now() + timedelta(days=random.randint(1, 90))).strftime("%Y-%m-%d"),
         date=fake.future_datetime(end_date="+30d"),  # ✅ déjà un datetime
 
@@ -51,11 +49,6 @@ db.commit()
 db.close()
 
 print("✅ Seeded 30 fake events into Planvibes.db")
-
-
-
-
-
 
 
 # import sqlite3
