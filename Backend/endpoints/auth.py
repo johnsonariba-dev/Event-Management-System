@@ -62,3 +62,25 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise credentials_expression
     
     return user
+
+def get_current_organizer(
+        current_user: models.User = Depends(get_current_user) ) -> models.User:
+    
+    # check if the user is the organizer
+    if current_user.role not in ["organizer","admin"]:
+        raise HTTPException(
+            status_code = status.HTTP_403_FORBIDDEN,
+            detail = "Access reserved for organizers"
+        )
+    return current_user
+
+async def get_current_admin(
+    current_user: models.User = Depends(get_current_user)
+) -> models.User:
+    # check if the user is the admin
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail = "Access reserved for admins"
+        )
+    return current_user
