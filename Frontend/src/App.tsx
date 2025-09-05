@@ -6,7 +6,7 @@ import Events from "./Pages/Events";
 import About from "./Pages/About";
 import Register from "./Pages/Authentication/Register";
 import Login from "./Pages/Authentication/Login/Login";
-
+import CreateEvent from "./Pages/CreateEvents";
 
 const NavBarItems = [
   {
@@ -21,25 +21,26 @@ const NavBarItems = [
     title: "Events",
     path: "/events",
   },
-  
 ];
-
 
 function App() {
   const location = useLocation();
-  const hidefooter = ['/login', '/register']
-  const showfooter = !hidefooter.includes(location.pathname)
+  const hidefooter = ["/login", "/register", "/CreateEvent"];
+  const hideNavbar = ["/CreateEvent"];
+  const showfooter = !hidefooter.includes(location.pathname);
+  const showNavbar = !hideNavbar.includes(location.pathname);
   return (
     <div>
-        <NavBar items={NavBarItems} />
-        <Routes>
-          <Route path="/" element={<Home />}></Route>
-          <Route path="/about" element={<About />}></Route>
-          <Route path="/events" element={<Events />}></Route>
-          <Route path = "/login" element={<Login/>}></Route>
-          <Route path = "/register" element={<Register/>}></Route>
-        </Routes>
-        {showfooter && (<Footer/>)}
+      {showNavbar && <NavBar items={NavBarItems} />}
+      <Routes>
+        <Route path="/" element={<Home />}></Route>
+        <Route path="/about" element={<About />}></Route>
+        <Route path="/events" element={<Events />}></Route>
+        <Route path="/login" element={<Login />}></Route>
+        <Route path="/register" element={<Register />}></Route>
+        <Route path="/CreateEvent" element={<CreateEvent />}></Route>
+      </Routes>
+      {showfooter && <Footer />}
     </div>
   );
 }
