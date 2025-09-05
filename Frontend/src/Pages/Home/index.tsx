@@ -228,7 +228,7 @@ function Home() {
                   </h1>
                 </div>
                 <div
-                  className="absolute bottom-0 left-0 inset-0 transform translate-y-full group-hover:translate-y-0 rounded-t-2xl w-full bg-black/70 transition-all duration-500
+                  className="absolute bottom-0 left-0 inset-0 transform translate-y-full group-hover:translate-y-0 rounded-t-2xl w-full bg-gradient-to-t from-black/70 to-transparent transition-all duration-500
                  flex flex-col justify-end text-white p-4"
                 >
                   <h1 className="font-bold py-4 px-1 text-2xl">
