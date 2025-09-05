@@ -62,14 +62,14 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
       <div>
         <div
           onClick={toggleMenu}
-          className="hidden max-lg:block absolute top-8 right-12 cursor-pointer"
+          className="hidden max-lg:block absolute top-8 right-12 cursor-pointer fixed z-1 "
         >
-          {isOpen ? <FiX /> : <FiMenu />}
+          {isOpen ? <FiX size={24} /> : <FiMenu size={24} />}
         </div>
 
         {isOpen && (
-          <div className="hidden max-lg:block flex flex-col gap-2 items-center bg-purple-100 p-5 w-60 absolute right-0 rounded-lg shadow-lg">
-            <ul className="flex flex-col gap-2 text-xl">
+          <div className="hidden max-lg:block flex flex-col gap-2 items-center bg-purple-50 transparent p-5 fixed absolute w-full right-0 rounded-lg shadow-lg">
+            <ul className="flex flex-col gap-2 text-xl items-center pt-10">
               {items.map((item) => (
                 <li key={item.path}>
                   <NavLink
@@ -85,15 +85,18 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
                 </li>
               ))}
             </ul>
+            <div className="flex flex-col items-center justify-center">
             <NavLink to="/CreateEvent">
-              <Button title="Create Event" icon={<FaPlus />} className="my-4" />
+              <Button title="Create Event" icon={<FaPlus />} className="mt-6 px-10" />
             </NavLink>
             <NavLink to="/Login">
-              <Button title="Login" />
+              <Button title="Login" className="my-3 px-20"
+               />
             </NavLink>
             <NavLink to="/Register">
-              <Button title="Register" />
+              <Button title="Register" className="px-18"/>
             </NavLink>
+            </div>
           </div>
         )}
       </div>
