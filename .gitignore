@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.log
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# SQLite database
+*.db
+*.sqlite3
+
+# Recommender system artifacts
+*.pkl
+*.h5
+*.pt
+*.onnx
+*.npy
+*.npz
+*.model
+
+# Environment variables
+.env
+*.env
+
+# Frontend (React/Vite/Next)
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+*.lock
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.sublime-project
+*.sublime-workspace
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Git conflict leftovers
+*.orig
+*.rej
