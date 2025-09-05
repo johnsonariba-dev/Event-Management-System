@@ -3,7 +3,7 @@ import images from "../../../types/images";
 import Button from "../../../components/button";
 import { Link } from "react-router-dom";
 
-const URL_API = "http://127.0.0.1:8000/user/login";
+const URL_API = "";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -27,7 +27,7 @@ function Login() {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("An unknown error occured");
+        setError("An unknow error occured");
       }
     }
   };
