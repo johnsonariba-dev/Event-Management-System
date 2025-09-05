@@ -4,6 +4,15 @@ import Button from "../../components/button";
 import { FaLocationDot } from "react-icons/fa6";
 import { NavLink } from "react-router-dom";
 
+interface Review {
+  
+  user: string;
+  comment: string;
+  rating?: number; // optional if you have star ratings
+}
+
+
+
 interface EventProps {
   id: number;
   title: string;
@@ -13,6 +22,7 @@ interface EventProps {
   ticket_price: number;
   date: string;
   image_url: string;
+  review?: Review[];
 }
 
 const Events: React.FC = () => {
@@ -135,7 +145,7 @@ const Events: React.FC = () => {
                   {event.ticket_price === 0 ? "Free" : event.ticket_price}
                 </p>
                 <div className="flex justify-end">
-                  <NavLink to={"/EventDetail"}>
+                  <NavLink to={`/event/${event.id}`}>
                     <Button
                       title="View Details"
                       className="bg-secondary hover:bg-primary text-white px-4 py-2 rounded-lg"
