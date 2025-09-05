@@ -140,7 +140,7 @@ useEffect(() => {
         </p>
       </div>
       <div className="w-full flex max-md:flex-col p-8 gap-10 max-sm:p-2 items-center justify-center">
-        <div className="w-md max-md:w-[90vw] border border-secondary rounded-tl-4xl rounded-br-4xl shadow-xl">
+        <div className="w-md max-md:w-[50vw] border border-secondary rounded-tl-4xl rounded-br-4xl shadow-xl">
           <img
             src="/src/assets/images/Group 24.png"
             alt=""
@@ -155,15 +155,17 @@ useEffect(() => {
             <p className="pb-2 font-light">March 15, 2026 at 2:00 PM</p>
             <p className="pb-2 font-light">Maison Du Parti Bonanjo, Douala</p>
             <div className="flex justify-end ">
-              <Button
-                title="View Details"
-                type=""
-                className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105"
-              />
+              <Link to="/EventDetails">
+                <Button
+                  title="View Details"
+                  type=""
+                  className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105"
+                />
+              </Link>
             </div>
           </div>
         </div>
-        <div className="w-md max-md:w-[90vw] border border-secondary  rounded-tl-4xl rounded-br-4xl shadow-xl object-cover">
+        <div className="w-md max-md:w-[50vw] border border-secondary  rounded-tl-4xl rounded-br-4xl shadow-xl object-cover">
           <img
             src="/src/assets/images/GES-2 Msc 1.png"
             alt=""
@@ -178,11 +180,13 @@ useEffect(() => {
             <p className="pb-2 font-light">March 15, 2026 at 2:00 PM</p>
             <p className="pb-2 font-light">Maison Du Parti Bonanjo, Douala</p>
             <div className="flex justify-end ">
-              <Button
-                title="View Details"
-                type=""
-                className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105"
-              />
+              <Link to="/EventDetails">
+                <Button
+                  title="View Details"
+                  type=""
+                  className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105"
+                />
+              </Link>
             </div>
           </div>
         </div>
@@ -204,7 +208,7 @@ useEffect(() => {
             {cards.map((card, index) => (
               <div
                 key={index}
-                className="w-xs max-md:w-[90vw] flex-shrink-0 rounded-2xl border border-secondary shadow-lg"
+                className="w-xs max-md:w-[50vw] flex-shrink-0 rounded-2xl border border-secondary shadow-lg"
               >
                 <img
                   src={card.imge}
@@ -215,11 +219,13 @@ useEffect(() => {
                 <p className="px-4  line-clamp-2">{card.desc} </p>
                 <p className="font-light px-4 py-4"> {card.location} </p>
                 <div className="w-full flex justify-end p-2 ">
-                  <Button
-                    title="View Details"
-                    type=""
-                    className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105"
-                  />
+                  <Link to="/EventDetails">
+                    <Button
+                      title="View Details"
+                      type=""
+                      className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105"
+                    />
+                  </Link>
                 </div>
               </div>
             ))}
@@ -242,23 +248,23 @@ useEffect(() => {
         </div>
       </div>
       <div className="w-full flex items-center justify-center py-20">
-        <div className="w-full flex max-md:flex-col items-center justify-evenly p-4 max-md:gap-10 max-lg:gap-5">
+        <div className="w-full flex flex-wrap items-center justify-center gap-10">
           <div className="w-50 max-md:w-40 max-lg:p-4 rounded-2xl bg-gray-100 flex flex-col items-center justify-center">
             <HiCalendar className="text-9xl text-primary " />
             <p className="text-[3vw] text-primary">10,000+</p>
             <p className="p-2 text-primary">Event Created</p>
           </div>
-          <div className="w-50 max-lg:w-40 max-lg:p-4 rounded-2xl bg-gray-100 flex flex-col items-center justify-center">
+          <div className="w-50 max-lg:p-4 rounded-2xl bg-gray-100 flex flex-col items-center justify-center">
             <HiUserGroup className="text-9xl text-primary " />
             <p className="text-[2.5vw] text-primary ">250,000+</p>
             <p className="text-primary p-2 max-lg:text-sm">Happy Attendees</p>
           </div>
-          <div className="w-50 max-lg:w-40 max-lg:p-4 rounded-2xl bg-gray-100 flex flex-col items-center justify-center">
+          <div className="w-50  max-lg:p-4 rounded-2xl bg-gray-100 flex flex-col items-center justify-center">
             <FaChartLine className="text-9xl text-primary " />
             <p className="text-[3vw] text-primary">1,500+</p>
             <p className="text-primary p-2">Organization</p>
           </div>
-          <div className="w-50 max-lg:w-40 max-lg:p-4 rounded-2xl bg-gray-100 flex flex-col items-center justify-center">
+          <div className="w-50  max-lg:p-4 rounded-2xl bg-gray-100 flex flex-col items-center justify-center">
             <HiOutlineStar className="text-9xl text-primary " />
             <p className="text-[3vw] text-primary">98%</p>
             <p className="text-primary p-2">Event Created</p>

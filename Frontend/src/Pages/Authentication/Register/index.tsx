@@ -3,13 +3,12 @@ import { useState } from "react";
 import Button from "../../../components/button";
 
 import images from "../../../types/images";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-const URL_API = "http://127.0.0.1:8000/user/register";
-
+const URL_API = "";
 
 function Register() {
-  const [username, setName] = useState("");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -27,25 +26,22 @@ function Register() {
 
       const data = await response.json();
 
-      localStorage.setItem("access_token", data.access_token);
-      window.location.href = "/";
-    }
-    catch(err: unknown){
-      if(err instanceof Error){
+      localStorage.setItem("token", data.token);
+      window.location.href = "/Dashboard";
+    } catch (err: unknown) {
+      if (err instanceof Error) {
         setError(err.message);
-      }
-      else{
-        setError("❌ An unknown error occured")
+      } else {
+        setError("An unknown error occured");
       }
     }
   };
-
 
   return (
     <div className="p-20 w-full flex flex-cool items-center justify-center bg-gray-100">
       <div className="w-[50vw] flex items-center justify-center bg-white border-violet-500 border-3 p-4 rounded-md max-md:flex-col shadow-2xl mt-10 max-sm:flex-col-reverse">
         <form
-        onSubmit={(e) =>{e.preventDefault(); handleSubmite();}}
+          onSubmit={(e) =>{e.preventDefault(); handleSubmite();}}
           method="post"
           className="w-full flex flex-col items-center justify-center gap-10 p-4 max-md:p-1"
         >
@@ -53,12 +49,13 @@ function Register() {
             Create an account
           </h1>
           <div className="w-full px-4 flex flex-col gap-2">
-            {error && ( <p className="text-red-600"> {error} </p>)}
+            {error && <p> {error} </p>}
             <input
               type="text"
               placeholder="Name"
               onChange={(e) => setName(e.target.value)}
-              value={username}
+              value={name}
+              id=""
               className="w-full border-2 border-violet-500 rounded-sm outline-none p-2  transition-transform duration-300 hover:scale-105"
             />
             <input
@@ -79,6 +76,8 @@ function Register() {
               <div className="flex items-center w-full">
                 <input
                   type="checkbox"
+                  name=""
+                  id=""
                   className="transition-transform duration-300 hover:scale-105"
                 />
                 <label htmlFor="chekbox" className="text-sm px-2 ">
@@ -86,17 +85,10 @@ function Register() {
                 </label>
               </div>
              
-              <a
-                href="#"
-                className="text-sm px-2 text-secondary w-full flex justify-end transition-transform duration-300 hover:text-violet-500"
-              >
-                Forgot Password?
-              </a>{" "}
             </div>
           </div>
           <Button
             title="Register"
-            
             onclick={handleSubmite}
             type=""
             className="transition-transform duration-300 hover:scale-105"
