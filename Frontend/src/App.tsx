@@ -7,6 +7,7 @@ import About from "./Pages/About";
 import Register from "./Pages/Authentication/Register";
 import Login from "./Pages/Authentication/Login/Login";
 import CreateEvent from "./Pages/CreateEvents";
+import EventDetails from "./Pages/EventDetails/EventDetails";
 
 const NavBarItems = [
   {
@@ -39,6 +40,7 @@ function App() {
         <Route path="/login" element={<Login />}></Route>
         <Route path="/register" element={<Register />}></Route>
         <Route path="/CreateEvent" element={<CreateEvent />}></Route>
+        <Route path="/Event/:id" element={<EventDetails />}></Route>
       </Routes>
       {showfooter && <Footer />}
     </div>

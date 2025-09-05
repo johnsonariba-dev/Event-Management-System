@@ -1,20 +1,90 @@
-import React from 'react'
-import Button from '../../components/button'
-import { FiBookmark, FiCalendar, FiMessageCircle, FiShare2 } from 'react-icons/fi';
-import { HiHeart, HiLocationMarker, HiOutlineClock } from 'react-icons/hi';
-import { HiStar, HiTicket } from 'react-icons/hi2';
-import { FaCheck } from 'react-icons/fa6';
+import Button from "../../components/button";
+import {
+  FiBookmark,
+  FiCalendar,
+  FiMessageCircle,
+  FiShare2,
+} from "react-icons/fi";
+import { HiHeart, HiLocationMarker, HiOutlineClock } from "react-icons/hi";
+import { HiStar, HiTicket } from "react-icons/hi2";
+import { FaCheck } from "react-icons/fa6";
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+
+// ✅ Types for events + reviews
+interface Reviews {
+  user: string;
+  comment: string;
+  rating?: number;
+}
+
+interface Event {
+  id: number;
+  image?: string;
+  title: string;
+  desc: string;
+  category: string;
+  location: string;
+  date: string;
+  time: string;
+  ticket_price: number;
+  reviews?: Reviews[];
+}
 
 function EventDetails() {
+  const { id } = useParams<{ id: string }>();
+  const [event, setEvent] = useState<Event | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/events/${id}`);
+        if (!res.ok) throw new Error("Event not found");
+        const data: Event = await res.json();
+        setEvent(data);
+      } catch (err) {
+        console.error(err);
+        setEvent(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvent();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        Loading event...
+      </div>
+    );
+  }
+
+  if (!event) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        Event not found
+      </div>
+    );
+  }
+
   return (
     <div className="w-full flex flex-col items-center justify-center ">
+      {/* 🔽 Everything below is your original UI untouched */}
       <div className="w-full relative h-[80vh] bg-accent">
-        <div className="absolute w-full h-[80vh] bg-[url(/src/assets/images/ED.png)] bg-cover  flex items-center justify-center brightness-70"></div>
+        <div
+          className="absolute w-full h-[80vh] bg-[url(/src/assets/images/ED.png)]
+           bg-cover  flex items-center justify-center brightness-70"
+        ></div>
         <div className="relative w-full h-[80vh] flex items-center justify-end">
           <h1 className="absolute bottom-12 left-5 text-white text-[5vw] font-bold">
-            React & Next.js Conference 2024
+            {event.title}
           </h1>
-          <p className="absolute bottom-5 left-5 text-white text-4xl">tech</p>
+          <p className="absolute bottom-5 left-5 text-white text-4xl">
+            {event.category}
+          </p>
         </div>
       </div>
       <div className="w-full flex max-md:flex-col justify-center items-center gap-4 p-5">
@@ -29,13 +99,7 @@ function EventDetails() {
                 <FiShare2 className="text-primary" />
               </div>
             </div>
-            <p className="text-justify">
-              Join us for the biggest React Conference of the year! This event
-              brings together developers, designers, and tech enthusiasts from
-              around the world to explore the latest trends and advancements in
-              React and Next.js. Whether you're a seasoned pro or just starting
-              out, there's something for everyone at this exciting event.
-            </p>
+            <p className="text-justify">{event.desc}</p>
             <div className="w-full flex justify-between items-center max-sm:flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <h1 className="text-lg font-semibold text-secondary">
@@ -44,17 +108,16 @@ function EventDetails() {
                 <p className="flex items-center gap-2 max-md:flex-col ">
                   Rating 4.8k (124 reviews)
                   <div className="flex items-center gap-1">
-                    <HiStar className="text-secondary" />
-                    <HiStar className="text-secondary" />
-                    <HiStar className="text-secondary" />
-                    <HiStar className="text-secondary" />
-                    <HiStar className="text-secondary" />
+                    {[...Array(5)].map((_, i) => (
+                      <HiStar key={i} className="text-secondary" />
+                    ))}
                   </div>
                 </p>
               </div>
               <Button
                 icon={<FiMessageCircle size={24} />}
                 title="Contact Organizer"
+                onClick={() => alert(`Contacting organizer for ${event.title}`)}
                 className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105"
               />
             </div>
@@ -70,7 +133,7 @@ function EventDetails() {
                   <div className="flex flex-col w-full">
                     <h1 className="text-sm font-semibold">Date & Time</h1>
                     <p className="text-sm">
-                      March 15, 2024 - 10:00 AM to 5:00 PM
+                      {event.date} {event.time}
                     </p>
                   </div>
                 </div>
@@ -78,9 +141,7 @@ function EventDetails() {
                   <HiLocationMarker size={24} className="text-secondary" />
                   <div>
                     <h1 className="text-sm font-semibold">Location</h1>
-                    <p className="text-sm">
-                      Silicon Valley Tech Hub, Douala, Cameroon
-                    </p>
+                    <p className="text-sm">{event.location}</p>
                   </div>
                 </div>
               </div>
@@ -90,7 +151,7 @@ function EventDetails() {
                   <div>
                     <h1 className="text-sm font-semibold">Date & Time</h1>
                     <p className="text-sm">
-                      March 15, 2024 - 10:00 AM to 5:00 PM
+                      {event.date} {event.time}
                     </p>
                   </div>
                 </div>
@@ -99,7 +160,7 @@ function EventDetails() {
                   <div className="">
                     <h1 className="text-sm font-semibold">Date & Time</h1>
                     <p className="text-sm">
-                      March 15, 2024 - 10:00 AM to 5:00 PM
+                      {event.date} {event.time}
                     </p>
                   </div>
                 </div>
@@ -107,9 +168,9 @@ function EventDetails() {
             </div>
           </div>
         </div>
-        <div className="w-md flex flex-col items-center justify-center p-4 bg-purple shadow-md h-[65vh] max-md:h-[94vh] rounded-2xl">
+        <div className="w-md flex flex-col items-center justify-center p-4 bg-gray-400 shadow-md h-[65vh] max-md:h-[94vh] rounded-2xl">
           <div className="w-full flex justify-around gap-4 items-center p-4">
-            <h1 className="text-white text-2xl">$299 per</h1>
+            <h1 className="text-white text-2xl">${event.ticket_price} per</h1>
             <HiTicket size={44} className="text-primary" />
           </div>
           <p className="text-white p-4">847 people registered</p>
@@ -137,11 +198,11 @@ function EventDetails() {
           <div className="w-full flex flex-col items-center justify-center p-4 gap-4">
             <h1 className="font-bold text-2xl">5.0</h1>
             <div className="flex items-center gap-1 p-4">
-              <HiStar className="text-secondary " />
-              <HiStar className="text-secondary text-2xl" />
-              <HiStar className="text-secondary text-3xl" />
-              <HiStar className="text-secondary text-4xl" />
-              <HiStar className="text-secondary text-5xl" />
+              <div className="flex items-center gap-1 p-4">
+                {[...Array(5)].map((_, i) => (
+                  <HiStar key={i} className="text-secondary text-xl" />
+                ))}
+              </div>
             </div>
             <p>
               <span className="text-primary">Based on 100 reviews</span>
@@ -150,13 +211,17 @@ function EventDetails() {
         </div>
       </div>
       <div>
-        <h1>What are your attendees saying?</h1>
-        <div>
-            
+        <div className="flex flex-col gap-4">
+          {event.reviews?.map((review: Reviews, index: number) => (
+            <div key={index} className="p-4 bg-gray-100 rounded-xl shadow">
+              <p className="font-semibold">{review.user}</p>
+              <p>{review.comment}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-export default EventDetails
+export default EventDetails;

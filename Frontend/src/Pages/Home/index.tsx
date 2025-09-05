@@ -1,93 +1,118 @@
-import React, {useRef, useState, useEffect} from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react"; // nice icons
 import { Link } from "react-router-dom";
-import { HiArrowRight, HiCalendar, HiOutlineStar, HiUserGroup } from "react-icons/hi";
+import {
+  HiArrowRight,
+  HiCalendar,
+  HiOutlineStar,
+  HiUserGroup,
+} from "react-icons/hi";
 import Button from "../../components/button";
 import { FaChartLine } from "react-icons/fa6";
 
-const cards = [
+type City = {
+  id: number;
+  title: string;
+  image: string;
+  country?: string;
+  date: string;
+  location: string;
+};
+
+const cities: City[] = [
   {
-    imge: "/src/assets/images/GES-2 Msc 1.png",
-    title: "Appstech Music Festival",
-    desc: "Join us for the biggest Music Festival in Cameroon, Come and meet new people, party with your friends and participate t...",
-    date: "March 15, 2026 at 2:00 PM",
-    location: "Maison Du Parti Bonanjo, Douala",
+    id: 1,
+    title: "Paris",
+    image: "/images/paris.jpg",
+    country: "France",
+    date: "2023-10-12",
+    location: "Paris, France",
   },
   {
-    imge: "/src/assets/images/GES-2 Msc 1.png",
-    title: "Appstech Music Festival",
-    desc: "Join us for the biggest Music Festival in Cameroon, Come and meet new people, party with your friends and participate t...",
-    date: "March 15, 2026 at 2:00 PM",
-    location: "Maison Du Parti Bonanjo, Douala",
+    id: 2,
+    title: "New York",
+    image: "/images/newyork.jpg",
+    country: "USA",
+    date: "2023-10-12",
+    location: "New York, USA",
   },
   {
-    imge: "/src/assets/images/GES-2 Msc 1.png",
-    title: "Appstech Music Festival",
-    desc: "Join us for the biggest Music Festival in Cameroon, Come and meet new people, party with your friends and participate t...",
-    date: "March 15, 2026 at 2:00 PM",
-    location: "Maison Du Parti Bonanjo, Douala",
+    id: 3,
+    title: "Tokyo",
+    image: "/images/tokyo.jpg",
+    country: "Japan",
+    date: "2023-10-14",
+    location: "Tokyo, Japan",
   },
   {
-    imge: "/src/assets/images/GES-2 Msc 1.png",
-    title: "Appstech Music Festival",
-    desc: "Join us for the biggest Music Festival in Cameroon, Come and meet new people, party with your friends and participate t...",
-    date: "March 15, 2026 at 2:00 PM",
-    location: "Maison Du Parti Bonanjo, Douala",
-  },
-  {
-    imge: "/src/assets/images/GES-2 Msc 1.png",
-    title: "Appstech Music Festival",
-    desc: "Join us for the biggest Music Festival in Cameroon, Come and meet new people, party with your friends and participate t...",
-    date: "March 15, 2026 at 2:00 PM",
-    location: "Maison Du Parti Bonanjo, Douala",
+    id: 4,
+    title: "London",
+    image: "/images/london.jpg",
+    country: "UK",
+    date: "2023-10-10",
+    location: "London, UK",
   },
 ];
 
-
-
 function Home() {
- const scrollRef = useRef<HTMLDivElement>(null);
- const [isHovered, setIsHovered] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  // const [events, setEvents] = useState<Event[]>([]);
+  // const [isLoading, setIsLoading] = useState(true);
 
-useEffect(() => {
-  const scrollContainer = scrollRef.current;
-  if (!scrollContainer) return;
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
 
-  // Duplicate the content for seamless loop
-  const content = scrollContainer.innerHTML;
-  scrollContainer.innerHTML += content;
+    // Duplicate the content for seamless loop
+    const content = scrollContainer.innerHTML;
+    scrollContainer.innerHTML += content;
 
-  let animationFrameId: number;
+    let animationFrameId: number;
 
-  const scrollStep = () => {
-    if (!isHovered) {
-      // Only scroll when NOT hovered
-      scrollContainer.scrollLeft += 1; // Scroll speed
-      if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth / 2) {
-        scrollContainer.scrollLeft = 0; // Loop
+    const scrollStep = () => {
+      if (!isHovered) {
+        // Only scroll when NOT hovered
+        scrollContainer.scrollLeft += 1; // Scroll speed
+        if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth / 2) {
+          scrollContainer.scrollLeft = 0; // Loop
+        }
       }
-    }
+
+      animationFrameId = requestAnimationFrame(scrollStep);
+    };
 
     animationFrameId = requestAnimationFrame(scrollStep);
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isHovered]);
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const scrollAmount = 300;
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
   };
 
-  animationFrameId = requestAnimationFrame(scrollStep);
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/events"); // replace with your API
+        if (!res.ok) throw new Error("Failed to fetch events");
+        // const data: Event[] = await res.json();
+        // setEvents(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        // setIsLoading(false);
+      }
+    };
 
-  return () => cancelAnimationFrame(animationFrameId);
-}, [isHovered]);
-
-
-
- const scroll = (direction: "left" | "right") => {
- if (scrollRef.current){
-  const scrollAmount = 300;
-  scrollRef.current.scrollBy({
-    left: direction === "left"? -scrollAmount : scrollAmount,
-    behavior: "smooth",
-  });
- }
- };
-
+    fetchEvents();
+  }, []);
 
   return (
     <div className="w-full flex flex-col items-center justify-center">
@@ -140,55 +165,37 @@ useEffect(() => {
         </p>
       </div>
       <div className="w-full flex max-md:flex-col p-8 gap-10 max-sm:p-2 items-center justify-center">
-        <div className="w-md max-md:w-[50vw] border border-secondary rounded-tl-4xl rounded-br-4xl shadow-xl">
-          <img
-            src="/src/assets/images/Group 24.png"
-            alt=""
-            className="w-md rounded-tl-4xl"
-          />
-          <div className="p-2">
-            <h1 className="font-bold py-4 text-lg">Appstech Music Festival</h1>
-            <p className="pb-4">
-              Join us for the biggest Music Festival in Cameroon, Come and meet
-              new people, party with your friends and participate t...
-            </p>
-            <p className="pb-2 font-light">March 15, 2026 at 2:00 PM</p>
-            <p className="pb-2 font-light">Maison Du Parti Bonanjo, Douala</p>
-            <div className="flex justify-end ">
-              <Link to="/EventDetails">
-                <Button
-                  title="View Details"
-                  type=""
-                  className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105"
+        <div className="w-full flex max-md:flex-col p-8 gap-10 max-sm:p-2 items-center justify-center">
+          {/* {isLoading ? (
+            <div>Loading events...</div>
+          ) : (
+            events.slice(0, 2).map((event) => (
+              <div
+                key={event.id}
+                className="w-[400px] md:w-[450px] lg:w-[500px] border border-secondary rounded-tl-4xl rounded-br-4xl shadow-xl flex flex-col"
+              >
+                <img
+                  src={event.image}
+                  alt={event.name}
+                  className="w-full h-[250px] md:h-[300px] lg:h-[350px] object-cover rounded-tl-4xl"
                 />
-              </Link>
-            </div>
-          </div>
-        </div>
-        <div className="w-md max-md:w-[50vw] border border-secondary  rounded-tl-4xl rounded-br-4xl shadow-xl object-cover">
-          <img
-            src="/src/assets/images/GES-2 Msc 1.png"
-            alt=""
-            className="w-md rounded-tl-4xl"
-          />
-          <div className="p-2">
-            <h1 className="font-bold py-4 text-lg">Appstech Music Festival</h1>
-            <p className="pb-4">
-              Join us for the biggest Music Festival in Cameroon, Come and meet
-              new people, party with your friends and participate t...
-            </p>
-            <p className="pb-2 font-light">March 15, 2026 at 2:00 PM</p>
-            <p className="pb-2 font-light">Maison Du Parti Bonanjo, Douala</p>
-            <div className="flex justify-end ">
-              <Link to="/EventDetails">
-                <Button
-                  title="View Details"
-                  type=""
-                  className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105"
-                />
-              </Link>
-            </div>
-          </div>
+                <div className="p-4 flex flex-col flex-1">
+                  <h1 className="font-bold py-2 text-lg">{event.name}</h1>
+                  <p className="pb-2 text-sm md:text-base">{event.country}</p>
+                  <p className="pb-1 font-light">{event.date}</p>
+                  <p className="pb-2 font-light">{event.location}</p>
+                  <div className="flex justify-end mt-auto">
+                    <Link to={`/Event/${event.id}`}>
+                      <Button
+                        title="View Details"
+                        className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105"
+                      />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))
+          )} */}
         </div>
       </div>
       <div className="w-full flex flex-col items-center justify-center p-2 py-10">
@@ -205,27 +212,42 @@ useEffect(() => {
             onMouseLeave={() => setIsHovered(false)}
             className=" w-full  flex space-x-8 overflow-x-auto hide-scrollbar scrollbar-hide  p-2 py-8"
           >
-            {cards.map((card, index) => (
+            {cities.map((city, index) => (
               <div
                 key={index}
-                className="w-xs max-md:w-[50vw] flex-shrink-0 rounded-2xl border border-secondary shadow-lg"
+                className="w-xs relative max-md:w-[50vw] h-[50vh] flex-shrink-0 rounded-2xl border border-secondary shadow-lg"
               >
                 <img
-                  src={card.imge}
+                  src={city.image}
                   alt=""
-                  className="w-md rounded-t-2xl-2xl "
+                  className="w-full h-full object-cover rounded-t-2xl absolute "
                 />
-                <h1 className="font-bold py-4 px-1 text-2xl ">{card.title} </h1>
-                <p className="px-4  line-clamp-2">{card.desc} </p>
-                <p className="font-light px-4 py-4"> {card.location} </p>
-                <div className="w-full flex justify-end p-2 ">
-                  <Link to="/EventDetails">
-                    <Button
-                      title="View Details"
-                      type=""
-                      className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105"
-                    />
-                  </Link>
+                <div className="absolute bottom-0 left-0 inset-0 bg-gradient-to-t from-black/70 to-transparent rounded-t-2xl text-secondary p-4 flex flex-col justify-end">
+                  <h1 className="font-bold py-4 px-1 text-2xl">
+                    {city.title}{" "}
+                  </h1>
+                </div>
+                <div
+                  className="absolute bottom-0 left-0 inset-0 transform translate-y-full group-hover:translate-y-0 rounded-t-2xl w-full bg-gradient-to-t from-black/70 to-transparent transition-all duration-500
+                 flex flex-col justify-end text-white p-4"
+                >
+                  <h1 className="font-bold py-4 px-1 text-2xl">
+                    {city.title}{" "}
+                  </h1>
+                  <p className="font-light px-4"> {city.date} </p>
+                  <p className="font-light px-4 py-4 group">
+                    {" "}
+                    {city.location}{" "}
+                  </p>
+                  <div className="w-full flex justify-end p-2 ">
+                    <Link to={`/Event/${city.id}`}>
+                      <Button
+                        title="View Details"
+                        type=""
+                        className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105"
+                      />
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
