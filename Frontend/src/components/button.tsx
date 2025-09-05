@@ -4,7 +4,7 @@ interface ButtonProps {
   icon?: React.ReactNode;
   className?: string;
   onClick?: () => void;
-  type: string;
+  type?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({ title, icon, className, onClick, type }) => {
