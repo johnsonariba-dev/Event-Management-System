@@ -5,13 +5,10 @@ import { FaLocationDot } from "react-icons/fa6";
 import { NavLink } from "react-router-dom";
 
 interface Review {
-  
   user: string;
   comment: string;
   rating?: number; // optional if you have star ratings
 }
-
-
 
 interface EventProps {
   id: number;
@@ -44,14 +41,14 @@ const Events: React.FC = () => {
   return (
     <div className="bg-accent">
       {/* Hero Section */}
-      <div className="relative h-screen flex flex-col items-center justify-center text-center">
-        <div className="absolute inset-0 bg-[url(/src/assets/images/EventHero.png)] bg-cover brightness-50"></div>
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="relative ">
-          <h1 className="text-primary font-bold text-[7vw] pb-10">
+      <div className="relative h-120 flex flex-col mx-6">
+        <div className="absolute inset-0 bg-[url(/src/assets/images/carnaval.jpeg)] bg-contain brightness-80 rounded-2xl mt-25"></div>
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-black to-gray-100/10 mt-25"></div>
+        <div className="relative top-64 pl-5">
+          <h1 className="text-primary font-bold text-[5vw]">
             Discover <span className="text-secondary">Events</span>
-          </h1>
-          <p className="text-gray-200 text-[2vw] max-w-3xl mx-auto">
+          </h1>6
+          <p className="text-gray-200 text-[1.5vw] max-w-xl">
             Explore thousands of events happening around you and connect with
             like-minded people
           </p>

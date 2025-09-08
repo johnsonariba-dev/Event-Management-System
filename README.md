@@ -14,6 +14,14 @@ npm install react-router-dom
 # react icons
 npm install react icons
 
+# animation
+npm install framer-motion
+
+# calendar
+npm install react-calendar date-fns
+npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/timegrid @fullcalendar/interaction
+
+
 # Virtual environment
 python3 -m venv venv 
 source venv/bin/activate

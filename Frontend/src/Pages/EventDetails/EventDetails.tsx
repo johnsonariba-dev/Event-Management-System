@@ -39,7 +39,7 @@ function EventDetails() {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/events/${id}`);
+        const res = await fetch(`http://localhost:8000/event_fake/events/${id}`);
         if (!res.ok) throw new Error("Event not found");
         const data: Event = await res.json();
         setEvent(data);
