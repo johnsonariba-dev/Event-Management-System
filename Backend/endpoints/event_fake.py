@@ -17,7 +17,7 @@ async def read_events(db: Session = Depends(get_db)):
     return db.query(models.Event).all()
 
 # Endpoint to fetch one event
-@router.get("/{event_id}", response_model=EventResponse)
+@router.get("/events/{event_id}", response_model=EventResponse)
 def get_event(event_id: int, db: db_dependency):
     event = db.query(models.Event).filter(models.Event.id == event_id).first()
     if not event:
