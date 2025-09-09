@@ -13,9 +13,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins= ["http://localhost:5173"],  # URL du frontend React
     allow_credentials=True,
-    allow_methods=["*"], # Permet toutes les méthodes (GET, POST, etc.)
+    allow_methods=["*"], 
     allow_headers=["*"],
-    expose_headers=["*"], # Expose tous les headers
+    expose_headers=["*"],
 
 )
 

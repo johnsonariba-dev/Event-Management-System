@@ -1,113 +1,159 @@
 import { useState } from "react";
-
+import { Link, useNavigate } from "react-router-dom";
 import Button from "../../../components/button";
-
 import images from "../../../types/images";
-import { Link } from "react-router-dom";
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 
-const URL_API = "";
+const URL_API = "http://localhost:8000/user/register";
 
-function Register() {
-  const [name, setName] = useState("");
+const Register: React.FC = () => {
+  const navigate = useNavigate();
+
+  const [username, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmite = async () => {
+  const handlePassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleSubmit = async () => {
+    setError(null);
     try {
       const response = await fetch(URL_API, {
-        method: "post",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password, role }),
       });
+
       if (!response.ok) {
-        throw new Error("registration failed ");
+        const errData = await response.json();
+        throw new Error(errData.message || "Registration failed");
       }
 
-      const data = await response.json();
+      navigate("/Events");
 
-      localStorage.setItem("token", data.token);
-      window.location.href = "/Dashboard";
+      // const data = await response.json();
+      // if (data?.token) {
+      //   localStorage.setItem("token", data.token);
+      //   window.location.href = "/Dashboard";
+      // } else {
+      //   throw new Error("No token returned from server");
+      // }
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unknown error occured");
-      }
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred"
+      );
     }
   };
 
   return (
-    <div className="p-20 w-full flex flex-cool items-center justify-center bg-gray-100">
-      <div className="w-[50vw] max-md:w-full  flex items-center justify-center bg-white border-violet-500 border-3 p-4 rounded-md max-md:flex-col shadow-2xl mt-10 max-sm:flex-col-reverse">
-        <form
-          onSubmit={(e) =>{e.preventDefault(); handleSubmite();}}
-          method="post"
-          className="w-full flex flex-col items-center justify-center gap-10 p-4 max-md:p-1"
-        >
-          <h1 className="text-2xl font-bold max-sm:text-lg">
-            Create an account
-          </h1>
-          <div className="w-full px-4 flex flex-col gap-2">
-            {error && <p> {error} </p>}
-            <input
-              type="text"
-              placeholder="Name"
-              onChange={(e) => setName(e.target.value)}
-              value={name}
-              id=""
-              className="w-full border-2 border-violet-500 rounded-sm outline-none p-2  transition-transform duration-300 hover:scale-105"
-            />
-            <input
-              type="email"
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
-              placeholder="Email"
-              className="w-full border-2 border-violet-500 rounded-sm outline-none p-2 transition-transform duration-300 hover:scale-105"
-            />
-            <input
-              type="password"
-              onChange={(e) => setPassword(e.target.value)}
-              value={password}
-              placeholder="Password"
-              className="w-full border-2 border-violet-500 rounded-sm outline-none p-2 transition-transform duration-300 hover:scale-105"
-            />
-            <div className="flex w-full items-center justify-between max-sm:flex-col max-md:flex-col">
-              <div className="flex items-center w-full">
+    <div className="h-screen flex items-center justify-center bg-gray-100 p-6 pt-20 max-md:pt-25">
+      <div className="flex w-full max-w-6xl rounded-2xl shadow-2xl bg-white">
+        <div className="w-full md:w-1/2 flex flex-col justify-center bg-[url(/src/assets/images/sign.jpg)] bg-rotate-90 bg-cover rounded-l-2xl max-md:rounded-2xl">
+          <div className=" p-10 flex flex-col justify-center rounded-br-[50px] bg-white h-full rounded-l-2xl max-md:rounded-2xl">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit();
+              }}
+              className="flex flex-col space-y-5 "
+            >
+              <h1 className="text-3xl font-bold text-center pb-10">
+                Create an account
+              </h1>
+
+              {error && <p className="text-red-500 text-center">{error}</p>}
+
+              <input
+                type="text"
+                placeholder="Name"
+                value={username}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full border-2 border-violet-500 rounded-md p-3 outline-none focus:ring-2 focus:ring-violet-400"
+              />
+
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full border-2 border-violet-500 rounded-md p-3 outline-none focus:ring-2 focus:ring-violet-400"
+              />
+
+              <div className="relative w-full">
                 <input
-                  type="checkbox"
-                  name=""
-                  id=""
-                  className="transition-transform duration-300 hover:scale-105"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full border-2 border-violet-500 rounded-md p-3 outline-none focus:ring-2 focus:ring-violet-400"
                 />
-                <label htmlFor="chekbox" className="text-sm px-2 ">
+                <button
+                  type="button"
+                  onClick={handlePassword}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-violet-500"
+                >
+                  {showPassword ? (
+                    <FaRegEye size={22} />
+                  ) : (
+                    <FaRegEyeSlash size={22} />
+                  )}
+                </button>
+              </div>
+
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full border-2 border-violet-500 rounded-md p-3 outline-none focus:ring-2 focus:ring-violet-400"
+              >
+                <option value="">Select Role</option>
+                <option value="user">User</option>
+                <option value="organiser">Organiser</option>
+              </select>
+
+              <div className="flex items-center">
+                <input id="remember" type="checkbox" className="mr-2" />
+                <label htmlFor="remember" className="text-sm">
                   Remember Me
                 </label>
               </div>
-             
-            </div>
+
+              <div className="flex justify-center pt-4">
+                <Button
+                  title="Register"
+                  className="px-8 py-3 text-white rounded-md transition"
+                />
+              </div>
+
+              <div className="text-center">
+                <p>
+                  Already have an account?{" "}
+                  <Link
+                    to="/Login"
+                    className="font-bold text-violet-500 hover:text-secondary hover:underline"
+                  >
+                    Login
+                  </Link>
+                </p>
+              </div>
+            </form>
           </div>
-          <Button
-            title="Register"
-            onClick={handleSubmite}
-            type=""
-            className="transition-transform duration-300 hover:scale-105"
+        </div>
+
+        <div className="max-md:hidden  w-1/2 items-center justify-center overflow-hidden rounded-r-2xl rounded-tl-[50px]">
+          <img
+            src={images.register}
+            alt="Register"
+            className="w-full h-full object-cover"
           />
-          <div className="w-full flex items-center justify-center space-x-4 max-sm:flex-col max-sm:items-center">
-            <p className="">Already have an account? </p>
-            <Link to="/Login">
-              <span className="text-secondary tex-lg font-bold transition-transform duration-300 hover:text-violet-500">
-                Login
-              </span>
-            </Link>
-          </div>
-        </form>
-        <div className="w-full flex items-center justify-center p-2 max-sm:hidden">
-          <img src={images.login} alt="" className="w-full" />
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default Register;
