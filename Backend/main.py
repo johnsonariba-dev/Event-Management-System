@@ -3,6 +3,7 @@ from database import Base,engine
 from endpoints import user
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from models import Event
 
 app = FastAPI(title = "Event Planner", version = "1.0.0")
 
@@ -21,3 +22,5 @@ app.add_middleware(
 
 app.include_router(user.router, prefix="/user", tags=["user"])
 app.include_router(event_fake.router, prefix="/event_fake", tags=["event_fake"])
+
+

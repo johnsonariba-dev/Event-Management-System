@@ -6,9 +6,9 @@ import { VscSettingsGear } from "react-icons/vsc";
 import { TbLogout } from "react-icons/tb";
 import { Link } from "react-router-dom";
 
-import Dashboard from "./Dashboard";
+import Dashboard from "./dashboard";
 import Settings from "./settings";
-import AllEvents from "./AllEvents";
+import AllEvents from "./allEvents";
 import Tickets from "./tickets";
 import images from "../types/images";
 import HeaderDashboard from "./headerDashbord";

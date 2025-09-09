@@ -5,11 +5,13 @@ import {
   FiMessageCircle,
   FiShare2,
 } from "react-icons/fi";
-import { HiHeart, HiLocationMarker, HiOutlineClock } from "react-icons/hi";
+import { HiHeart, HiLocationMarker, HiOutlineClock, HiUserCircle } from "react-icons/hi";
 import { HiStar, HiTicket } from "react-icons/hi2";
 import { FaCheck } from "react-icons/fa6";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { FaMoneyBill } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 // ✅ Types for events + reviews
 interface Reviews {
@@ -20,15 +22,16 @@ interface Reviews {
 
 interface Event {
   id: number;
-  image?: string;
+  image_url?: string;
   title: string;
   desc: string;
   category: string;
-  location: string;
+  venue: string;
   date: string;
   time: string;
   ticket_price: number;
   reviews?: Reviews[];
+  organizer: string;
 }
 
 function EventDetails() {
@@ -39,7 +42,9 @@ function EventDetails() {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/events/${id}`);
+        const res = await fetch(
+          `http://127.0.0.1:8000/event_fake/events/${id}`
+        );
         if (!res.ok) throw new Error("Event not found");
         const data: Event = await res.json();
         setEvent(data);
@@ -72,17 +77,17 @@ function EventDetails() {
 
   return (
     <div className="w-full flex flex-col items-center justify-center ">
-      {/* 🔽 Everything below is your original UI untouched */}
-      <div className="w-full relative h-[80vh] bg-accent">
+      <div className="w-full relative h-[80vh] bg-accent flex mt-4 flex-col items-center justify-center">
         <div
-          className="absolute w-full h-[80vh] bg-[url(/src/assets/images/ED.png)]
-           bg-cover  flex items-center justify-center brightness-70"
+          className="absolute w-[95vw] h-[60vh]  bg-center
+           bg-cover  flex items-center justify-center brightness-70 rounded-2xl"
+          style={{ backgroundImage: `url(${event.image_url})` }}
         ></div>
         <div className="relative w-full h-[80vh] flex items-center justify-end">
-          <h1 className="absolute bottom-12 left-5 text-white text-[5vw] font-bold">
+          <h1 className="absolute bottom-30 left-10 text-white text-[3vw] font-bold">
             {event.title}
           </h1>
-          <p className="absolute bottom-5 left-5 text-white text-4xl">
+          <p className="absolute bottom-20 left-10 text-white text-2xl">
             {event.category}
           </p>
         </div>
@@ -141,34 +146,30 @@ function EventDetails() {
                   <HiLocationMarker size={24} className="text-secondary" />
                   <div>
                     <h1 className="text-sm font-semibold">Location</h1>
-                    <p className="text-sm">{event.location}</p>
+                    <p className="text-sm">{event.venue || "Unknown Location"}</p>
                   </div>
                 </div>
               </div>
               <div className="flex flex-col gap-4 w-full">
                 <div className="flex  gap-2 w-full justify-end py-4 px-1">
-                  <FiCalendar size={24} className="text-secondary" />
+                  <HiUserCircle size={24} className="text-secondary" />
                   <div>
-                    <h1 className="text-sm font-semibold">Date & Time</h1>
-                    <p className="text-sm">
-                      {event.date} {event.time}
-                    </p>
+                    <h1 className="text-sm font-semibold">Organizer</h1>
+                    <p className="text-sm">{event.organizer}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 w-full justify-end py-4 px-1">
-                  <FiCalendar size={24} className="text-primary" />
+                  <FaMoneyBill size={24} className="text-primary" />
                   <div className="">
-                    <h1 className="text-sm font-semibold">Date & Time</h1>
-                    <p className="text-sm">
-                      {event.date} {event.time}
-                    </p>
+                    <h1 className="text-sm font-semibold">Ticket Price</h1>
+                    <p className="text-sm">${event.ticket_price}</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div className="w-md flex flex-col items-center justify-center p-4 bg-gray-400 shadow-md h-[65vh] max-md:h-[94vh] rounded-2xl">
+        <div className="w-md max-md:w-full m-8 flex flex-col items-center justify-center p-4 bg-gray-400 shadow-md h-[65vh] max-md:h-[94vh] rounded-2xl">
           <div className="w-full flex justify-around gap-4 items-center p-4">
             <h1 className="text-white text-2xl">${event.ticket_price} per</h1>
             <HiTicket size={44} className="text-primary" />
@@ -210,14 +211,68 @@ function EventDetails() {
           </div>
         </div>
       </div>
-      <div>
+      <div className="w-full flex flex-col items-center justify-center p-8 gap-4">
+        <h1 className="font-bold text-xl">What are your attendees saying?</h1>
         <div className="flex flex-col gap-4">
           {event.reviews?.map((review: Reviews, index: number) => (
             <div key={index} className="p-4 bg-gray-100 rounded-xl shadow">
-              <p className="font-semibold">{review.user}</p>
-              <p>{review.comment}</p>
+              <div className="flex items-center gap-4 mb-2 rounded-full bg-primary text-white ">
+                ZR
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <h1 className="font-semibold">Zounka Raneni</h1>
+                    <p className="text-sm text-gray-500">1 day ago</p>
+                  </div>
+                  <div className="flex items-center gap-1 p-4">
+                    {[...Array(5)].map((_, i) => (
+                      <HiStar key={i} className="text-secondary text-xl" />
+                    ))}
+                  </div>
+                </div>
+                <div className="flex">
+                  <p className="text-gray-700">{review.comment}</p>
+                </div>
+              </div>
             </div>
           ))}
+        </div>
+      </div>
+      <div className="w-full flex items-center justify-center p-10 mb-10">
+        <Link to="/reviews">
+          <button className="text-secondary bg-transparent border hover:bg-primary/20 py-2 shadow border-secondary transition rounded-md px-4 cursor-pointer">
+            See all reviews
+          </button>
+        </Link>
+      </div>
+      <div className="w-[90vw] flex flex-col items-center justify-center p-8 gap-4 border bg-primary/70 border-secondary rounded-2xl mb-10">
+        <Button title="Buy tickets" icon={<FiBookmark />}  className="bg-secondary text-white hover:scale-105 transition-transform duration-200" />
+
+        <p>125 places left</p>
+      </div>
+      <div className="w-full flex flex-col items-center justify-center p-8 gap-4 mb-10">
+        <div className="w-full flex flex-col p-4 rounded-2xl bg-gray-100 shadow-md gap-4">
+          <h1 className="font-bold text-xl">Leave a review</h1>
+          <h4 className="font-semibold">Your rating</h4>
+          <div className="flex items-center gap-1 p-4">
+            {[...Array(5)].map((_, i) => (
+              <HiStar key={i} className="text-secondary text-xl" />
+            ))}
+          </div>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="" className="font-semibold">Your Comment</label>
+            <textarea
+              name=""
+              id=""
+              cols={30}
+              rows={5}
+              className="w-full p-4 outline-secondary rounded-xl border-2 border-gray-300"
+            ></textarea>
+          </div>
+          <div>
+            <Button title="Send Review" className="bg-secondary" />
+          </div>
         </div>
       </div>
     </div>
