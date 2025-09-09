@@ -8,7 +8,6 @@ import { Link } from "react-router-dom";
 
 import Dashboard from "./dashboard";
 import Settings from "./settings";
-import AllEvents from "./allEvents";
 import Tickets from "./tickets";
 import images from "../types/images";
 import HeaderDashboard from "./headerDashbord";

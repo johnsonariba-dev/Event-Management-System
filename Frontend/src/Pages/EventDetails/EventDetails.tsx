@@ -5,7 +5,12 @@ import {
   FiMessageCircle,
   FiShare2,
 } from "react-icons/fi";
-import { HiHeart, HiLocationMarker, HiOutlineClock, HiUserCircle } from "react-icons/hi";
+import {
+  HiHeart,
+  HiLocationMarker,
+  HiOutlineClock,
+  HiUserCircle,
+} from "react-icons/hi";
 import { HiStar, HiTicket } from "react-icons/hi2";
 import { FaCheck } from "react-icons/fa6";
 import { useParams } from "react-router-dom";
@@ -43,7 +48,7 @@ function EventDetails() {
     const fetchEvent = async () => {
       try {
         const res = await fetch(
-          `http://127.0.0.1:8000/event_fake/events/${id}`
+          `http://localhost:8000/event_fake/events/${id}`
         );
         if (!res.ok) throw new Error("Event not found");
         const data: Event = await res.json();
@@ -146,7 +151,9 @@ function EventDetails() {
                   <HiLocationMarker size={24} className="text-secondary" />
                   <div>
                     <h1 className="text-sm font-semibold">Location</h1>
-                    <p className="text-sm">{event.venue || "Unknown Location"}</p>
+                    <p className="text-sm">
+                      {event.venue || "Unknown Location"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -247,7 +254,11 @@ function EventDetails() {
         </Link>
       </div>
       <div className="w-[90vw] flex flex-col items-center justify-center p-8 gap-4 border bg-primary/70 border-secondary rounded-2xl mb-10">
-        <Button title="Buy tickets" icon={<FiBookmark />}  className="bg-secondary text-white hover:scale-105 transition-transform duration-200" />
+        <Button
+          title="Buy tickets"
+          icon={<FiBookmark />}
+          className="bg-secondary text-white hover:scale-105 transition-transform duration-200"
+        />
 
         <p>125 places left</p>
       </div>
@@ -261,7 +272,9 @@ function EventDetails() {
             ))}
           </div>
           <div className="flex flex-col gap-2">
-            <label htmlFor="" className="font-semibold">Your Comment</label>
+            <label htmlFor="" className="font-semibold">
+              Your Comment
+            </label>
             <textarea
               name=""
               id=""

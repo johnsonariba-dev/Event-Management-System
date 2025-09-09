@@ -1,8 +1,8 @@
 import random
 from datetime import datetime, timedelta
-from faker import Faker # type: ignore
-from database import SessionLocal, engine,Base
-from models import Event 
+from faker import Faker
+from database import SessionLocal, engine, Base
+from models import Event
 
 fake = Faker()
 
@@ -10,23 +10,13 @@ fake = Faker()
 CATEGORIES = ["music", "tech", "art", "business", "sports", "food"]
 
 # Some sample cover images (replace with your real ones later)
+
 COVER_IMAGES = [
-    # 🎵 Concert
     "https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2?auto=format&fit=crop&w=1200&q=80",
-    
-    # 🎨 Art
     "https://images.unsplash.com/photo-1529101091764-c3526daf38fe?auto=format&fit=crop&w=1200&q=80",
-    
-    # 👨‍💼 Conference
     "https://images.unsplash.com/photo-1503428593586-e225b39bddfe?auto=format&fit=crop&w=1200&q=80",
-    
-    # 🍽 Food
     "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
-    
-    # ⚽ Sports
     "https://images.unsplash.com/photo-1505842465776-3d90f616310d?auto=format&fit=crop&w=1200&q=80",
-    
-    # 💻 Technology
     "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80",
 ]
 
@@ -53,7 +43,7 @@ for _ in range(30):
         ticket_price=random.choice([0, round(random.uniform(10, 100), 2)]),  # free or paid
         date=fake.future_datetime(end_date="+30d"),  # ✅ déjà un datetime
         image_url=random.choice(COVER_IMAGES),
-        capacity_max = 200,
+        capacity_max = 100,
 
         # date=(datetime.now() + timedelta(days=random.randint(1, 90))).strftime("%Y-%m-%d"),
 
