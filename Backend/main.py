@@ -11,7 +11,7 @@ Base.metadata.create_all(bind = engine)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins= ["http://localhost:5174"], 
+    allow_origins= ["http://localhost:5173"],  # URL du frontend React
     allow_credentials=True,
     allow_methods=["*"], 
     allow_headers=["*"],
