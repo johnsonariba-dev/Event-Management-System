@@ -3,6 +3,7 @@ import login from "../assets/images/login.png"
 import EventHero from "../assets/images/EventHero.png"
 import brand from "../assets/images/brand.png"
 import carnaval from "../assets/images/carnaval.jpeg"
+import register from "../assets/images/sign.jpg"
 
 
 export default{
@@ -10,5 +11,6 @@ export default{
     login,
     EventHero,
     brand,
-    carnaval
+    carnaval,
+    register
 }

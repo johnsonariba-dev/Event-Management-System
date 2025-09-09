@@ -30,7 +30,7 @@ db.commit()
 events = []
 
 # Generate 30 fake events
-for _ in range(30):
+for _ in range(1000):
     event = Event(
         title=fake.catch_phrase(),
         description=fake.text(max_nb_chars=150),

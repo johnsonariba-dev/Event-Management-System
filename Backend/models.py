@@ -56,7 +56,6 @@ class Ticket(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
-    status = Column(String)
     purchase_date = Column(DateTime, default=datetime.utcnow)
 
  # Relations

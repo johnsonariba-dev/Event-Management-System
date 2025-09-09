@@ -1,100 +1,141 @@
 import { useState } from "react";
-import images from "../../../types/images";
-import Button from "../../../components/button";
 import { Link } from "react-router-dom";
+import Button from "../../../components/button";
+import images from "../../../types/images";
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 
-const URL_API = "";
+const URL_API = "http://localhost:8000/user/login";
 
-function Login() {
+function Register() {
   const [email, setEmail] = useState("");
-  const [password, ssetPassword] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmite = async () => {
+  const handlePassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleSubmit = async () => {
+    setError(null);
     try {
       const response = await fetch(URL_API, {
-        method: "post",
-        headers: { "content-type": "applisation/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+
       if (!response.ok) {
-        throw new Error("Login fial");
+        const errData = await response.json();
+        throw new Error(errData.message || "Login failed");
       }
-      const data = await response.json();
-      localStorage.setItem("token", data.token);
-      window.location.href = "/";
+
+      // const data = await response.json();
+      // if (data?.token) {
+      //   localStorage.setItem("token", data.token);
+      //   console.log("TOKEN:", data.token);
+        
+      //   window.location.href = "/Events";
+      // } else {
+      //   throw new Error("No token returned from server");
+      // }
+      window.location.href = "/Events"
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unknow error occured");
-      }
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred"
+      );
     }
   };
 
- 
   return (
-    <div className="p-20 w-full flex h-screen flex-cool items-center justify-center bg-gray-100">
-      <div className="w-[50vw] flex items-center justify-center bg-white border-violet-500 border-3 p-4 rounded-md max-md:flex-col shadow-2xl mt-10 max-sm:flex-col-reverse">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmite();
-          }}
-          method="post"
-          className="w-full flex flex-col items-center justify-center gap-10 p-4"
-        >
-          <h1 className="text-2xl font-bold max-sm:text-sm max-lg:text-xl">
-            Login To Your Account
-          </h1>
-          <p> {error} </p>
-          <div className="w-full px-4 flex flex-col gap-2">
-            <input
-              type="email"
-              value={email}
-              placeholder="Email"
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border-2 border-violet-500 rounded-sm outline-none p-2 transition-transform duration-300 hover:scale-105"
-            />
-            <input
-              type="password"
-              value={password}
-              placeholder="Password"
-              onChange={(e) => ssetPassword(e.target.value)}
-              className="w-full border-2 border-violet-500 rounded-sm outline-none p-2 transition-transform duration-300 hover:scale-105"
-            />
-            <div className="flex w-full items-center justify-between max-sm:flex-col">
-              <div className="flex items-center"></div>
-              <a
-                href=""
-                className="text-sm px-2 text-secondary transition-transform duration-300 hover:text-violet-500"
-              >
-                Forgot Password?
-              </a>{" "}
-            </div>
+    <div className="h-screen flex items-center justify-center bg-gray-100 p-6 pt-20">
+      <div className="flex w-full max-w-6xl rounded-2xl shadow-2xl bg-white">
+        <div className="w-full md:w-1/2 flex flex-col justify-center bg-[url(/src/assets/images/sign.jpg)] bg-rotate-90 bg-cover rounded-l-2xl max-md:rounded-2xl">
+          <div className=" p-10 flex flex-col justify-center rounded-br-[50px] bg-white h-full rounded-l-2xl max-md:rounded-2xl">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit();
+              }}
+              className="flex flex-col space-y-5 "
+            >
+              <h1 className="text-3xl font-bold text-center pb-10">
+                Login In Account
+              </h1>
+
+              {error && <p className="text-red-500 text-center">{error}</p>}
+
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full border-2 border-violet-500 rounded-md p-3 outline-none focus:ring-2 focus:ring-violet-400"
+              />
+
+              <div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="absolute w-124 border-2 border-violet-500 rounded-md p-3 outline-none focus:ring-2 focus:ring-violet-400"
+                />
+                <p onClick={handlePassword}>
+                  {showPassword ? (
+                    <FaRegEye size={22} className="relative left-115 top-4" />
+                  ) : (
+                    <FaRegEyeSlash
+                      size={22}
+                      className="relative left-115 top-4"
+                    />
+                  )}
+                </p>
+              </div>
+              <br />
+
+              <div className="flex w-full items-center justify-between max-sm:flex-col">
+                <div className="flex items-center"></div>
+                <a
+                  href=""
+                  className="text-sm px-2 text-secondary transition-transform duration-300 hover:text-violet-500"
+                >
+                  Forgot Password?
+                </a>{" "}
+              </div>
+
+              <div className="flex justify-center pt-4">
+                <Button
+                  title="Login"
+                  className="px-8 py-3 text-white rounded-md transition"
+                />
+              </div>
+
+              <div className="text-center">
+                <p>
+                  Do not have an account?{" "}
+                  <Link
+                    to="/Register"
+                    className="font-bold text-violet-500 hover:text-secondary hover:underline"
+                  >
+                    Register
+                  </Link>
+                </p>
+              </div>
+            </form>
           </div>
-          <Button
-            title="Login"
-            type=""
-            onclick={handleSubmite}
-            className="transition-transform duration-300 hover:scale-105"
+        </div>
+
+        <div className="max-md:hidden  w-1/2 items-center justify-center overflow-hidden rounded-r-2xl rounded-tl-[50px]">
+          <img
+            src={images.register}
+            alt="Register"
+            className="w-full h-full object-cover"
           />
-          <p className="">
-            Do not have an account?{" "}
-            <Link to="/Register">
-              {" "}
-              <span className="text-secondary tex-lg font-bold transition-transform duration-300 hover:text-violet-500">
-                Register
-              </span>
-            </Link>
-          </p>
-        </form>
-        <div className="w-full flex items-center justify-center p-2 max-sm:hidden">
-          <img src={images.login} alt="" className="w-full animate-pulse" />
         </div>
       </div>
     </div>
   );
 }
 
-export default Login;
+export default Register;
