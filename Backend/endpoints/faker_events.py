@@ -1,6 +1,6 @@
 import random
 from datetime import datetime, timedelta
-from faker import Faker # type: ignore
+from faker import Faker 
 from database import SessionLocal, engine,Base
 from models import Event 
 
