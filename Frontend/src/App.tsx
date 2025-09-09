@@ -8,7 +8,11 @@ import Register from "./Pages/Authentication/Register";
 import Login from "./Pages/Authentication/Login/Login";
 import CreateEvent from "./Pages/CreateEvents";
 import EventDetails from "./Pages/EventDetails/EventDetails";
+<<<<<<< HEAD
 import CityDetails from "./Pages/EventDetails/CityDetails";
+=======
+import NewEvent from "./Pages/NewEvent";
+>>>>>>> ece5cdf (new event)
 
 const NavBarItems = [
   {
@@ -27,7 +31,7 @@ const NavBarItems = [
 
 function App() {
   const location = useLocation();
-  const hidefooter = ["/login", "/register", "/CreateEvent"];
+  const hidefooter = ["/login", "/register", "/CreateEvent", "/NewEvent"];
   const hideNavbar = ["/CreateEvent"];
   const showfooter = !hidefooter.includes(location.pathname);
   const showNavbar = !hideNavbar.includes(location.pathname);
@@ -41,6 +45,7 @@ function App() {
         <Route path="/login" element={<Login />}></Route>
         <Route path="/register" element={<Register />}></Route>
         <Route path="/CreateEvent" element={<CreateEvent />}></Route>
+        <Route path="/NewEvent" element={<NewEvent />}></Route>
         <Route path="/Event/:id" element={<EventDetails />}></Route>
         <Route path="/cities/:id" element={<CityDetails />}></Route>
       </Routes>
