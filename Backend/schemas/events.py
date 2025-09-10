@@ -1,4 +1,5 @@
 from typing import  Optional
+from datetime import datetime
 from pydantic import BaseModel
 from sqlalchemy import func
 
@@ -8,7 +9,7 @@ from sqlalchemy import func
 class CreateEvent(BaseModel):
     title: str
     description: str
-    date: str
+    date: datetime
     venue: str
     ticket_price: float
     category: str
@@ -28,7 +29,7 @@ class EventResponse(CreateEvent):
 class EventUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
-    date: Optional[str] = None
+    date: Optional[datetime] = None
     venue: Optional[str] = None
     ticket_price: Optional[float] = None
     category: Optional[str] = None
