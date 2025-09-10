@@ -26,21 +26,20 @@ class User(Base):
 
 # -------------------- EVENT --------------------
 class Event(Base):
-    __tablename__= "events"
+    __tablename__ = "events"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, unique=True, index=True)
-    description = Column(Text, index=True)
-    # date = Column(DateTime, index=True)
-    date = Column(String, index=True)
-    venue = Column(String, index=True)
-    ticket_price = Column(Float, index=True)
-    category = Column(String, index=True)
-    image_url = Column(String)
-    capacity_max = Column(Integer, default=0)
-    
+    title = Column(String(100), nullable=False, unique=True, index=True)  # Unique + searchable
+    description = Column(Text, nullable=True)  # Optional, no index unless needed
+    date = Column(DateTime, nullable=False, index=True)  # ISO format or custom string
+    venue = Column(String(150), nullable=False, index=True)
+    ticket_price = Column(Float, default=0.0, nullable=False)
+    category = Column(String(50), nullable=False, index=True)
+    image_url = Column(String, nullable=True)  # Optional image reference
+    capacity_max = Column(Integer, nullable=True)  # Optional max capacity
+    organizer_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+
     # status = Column(Boolean, default=True) # completed or not
-    # organizer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
 # Relations
     # organizer = relationship("User", back_populates="event")
