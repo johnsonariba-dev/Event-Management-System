@@ -17,7 +17,7 @@ export default{
     EventHero,
     brand,
     carnaval,
-    register
+    register,
     tokyo,
     paris,
     newyork,

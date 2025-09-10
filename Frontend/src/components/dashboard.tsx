@@ -2,6 +2,7 @@ import { IoCreateOutline } from "react-icons/io5";
 import { FaCircle } from "react-icons/fa";
 import Button from "./button";
 import { useState } from "react";
+import { NavLink } from "react-router-dom";
 
 type Event = {
   id: number;
@@ -11,7 +12,7 @@ type Event = {
   location: string;
   dateFull: string;
   image: string;
-  sold: string;
+  sold: string
   price: string;
   status: string;
 };
@@ -75,7 +76,10 @@ const Dashboard: React.FC = () => {
           Add all your event details, create new tickets, and set up recurring
           events.
         </p>
+        <NavLink to={"/NewEvent"}>
+
         <Button title="Create Event" className="bg-black text-white mt-5" />
+        </NavLink>
       </div>
 
       {/* Filters */}
