@@ -1,5 +1,7 @@
 from endpoints.auth import get_current_organizer
 from schemas.events import CreateEvent, EventResponse, EventUpdate, UserInterests
+from fastapi.responses import HTMLResponse
+from schemas.events import CreateEvent, EventResponse, EventUpdate
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from recommender import recommend_events
@@ -7,6 +9,10 @@ from typing import List
 from pydantic import BaseModel
 from database import db_dependency, get_db
 import models
+import html
+from typing import Optional
+
+
 
 
 router = APIRouter()
@@ -29,6 +35,92 @@ def get_event(event_id: int, db: db_dependency):
             detail="Événement non trouvé"
         )
     return event
+
+@router.get("/events/{event_id}/share", response_class=HTMLResponse)
+def share_event(event_id: int, db: Session = Depends(get_db)):
+    event = db.query(models.Event).filter(models.Event.id == event_id).first()
+    if not event:
+        return HTMLResponse(content="<h1>Event not found</h1>", status_code=404)
+
+    html_content = f"""
+    <html>
+      <head>
+        <meta property="og:title" content="{event.title}" />
+        <meta property="og:description" content="{event.description}" />
+        <meta property="og:image" content="{event.image_url}" />
+        <meta property="og:url" content="http://127.0.0.1:8000/events/{event.id}/share" />
+        <meta property="og:type" content="website" />
+      </head>
+      <body>
+        <h1>{event.title}</h1>
+        <p>{event.description}</p>
+        <img src="{event.image_url}" alt="{event.title}" />
+      </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
+
+    event: Optional[models.Event] = db.query(models.Event).filter(models.Event.id == event_id).first()
+    if not event:
+        return HTMLResponse("<h1>Event Not Found</h1>", status_code=404)
+
+    # Explicitly cast to str so Pylance stops complaining
+    title: str = html.escape(str(event.title or ""))
+    description: str = html.escape(str(event.description or ""))
+    image_url: str = html.escape(str(event.image_url or ""))
+    url = f"http://localhost:8000/events/{event.id}/share"
+
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+     <head>
+        <meta property="og:title" content="{event.title}" />
+        <meta property="og:description" content="{event.description}" />
+        <meta property="og:image" content="{event.image_url}" />
+        <meta property="og:url" content="http://127.0.0.1:8000/events/{event.id}/share" />
+        <meta property="og:type" content="website" />
+      </head>
+    <body>
+        <h1>{event.title}</h1>
+        <p>{event.description}</p>
+        <img src="{event.image_url}" alt="{event.title}" />
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
+
+    # Fetch the event instance from the database
+    event: Optional[models.Event] = db.query(models.Event).filter(models.Event.id == event_id).first()
+    if not event:
+        return HTMLResponse("<h1>Event Not Found</h1>", status_code=404)
+
+    # Escape values to avoid XSS
+    title = html.escape(event.title or "")
+    description = html.escape(event.description or "")
+    image_url = html.escape(event.image_url or "")
+    url = f"http://localhost:8000/events/{event.id}/share"
+
+    # Build HTML with OG tags
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta property="og:title" content="{title}" />
+        <meta property="og:description" content="{description}" />
+        <meta property="og:image" content="{image_url}" />
+        <meta property="og:url" content="{url}" />
+        <title>{title}</title>
+    </head>
+    <body>
+        <h1>{title}</h1>
+        <p>{description}</p>
+        <img src="{image_url}" alt="{title}" />
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
+
 
 # Endpoint to create an event
 

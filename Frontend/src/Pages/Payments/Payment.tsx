@@ -57,12 +57,12 @@ function Payment() {
   }
 
   return (
-    <div>
+    <div className='w-full h-screen flex flex-col items-center justify-center bg-amber-500'>
       <div>
-        
+        djdkjsd
       </div>
     </div>
-    
+
   )
 }
 

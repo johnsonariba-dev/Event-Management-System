@@ -3,7 +3,7 @@ import {
   FiBookmark,
   FiCalendar,
   FiMessageCircle,
-  FiShare2,
+  // FiShare2,
 } from "react-icons/fi";
 import {
   HiHeart,
@@ -17,6 +17,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { FaMoneyBill } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import ShareButton from "../../components/ShareButton";
 
 // ✅ Types for events + reviews
 interface Reviews {
@@ -29,7 +30,7 @@ interface Event {
   id: number;
   image_url?: string;
   title: string;
-  desc: string;
+  description: string;
   category: string;
   venue: string;
   date: string;
@@ -45,11 +46,20 @@ function EventDetails() {
   const [loading, setLoading] = useState(true);
   const [comment, setComment] = useState(" ");
   const [submitC, setsubmitc] = useState<string[]>([]);
+  const [heartC, setHeartC] = useState(false);
+  const [bookC, setBookC] = useState(false);
 
   const handleSubmit = async () => {
     if (comment.trim() === "") return;
     setsubmitc([...submitC, comment]);
     setComment(" ");
+  };
+
+  const handleBookClick = () => {
+    setBookC(!bookC);
+  };
+  const handleHeartClick = () => {
+    setHeartC(!heartC);
   };
 
   useEffect(() => {
@@ -113,11 +123,22 @@ function EventDetails() {
                 About This Event
               </h1>
               <div className="flex gap-4 text-2xl">
-                <HiHeart className="text-primary" />
-                <FiShare2 className="text-primary" />
+                <HiHeart
+                  className={`cursor-pointer ${
+                    heartC ? "text-red-500" : "text-gray-400"
+                  }`}
+                  onClick={handleHeartClick}
+                />
+                <FiBookmark
+                  className={`cursor-pointer ${
+                    bookC ? "text-red-500" : "text-gray-400"
+                  }`}
+                  onClick={handleBookClick}
+                />
+                {event && <ShareButton event={event} />}
               </div>
             </div>
-            <p className="text-justify">{event.desc}</p>
+            <p className="text-justify">{event.description}</p>
             <div className="w-full flex justify-between items-center max-sm:flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <h1 className="text-lg font-semibold text-secondary">
