@@ -1,4 +1,4 @@
-from typing import  Optional
+from typing import  Optional, List
 from datetime import datetime
 from pydantic import BaseModel
 from sqlalchemy import func
@@ -36,4 +36,5 @@ class EventUpdate(BaseModel):
     capacity_max: Optional[int] = None
     image_url: Optional[str] = None
 
-# 
+class UserInterests(BaseModel):
+    interests: List[str]
