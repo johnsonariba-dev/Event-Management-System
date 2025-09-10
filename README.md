@@ -1,5 +1,4 @@
 # Event-Management-System
-
 Appstech event management system [PlanVibes]
 
 # install
@@ -40,4 +39,10 @@ pip install "python-jose[cryptography]"
 pip install "pydantic[email]"
 pip install "passlib[bcrypt]"
 pip install faker
-python -m endpoints.faker_events [pour run]
+
+# run database
+python -m endpoints.faker_events 
+
+# run recommender
+python convert_db.py
+python recommender.py

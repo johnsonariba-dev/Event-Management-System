@@ -1,18 +1,21 @@
 from endpoints import event_fake, user, ticket, like
 from database import Base,engine
+from endpoints import event_fake
+from database import Base, engine
+from endpoints import user
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title = "Event Planner", version = "1.0.0")
+app = FastAPI(title="Event Planner", version="1.0.0")
 
-Base.metadata.create_all(bind = engine)
+Base.metadata.create_all(bind=engine)
 
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins= ["http://localhost:5174"],
+    allow_origins=["http://localhost:5174"],
     allow_credentials=True,
-    allow_methods=["*"], 
+    allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["*"],
 

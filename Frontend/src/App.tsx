@@ -29,7 +29,7 @@ const NavBarItems = [
 
 function App() {
   const location = useLocation();
-  const hidefooter = ["/login", "/register", "/CreateEvent", "/NewEvent"];
+  const hidefooter = ["/login", "/register", "/CreateEvent", "/NewEvent", "/payment/:id"];
   const hideNavbar = ["/CreateEvent"];
   const showfooter = !hidefooter.includes(location.pathname);
   const showNavbar = !hideNavbar.includes(location.pathname);
@@ -46,7 +46,7 @@ function App() {
         <Route path="/NewEvent" element={<NewEvent />}></Route>
         <Route path="/Event/:id" element={<EventDetails />}></Route>
         <Route path="/cities/:id" element={<CityDetails />}></Route>
-        <Route path="/Payment" element={<Payment />}></Route>
+        <Route path="/payment/:id" element={<Payment />}></Route>
       </Routes>
       {showfooter && <Footer />}
     </div>

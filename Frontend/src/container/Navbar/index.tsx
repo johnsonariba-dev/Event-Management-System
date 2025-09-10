@@ -25,7 +25,9 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
     <div className="relative z-4">
       <div className="flex justify-between items-center fixed bg-white w-full px-6">
         <div className="w-20">
-          <img src={images.logo} alt="" className="w-full object-contain" />
+          <NavLink to={"/"}>
+            <img src={images.logo} alt="" className="w-full object-contain" />
+          </NavLink>
         </div>
 
         {/* Desktop Nav */}
@@ -86,16 +88,19 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
               ))}
             </ul>
             <div className="flex flex-col items-center justify-center">
-            <NavLink to="/CreateEvent">
-              <Button title="Create Event" icon={<FaPlus />} className="mt-6 px-10" />
-            </NavLink>
-            <NavLink to="/Login">
-              <Button title="Login" className="my-3 px-20"
-               />
-            </NavLink>
-            <NavLink to="/Register">
-              <Button title="Register" className="px-18"/>
-            </NavLink>
+              <NavLink to="/CreateEvent">
+                <Button
+                  title="Create Event"
+                  icon={<FaPlus />}
+                  className="mt-6 px-10"
+                />
+              </NavLink>
+              <NavLink to="/Login">
+                <Button title="Login" className="my-3 px-20" />
+              </NavLink>
+              <NavLink to="/Register">
+                <Button title="Register" className="px-18" />
+              </NavLink>
             </div>
           </div>
         )}
