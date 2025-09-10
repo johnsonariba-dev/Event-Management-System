@@ -1,7 +1,8 @@
 from endpoints.auth import get_current_organizer
-from schemas.events import CreateEvent, EventResponse, EventUpdate
+from schemas.events import CreateEvent, EventResponse, EventUpdate, UserInterests
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from recommender import recommend_events
 from typing import List
 from pydantic import BaseModel
 from database import db_dependency, get_db
@@ -101,3 +102,13 @@ async def delete_event(db: db_dependency, event_id: int):
 
     db.delete(db_event)
     db.commit()
+    
+@router.post("/recommendations", response_model=List[dict])
+def recommend(user: UserInterests):
+    """
+    Recommend events based on user interests.
+    """
+    recommended_events = recommend_events(user.interests, top_n=5)
+    return recommended_events
+
+    

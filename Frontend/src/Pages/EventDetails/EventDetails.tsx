@@ -43,6 +43,14 @@ function EventDetails() {
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
+  const [comment, setComment] = useState(" ");
+  const [submitC, setsubmitc] = useState<string[]>([]);
+
+  const handleSubmit = async () => {
+    if (comment.trim() === "") return;
+    setsubmitc([...submitC, comment]);
+    setComment(" ");
+  };
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -189,11 +197,13 @@ function EventDetails() {
             <HiOutlineClock size={24} className="text-secondary" />
             <p className="text-white">Almost full!</p>
           </div>
-          <Button
-            icon={<FiBookmark />}
-            title="Buy ticket"
-            className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105 m-4"
-          />
+          <Link to="/Payment">
+            <Button
+              icon={<FiBookmark />}
+              title="Buy ticket"
+              className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105 m-4"
+            />
+          </Link>
           <p className="text-white p-4 flex items-center gap-2">
             <FaCheck className="rounded-full bg-secondary  text-white" />{" "}
             <span>Instant confirmation</span>
@@ -221,25 +231,30 @@ function EventDetails() {
       <div className="w-full flex flex-col items-center justify-center p-8 gap-4">
         <h1 className="font-bold text-xl">What are your attendees saying?</h1>
         <div className="flex flex-col gap-4">
-          {event.reviews?.map((review: Reviews, index: number) => (
-            <div key={index} className="p-4 bg-gray-100 rounded-xl shadow">
-              <div className="flex items-center gap-4 mb-2 rounded-full bg-primary text-white ">
-                ZR
-              </div>
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <h1 className="font-semibold">Zounka Raneni</h1>
-                    <p className="text-sm text-gray-500">1 day ago</p>
-                  </div>
-                  <div className="flex items-center gap-1 p-4">
-                    {[...Array(5)].map((_, i) => (
-                      <HiStar key={i} className="text-secondary text-xl" />
-                    ))}
-                  </div>
+          {submitC.map((comment, index: number) => (
+            <div
+              key={index}
+              className="p-4 bg-gray-100 rounded-xl shadow flex w-[95vw] justify-between"
+            >
+              <div className="flex  items-center w-full space-y-2 gap-4">
+                <div className="flex items-center justify-center  gap-4 rounded-full bg-primary text-white text-2xl w-[4vw] h-[8vh] ">
+                  ZR
                 </div>
-                <div className="flex">
-                  <p className="text-gray-700">{review.comment}</p>
+                <div className="flex flex-col gap-2  w-full">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex flex-col">
+                      <h1 className="font-semibold">Zounka Raneni</h1>
+                      <p className="text-sm text-gray-500">1 day ago</p>
+                    </div>
+                    <div className="flex items-center gap-1 p-4">
+                      {[...Array(5)].map((_, i) => (
+                        <HiStar key={i} className="text-secondary text-xl" />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex-1 flex items-center justify-center">
+                    <p className="text-gray-700">{comment}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -254,11 +269,13 @@ function EventDetails() {
         </Link>
       </div>
       <div className="w-[90vw] flex flex-col items-center justify-center p-8 gap-4 border bg-primary/70 border-secondary rounded-2xl mb-10">
-        <Button
-          title="Buy tickets"
-          icon={<FiBookmark />}
-          className="bg-secondary text-white hover:scale-105 transition-transform duration-200"
-        />
+        <Link to="/Payment">
+          <Button
+            title="Buy tickets"
+            icon={<FiBookmark />}
+            className="bg-secondary text-white hover:scale-105 transition-transform duration-200"
+          />
+        </Link>
 
         <p>125 places left</p>
       </div>
@@ -278,13 +295,19 @@ function EventDetails() {
             <textarea
               name=""
               id=""
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
               cols={30}
               rows={5}
               className="w-full p-4 outline-secondary rounded-xl border-2 border-gray-300"
             ></textarea>
           </div>
           <div>
-            <Button title="Send Review" className="bg-secondary" />
+            <Button
+              title="Send Review"
+              className="bg-secondary"
+              onClick={handleSubmit}
+            />
           </div>
         </div>
       </div>

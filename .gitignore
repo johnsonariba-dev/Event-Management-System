@@ -1,4 +1,6 @@
+# ----------------------------
 # Python
+# ----------------------------
 __pycache__/
 *.py[cod]
 *.pyo
@@ -18,6 +20,7 @@ ENV/
 *.sqlite3
 
 # Recommender system artifacts
+*.csv          # Generated CSV datasets
 *.pkl
 *.h5
 *.pt
@@ -30,7 +33,9 @@ ENV/
 .env
 *.env
 
+# ----------------------------
 # Frontend (React/Vite/Next)
+# ----------------------------
 node_modules/
 dist/
 build/
@@ -41,17 +46,23 @@ build/
 .env.test.local
 .env.production.local
 
+# ----------------------------
 # IDE/editor files
+# ----------------------------
 .vscode/
 .idea/
 *.swp
 *.sublime-project
 *.sublime-workspace
 
+# ----------------------------
 # OS-specific
+# ----------------------------
 .DS_Store
 Thumbs.db
 
+# ----------------------------
 # Git conflict leftovers
+# ----------------------------
 *.orig
 *.rej
