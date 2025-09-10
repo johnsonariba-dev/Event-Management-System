@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, Text, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, Text, DateTime,UniqueConstraint
 from sqlalchemy.orm import relationship
 from database import Base
 from datetime import datetime
@@ -14,7 +14,7 @@ class User(Base):
     username = Column(String, index=True, nullable=False)
     role = Column(String, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    # created_at = Column(DateTime, default=datetime.utcnow)
 
  # Relations
     # event = relationship("Event", back_populates="organizer")   # "back_populates" fait référence à l'attribut dans la classe Message
@@ -23,6 +23,7 @@ class User(Base):
     # notification = relationship("Notification", back_populates="user")
     # message = relationship("MessageChat", back_populates="user")
     # preference = relationship("UserPreference", back_populates="user")
+    like = relationship("Like", back_populates="user")
 
 # -------------------- EVENT --------------------
 class Event(Base):
@@ -47,6 +48,7 @@ class Event(Base):
     # review = relationship("Review", back_populates="event")
     # update = relationship("Update", back_populates="event")
     # message = relationship("MessageChat", back_populates="event")
+    like = relationship("Like", back_populates="event")
 
 # -------------------- TICKET --------------------
 class Ticket(Base):
@@ -74,6 +76,21 @@ class Review(Base):
 # Relations
     # user = relationship("User", back_populates="review")
     # event = relationship("Event", back_populates="review")
+
+# -------------------- LIKE --------------------
+class Like(Base):
+    __tablename__ = "Likes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
+
+# Un utilisateur ne peut liker un item qu’une seule fois
+    __table_args__ = (UniqueConstraint("user_id", "event_id", name="unique_like"),)
+
+    # Relations
+    user = relationship("User", back_populates="like")
+    event = relationship("Event", back_populates="like")
 
 # -------------------- NOTIFICATION --------------------
 class Notification(Base):

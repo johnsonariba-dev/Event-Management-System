@@ -14,7 +14,7 @@ router = APIRouter()
 
 # Endpoint to fetch all events
 @router.get("/events", response_model=List[EventResponse])
-async def read_events(db: Session = Depends(get_db)):
+async def read_events(db: db_dependency):
     return db.query(models.Event).all()
 
 # Endpoint to fetch one event
