@@ -15,6 +15,7 @@ const Register: React.FC = () => {
   const [role, setRole] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [success, setSuccess] = useState(false); // Added success state
 
   const handlePassword = () => {
     setShowPassword(!showPassword);
@@ -34,15 +35,12 @@ const Register: React.FC = () => {
         throw new Error(errData.message || "Registration failed");
       }
 
-      navigate("/Events");
+      setSuccess(true);
 
-      // const data = await response.json();
-      // if (data?.token) {
-      //   localStorage.setItem("token", data.token);
-      //   window.location.href = "/Dashboard";
-      // } else {
-      //   throw new Error("No token returned from server");
-      // }
+      setTimeout(() => {
+        navigate("/Login");
+      }, 3000);
+
     } catch (err: unknown) {
       setError(
         err instanceof Error ? err.message : "An unknown error occurred"
@@ -62,12 +60,17 @@ const Register: React.FC = () => {
               }}
               className="flex flex-col space-y-5 "
             >
-              <h1 className="text-3xl font-bold text-center pb-10">
+              <h1 className="text-3xl font-bold text-center pb-5">
                 Create an account
-              </h1>
-
+              </h1>{" "}
+              {success && (
+                <div className="bg-green-500 rounded-lg">
+                  <h1 className="text-center p-2 text-2xl text-white">
+                    Successful Registration
+                  </h1>
+                </div>
+              )}
               {error && <p className="text-red-500 text-center">{error}</p>}
-
               <input
                 type="text"
                 placeholder="Name"
@@ -75,7 +78,6 @@ const Register: React.FC = () => {
                 onChange={(e) => setName(e.target.value)}
                 className="w-full border-2 border-violet-500 rounded-md p-3 outline-none focus:ring-2 focus:ring-violet-400"
               />
-
               <input
                 type="email"
                 placeholder="Email"
@@ -83,7 +85,6 @@ const Register: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full border-2 border-violet-500 rounded-md p-3 outline-none focus:ring-2 focus:ring-violet-400"
               />
-
               <div className="relative w-full">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -104,7 +105,6 @@ const Register: React.FC = () => {
                   )}
                 </button>
               </div>
-
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
@@ -114,21 +114,18 @@ const Register: React.FC = () => {
                 <option value="user">User</option>
                 <option value="organiser">Organiser</option>
               </select>
-
               <div className="flex items-center">
                 <input id="remember" type="checkbox" className="mr-2" />
                 <label htmlFor="remember" className="text-sm">
                   Remember Me
                 </label>
               </div>
-
               <div className="flex justify-center pt-4">
                 <Button
                   title="Register"
                   className="px-8 py-3 text-white rounded-md transition"
                 />
               </div>
-
               <div className="text-center">
                 <p>
                   Already have an account?{" "}

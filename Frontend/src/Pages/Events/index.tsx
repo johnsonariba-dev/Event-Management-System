@@ -28,6 +28,13 @@ const Events: React.FC = () => {
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
   const [popularity, setPopularity] = useState("");
+  const [loader, setLoader] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoader(false);
+    }, 2000);
+  }, []);
 
   useEffect(() => {
     axios
@@ -47,7 +54,8 @@ const Events: React.FC = () => {
         <div className="relative top-64 pl-5">
           <h1 className="text-primary font-bold text-[5vw]">
             Discover <span className="text-secondary">Events</span>
-          </h1>6
+          </h1>
+          6
           <p className="text-gray-200 text-[1.5vw] max-w-xl">
             Explore thousands of events happening around you and connect with
             like-minded people
@@ -116,8 +124,8 @@ const Events: React.FC = () => {
               : true
           )
           .sort((a, b) => {
-            if (popularity === "top") return b.ticket_price - a.ticket_price; // real ratings will be replaced in feature
-            if (popularity === "most") return b.id - a.id; // fake "most viewed"
+            if (popularity === "top") return b.ticket_price - a.ticket_price;
+            if (popularity === "most") return b.id - a.id;
             return 0;
           })
           .map((event) => (
