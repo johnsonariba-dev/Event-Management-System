@@ -8,11 +8,9 @@ import Register from "./Pages/Authentication/Register";
 import Login from "./Pages/Authentication/Login/Login";
 import CreateEvent from "./Pages/CreateEvents";
 import EventDetails from "./Pages/EventDetails/EventDetails";
-<<<<<<< HEAD
 import CityDetails from "./Pages/EventDetails/CityDetails";
-=======
 import NewEvent from "./Pages/NewEvent";
->>>>>>> ece5cdf (new event)
+import Payment from "./Pages/Payments/Payment";
 
 const NavBarItems = [
   {
@@ -48,6 +46,7 @@ function App() {
         <Route path="/NewEvent" element={<NewEvent />}></Route>
         <Route path="/Event/:id" element={<EventDetails />}></Route>
         <Route path="/cities/:id" element={<CityDetails />}></Route>
+        <Route path="/Payment" element={<Payment />}></Route>
       </Routes>
       {showfooter && <Footer />}
     </div>
