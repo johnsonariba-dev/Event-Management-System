@@ -8,11 +8,8 @@ import Register from "./Pages/Authentication/Register";
 import Login from "./Pages/Authentication/Login/Login";
 import CreateEvent from "./Pages/CreateEvents";
 import EventDetails from "./Pages/EventDetails/EventDetails";
-<<<<<<< HEAD
 import CityDetails from "./Pages/EventDetails/CityDetails";
-=======
 import NewEvent from "./Pages/NewEvent";
->>>>>>> ece5cdf (new event)
 
 const NavBarItems = [
   {
