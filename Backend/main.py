@@ -1,6 +1,5 @@
-from endpoints import event_fake
+from endpoints import event_fake, user, ticket, like
 from database import Base,engine
-from endpoints import user
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -20,4 +19,6 @@ app.add_middleware(
 )
 
 app.include_router(user.router, prefix="/user", tags=["user"])
-app.include_router(event_fake.router, tags=["event_fake"])
+app.include_router(event_fake.router,  tags=["event_fake"])
+app.include_router(ticket.router, prefix="/ticket", tags=["ticket"])
+app.include_router(like.router,  tags=["like"])

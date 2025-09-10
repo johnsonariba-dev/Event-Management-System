@@ -1,8 +1,11 @@
-from pydantic import BaseModel, EmailStr
+from typing import Optional
+from pydantic import BaseModel,EmailStr
+
 
 class CreateUser(BaseModel):
     username: str
-    email: EmailStr
+    role: str
+    email:EmailStr
     password: str
     role: str
 
@@ -20,7 +23,14 @@ class UserResponse(BaseModel):
     # password: str
 
     class Config:
-        orm_mode = True
+        From_attributes = True
+
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    role: Optional[str] = None
+    email:Optional[EmailStr] = None
+    password: Optional[str] = None
+
 
 
 class Token(BaseModel):

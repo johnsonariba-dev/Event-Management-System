@@ -14,7 +14,7 @@ class CreateEvent(BaseModel):
     ticket_price: float
     category: str
     image_url: str 
-    capacity_max : Optional[int] = 0
+    # capacity_max : Optional[int] = 0
 
 
 # Pydantic schema to serialize Event data
@@ -22,7 +22,7 @@ class EventResponse(CreateEvent):
     id: int
 
     class Config:
-        orm_mode = True
+        From_attributes = True
 
 
 # Schéma pour la mise à jour
@@ -33,7 +33,7 @@ class EventUpdate(BaseModel):
     venue: Optional[str] = None
     ticket_price: Optional[float] = None
     category: Optional[str] = None
-    capacity_max: Optional[int] = None
+    # capacity_max: Optional[int] = None
     image_url: Optional[str] = None
 
 class UserInterests(BaseModel):
