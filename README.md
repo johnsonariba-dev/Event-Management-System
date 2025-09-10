@@ -21,6 +21,9 @@ npm install framer-motion
 npm install react-calendar date-fns
 npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/timegrid @fullcalendar/interaction
 
+#eventdetails sharing
+npm install --save-dev @types/react @types/react-dom
+
 
 # Virtual environment
 python3 -m venv venv 
