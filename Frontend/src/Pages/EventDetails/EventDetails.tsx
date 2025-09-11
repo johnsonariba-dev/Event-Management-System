@@ -18,7 +18,6 @@ import { useEffect, useState } from "react";
 import { FaMoneyBill } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import ShareButton from "../../components/ShareButton";
-
 // ✅ Types for events + reviews
 interface Reviews {
   user: string;
@@ -26,6 +25,7 @@ interface Reviews {
   rating: number;
   time: string;
 }
+
 
 interface Event {
   id: number;
@@ -95,6 +95,9 @@ function EventDetails() {
     fetchEvent();
   }, [id]);
 
+  
+
+
   if (loading) {
     return (
       <div className="w-full h-screen flex items-center justify-center">
@@ -136,11 +139,12 @@ function EventDetails() {
                 About This Event
               </h1>
               <div className="flex gap-4 text-2xl">
+                <span>{"total de like"}</span>
                 <HiHeart
                   className={`cursor-pointer ${
                     heartC ? "text-red-500" : "text-gray-400"
                   }`}
-                  onClick={handleHeartClick}
+                  onClick={()=>{handleHeartClick;  }}
                 />
                 <FiBookmark
                   className={`cursor-pointer ${

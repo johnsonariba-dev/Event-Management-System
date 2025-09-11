@@ -9,11 +9,14 @@ router = APIRouter()
 @router.post("/like", response_model = LikeResponse)
 async def toggle_like(like: LikeCreate,
                       db:db_dependency,
-                      current_user: models.User = Depends(get_current_user)):
+                    #   current_user: models.User = Depends(get_current_user)):
+                    current_user: models.User ):
+
     user_id = current_user.id
     event_id = like.event_id
 
     existing_like = db.query(models.Like).filter(user_id == user_id, event_id==event_id).first()
+    
     if existing_like:
         db.delete(existing_like)
         db.commit()
@@ -28,7 +31,7 @@ async def toggle_like(like: LikeCreate,
     return LikeResponse(event_id=event_id, liked_by_user=liked, total_like= total_like)
 
 
-@router.get("/likes",response_model= LikeResponse)
+@router.get("events/${evend_id}/likes",response_model= LikeResponse)
 async def get_likes(event_id : int, db:db_dependency,
                     current_user: models.User = Depends(get_current_user)):
     
