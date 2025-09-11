@@ -20,7 +20,7 @@ npm install framer-motion
 npm install react-calendar date-fns
 npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/timegrid @fullcalendar/interaction
 
-#eventdetails sharing
+# eventdetails sharing
 npm install --save-dev @types/react @types/react-dom
 
 
@@ -57,3 +57,6 @@ pip install python-dotenv  (for backend)
 python -m endpoints.faker_events [pour run]
 python convert_db.py
 python recommender.py
+python -m endpoints.faker_events [pour run]
+python3 convert_db.py
+python3 recommender.py
