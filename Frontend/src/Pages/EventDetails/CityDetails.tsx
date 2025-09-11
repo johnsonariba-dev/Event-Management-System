@@ -32,7 +32,7 @@ function CityDetails() {
 
   const fetchEvents = async (venue: string) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/event_fake/events/?venue=${venue}`);
+      const response = await fetch(`http://127.0.0.1:8000/events/?venue=${venue}`);
       if (!response.ok){
         return 'failed to fetch';
       }

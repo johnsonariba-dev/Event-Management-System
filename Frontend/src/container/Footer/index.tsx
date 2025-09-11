@@ -74,7 +74,13 @@ const Footer: React.FC = () => {
             <FaPhoneAlt size={20} />
             <p> (+237) 652-173-171</p>
           </div>
-          <Button title="Buy A Ticket" className="bg-secondary mt-3" type="" />
+          <NavLink to={"/events"}>
+            <Button
+              title="Buy A Ticket"
+              className="bg-secondary mt-3"
+              type=""
+            />
+          </NavLink>
         </div>
       </div>
       <hr className="mt-3" />

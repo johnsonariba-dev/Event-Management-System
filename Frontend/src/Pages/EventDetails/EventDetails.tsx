@@ -66,7 +66,7 @@ function EventDetails() {
     const fetchEvent = async () => {
       try {
         const res = await fetch(
-          `http://127.0.0.1:8000/event_fake/events/${id}`
+          `http://127.0.0.1:8000/events/${id}`
         );
         if (!res.ok) throw new Error("Event not found");
         const data: Event = await res.json();
@@ -218,7 +218,7 @@ function EventDetails() {
             <HiOutlineClock size={24} className="text-secondary" />
             <p className="text-white">Almost full!</p>
           </div>
-          <Link to="/Payment">
+          <Link to={`/Payment/${event.id}`}>
             <Button
               icon={<FiBookmark />}
               title="Buy ticket"
@@ -290,7 +290,7 @@ function EventDetails() {
         </Link>
       </div>
       <div className="w-[90vw] flex flex-col items-center justify-center p-8 gap-4 border bg-primary/70 border-secondary rounded-2xl mb-10">
-        <Link to="/Payment">
+        <Link to={`/Payment/${event.id}`}>
           <Button
             title="Buy tickets"
             icon={<FiBookmark />}

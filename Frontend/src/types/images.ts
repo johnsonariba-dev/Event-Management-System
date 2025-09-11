@@ -9,6 +9,9 @@ import newyork from "../assets/images/newyork.jpeg"
 import london from "../assets/images/london.jpeg"
 import tokyo from "../assets/images/tokyo.jpeg"
 import cameroon from "../assets/images/cameroon.jpeg"
+import mtn from "../assets/images/mtn.jpeg"
+import orange from "../assets/images/orange.jpeg"
+import Paypal from "../assets/images/paypal.jpeg"
 
 export default{
     logo,
@@ -21,6 +24,8 @@ export default{
     paris,
     newyork,
     london,
-    cameroon
+    cameroon,
+    mtn,
+    orange, Paypal
 
 }

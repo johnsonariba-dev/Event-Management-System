@@ -7,7 +7,7 @@ import { NavLink } from "react-router-dom";
 interface Review {
   user: string;
   comment: string;
-  rating?: number; // optional if you have star ratings
+  rating?: number; 
 }
 
 interface EventProps {
@@ -38,7 +38,7 @@ const Events: React.FC = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/event_fake/events")
+      .get("http://localhost:8000/events")
       .then((res) => {
         setEvents(res.data);
       })
