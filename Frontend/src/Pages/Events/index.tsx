@@ -28,13 +28,13 @@ const Events: React.FC = () => {
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
   const [popularity, setPopularity] = useState("");
-  const [loader, setLoader] = useState(true);
+  // const [loader, setLoader] = useState(true);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setLoader(false);
-    }, 2000);
-  }, []);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     setLoader(false);
+  //   }, 2000);
+  // }, []);
 
   useEffect(() => {
     axios
@@ -44,6 +44,15 @@ const Events: React.FC = () => {
       })
       .catch((err) => console.error("Error fetching events:", err));
   }, []);
+
+
+  if (loader) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32 animate-spin border-b-gray-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-accent">

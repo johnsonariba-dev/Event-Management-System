@@ -1,7 +1,6 @@
 from endpoints.auth import get_current_organizer
 from schemas.events import CreateEvent, EventResponse, EventUpdate, UserInterests
 from fastapi.responses import HTMLResponse
-from schemas.events import CreateEvent, EventResponse, EventUpdate
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from recommender import recommend_events
@@ -83,7 +82,7 @@ async def create_events(db: db_dependency,
         ticket_price=event.ticket_price,
         date=event.date,
         image_url=event.image_url,
-        capacity_max=event.capacity_max
+        capacity_max= 100,
     )
 
     db.add(db_event)

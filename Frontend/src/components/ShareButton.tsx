@@ -28,10 +28,11 @@ export default function ShareButton({ event }: ShareButtonProps) {
 
   const generateShareURL = () =>
     `http://127.0.0.1:8000/events/${event.id}/share`;
+
   
   const handleMobileShare = () => {
     const url = generateShareURL();
-    const text = `${event.title} - ${event.description}`;
+    const text = `${event.title} - ${event.description} - ${url}`;
 
     if (navigator.share) {
       navigator.share({ title: event.title, text, url }).catch(console.error);
