@@ -22,7 +22,7 @@ interface Event {
 }
 
 function Payment() {
-  const [method, setMethod] = useState<string>("paypal");
+  const [method, setMethod] = useState<string>("paypal"); //default start with paypal payment
   const [event, setEvent] = useState<Event | null>(null);
   const { id } = useParams<{ id: string }>();
   const [count, setCount] = useState(0);
