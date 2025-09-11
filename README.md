@@ -1,5 +1,4 @@
 # Event-Management-System
-
 Appstech event management system [PlanVibes]
 
 # install
@@ -21,7 +20,7 @@ npm install framer-motion
 npm install react-calendar date-fns
 npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/timegrid @fullcalendar/interaction
 
-#eventdetails sharing
+# eventdetails sharing
 npm install --save-dev @types/react @types/react-dom
 
 
@@ -40,4 +39,24 @@ pip install "python-jose[cryptography]"
 pip install "pydantic[email]"
 pip install "passlib[bcrypt]"
 pip install faker
+
+# run database
+python -m endpoints.faker_events 
+
+# run recommender
+python convert_db.py
+python recommender.py
+
+# qrcode
+pip install qrcode fpdf
+
+
+# for paypal payment
+npm install @paypal/react-paypal-js   (for the frontend)
+pip install python-dotenv  (for backend)
 python -m endpoints.faker_events [pour run]
+python convert_db.py
+python recommender.py
+python -m endpoints.faker_events [pour run]
+python3 convert_db.py
+python3 recommender.py

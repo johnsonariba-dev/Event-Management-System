@@ -23,7 +23,8 @@ import ShareButton from "../../components/ShareButton";
 interface Reviews {
   user: string;
   comment: string;
-  rating?: number;
+  rating: number;
+  time: string;
 }
 
 interface Event {
@@ -48,11 +49,24 @@ function EventDetails() {
   const [submitC, setsubmitc] = useState<string[]>([]);
   const [heartC, setHeartC] = useState(false);
   const [bookC, setBookC] = useState(false);
+  const [reviews, setReviews] = useState<Reviews[]>([]);
+  const [userName, setUserName] = useState("");
+  const [currentRating, setCurrentRating] = useState(0);
 
-  const handleSubmit = async () => {
-    if (comment.trim() === "") return;
-    setsubmitc([...submitC, comment]);
-    setComment(" ");
+  const handleSubmit = () => {
+    if (!userName.trim() || !comment.trim()) return;
+
+    const newReview: Reviews = {
+      user: userName,
+      comment,
+      rating: currentRating,
+      time: new Date().toLocaleString(),
+    };
+
+    setReviews([...reviews, newReview]);
+    setComment("");
+    setCurrentRating(0);
+    setUserName("");
   };
 
   const handleBookClick = () => {
@@ -65,9 +79,7 @@ function EventDetails() {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const res = await fetch(
-          `http://127.0.0.1:8000/event_fake/events/${id}`
-        );
+        const res = await fetch(`http://127.0.0.1:8000/events/${id}`);
         if (!res.ok) throw new Error("Event not found");
         const data: Event = await res.json();
         setEvent(data);
@@ -76,6 +88,7 @@ function EventDetails() {
         setEvent(null);
       } finally {
         setLoading(false);
+        setsubmitc(submitC);
       }
     };
 
@@ -218,7 +231,7 @@ function EventDetails() {
             <HiOutlineClock size={24} className="text-secondary" />
             <p className="text-white">Almost full!</p>
           </div>
-          <Link to="/Payment">
+          <Link to={`/Payment/${event.id}`}>
             <Button
               icon={<FiBookmark />}
               title="Buy ticket"
@@ -249,39 +262,6 @@ function EventDetails() {
           </div>
         </div>
       </div>
-      <div className="w-full flex flex-col items-center justify-center p-8 gap-4">
-        <h1 className="font-bold text-xl">What are your attendees saying?</h1>
-        <div className="flex flex-col gap-4">
-          {submitC.map((comment, index: number) => (
-            <div
-              key={index}
-              className="p-4 bg-gray-100 rounded-xl shadow flex w-[95vw] justify-between"
-            >
-              <div className="flex  items-center w-full space-y-2 gap-4">
-                <div className="flex items-center justify-center  gap-4 rounded-full bg-primary text-white text-2xl w-[4vw] h-[8vh] ">
-                  ZR
-                </div>
-                <div className="flex flex-col gap-2  w-full">
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex flex-col">
-                      <h1 className="font-semibold">Zounka Raneni</h1>
-                      <p className="text-sm text-gray-500">1 day ago</p>
-                    </div>
-                    <div className="flex items-center gap-1 p-4">
-                      {[...Array(5)].map((_, i) => (
-                        <HiStar key={i} className="text-secondary text-xl" />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex-1 flex items-center justify-center">
-                    <p className="text-gray-700">{comment}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
       <div className="w-full flex items-center justify-center p-10 mb-10">
         <Link to="/reviews">
           <button className="text-secondary bg-transparent border hover:bg-primary/20 py-2 shadow border-secondary transition rounded-md px-4 cursor-pointer">
@@ -290,7 +270,7 @@ function EventDetails() {
         </Link>
       </div>
       <div className="w-[90vw] flex flex-col items-center justify-center p-8 gap-4 border bg-primary/70 border-secondary rounded-2xl mb-10">
-        <Link to="/Payment">
+        <Link to={`/Payment/${event.id}`}>
           <Button
             title="Buy tickets"
             icon={<FiBookmark />}
@@ -300,36 +280,69 @@ function EventDetails() {
 
         <p>125 places left</p>
       </div>
-      <div className="w-full flex flex-col items-center justify-center p-8 gap-4 mb-10">
-        <div className="w-full flex flex-col p-4 rounded-2xl bg-gray-100 shadow-md gap-4">
-          <h1 className="font-bold text-xl">Leave a review</h1>
-          <h4 className="font-semibold">Your rating</h4>
-          <div className="flex items-center gap-1 p-4">
+      <div className="w-full flex flex-col items-center gap-4 p-8">
+        <div className="w-full flex flex-col gap-2 p-4 rounded-2xl bg-gray-100 shadow-md">
+          <h1 className="font-bold text-xl">Leave a Review</h1>
+          <input
+            type="text"
+            placeholder="Your Name"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            className="w-full p-2 border rounded"
+          />
+          <h4 className="font-semibold mt-2">Your Rating</h4>
+          <div className="flex items-center gap-1 p-2">
             {[...Array(5)].map((_, i) => (
-              <HiStar key={i} className="text-secondary text-xl" />
+              <HiStar
+                key={i}
+                className={`text-xl cursor-pointer ${
+                  i < currentRating ? "text-yellow-400" : "text-gray-300"
+                }`}
+                onClick={() => setCurrentRating(i + 1)}
+                onDoubleClick={() => setCurrentRating(0)}
+              />
             ))}
           </div>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="" className="font-semibold">
-              Your Comment
-            </label>
-            <textarea
-              name=""
-              id=""
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              cols={30}
-              rows={5}
-              className="w-full p-4 outline-secondary rounded-xl border-2 border-gray-300"
-            ></textarea>
-          </div>
-          <div>
-            <Button
-              title="Send Review"
-              className="bg-secondary"
-              onClick={handleSubmit}
-            />
-          </div>
+          <textarea
+            placeholder="Your Comment"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            className="w-full p-4 outline-secondary rounded-xl border-2 border-gray-300"
+            rows={4}
+          />
+          <button
+            className="bg-secondary text-white py-2 px-4 rounded hover:bg-primary transition"
+            onClick={handleSubmit}
+          >
+            Submit Review
+          </button>
+        </div>
+
+        <div className="w-full flex flex-col gap-4 mt-4">
+          {reviews.map((rev, index) => (
+            <div
+              key={index}
+              className="p-4 bg-gray-100 rounded-xl shadow flex flex-col gap-2"
+            >
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="font-semibold">{rev.user}</h2>
+                  <p className="text-sm text-gray-500">{rev.time}</p>
+                </div>
+                <div className="flex gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <HiStar
+                      key={i}
+                      className={`text-xl ${
+                        i < rev.rating ? "text-yellow-400" : "text-gray-300"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+              <p className="text-gray-700">{rev.comment}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

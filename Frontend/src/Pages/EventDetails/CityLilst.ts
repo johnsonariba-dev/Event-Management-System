@@ -2,52 +2,45 @@ import images from "../../types/images";
 
 type City = {
   id: number;
-  title: string;
+  name: string;
   image: string;
-  country?: string;
-  date: string;
-  venue: string;
+  region?: string;
+  desc?: string;
 };
 
 export const cities: City[] = [
   {
     id: 1,
-    title: "Paris",
-    image: images.paris,
-    country: "France",
-    date: "2023-10-12",
-    venue: "Paris, France",
+    name: "Douala",
+    image: images.douala,
+    region: "Littoral",
+    desc: "The largest city and Cameroon’s economic hub. Home to the country’s biggest seaport and international airport. It’s a hotspot for business events, concerts, expos, and nightlife activities."
   },
   {
     id: 2,
-    title: "New York",
-    image: images.newyork,
-    country: "USA",
-    date: "2023-10-12",
-    venue: "New York, USA",
+    name: "Yaounde",
+    image: images.yaounde,
+    region: "Centre",
+    desc: "Cameroon’s political capital and second-largest city. Known for government institutions, embassies, universities, and cultural sites like the National Museum. Events often include political summits, academic conferences, and cultural festivals.",
   },
   {
     id: 3,
-    title: "Tokyo",
-    image: images.tokyo,
-    country: "Japan",
-    date: "2023-10-14",
-    venue: "Tokyo, Japan",
+    name: "Bamenda",
+    image: images.bamenda,
+    region: "North-West",
+    desc: "A lively city in the highlands, known for its cool climate and strong cultural heritage of the Grassfields people. Common for cultural festivals, community events, and university activities."
   },
   {
     id: 4,
-    title: "London",
-    image: images.london,
-    country: "UK",
-    date: "2023-10-10",
-    venue: "London, UK",
+    name: "Bafoussam",
+    image: images.bafoussam,
+    region: "West",
+    desc : "Cultural and commercial center of the Bamileke people. Known for traditional festivals, markets, and agro-business fairs. Events often highlight entrepreneurship and local culture."
   },
-  {
-    id: 5,
-    title: "Cameroon",
-    image: images.cameroon,
-    country: "Cameroon",
-    date: "2023-10-10",
-    venue: "Yaoundé, Cameroon",
-  },
+  // {
+  //   id: 5,
+  //   name: "Cameroon",
+  //   image: images.cameroon,
+  //   region: "Cameroon",
+  // },
 ];

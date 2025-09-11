@@ -75,18 +75,39 @@ db.commit()
 for _ in range(100):
     category = random.choice(CATEGORIES)
     image_url = get_random_image(category)
-    
-    event = Event(
-        title=fake.catch_phrase(),
-        description=fake.text(max_nb_chars=150),
-        category=category,
-        venue=fake.address().replace("\n", ", "),
-        ticket_price=random.choice([0, round(random.uniform(10, 100), 2)]),
-        date=fake.future_datetime(end_date="+30d"),
-        image_url=image_url,  # make sure this matches your Event model
-        capacity_max=100,
-         organizer_id=1,
+
+    # Generate a more natural title
+    title = f"{fake.bs().title()} {category.capitalize()} Experience"
+
+    # Description with a bit more structure
+    description = (
+        f"{fake.sentence(nb_words=6)} "
+        f"{fake.paragraph(nb_sentences=2)}"
     )
+
+    # Venue cleanup
+    venue = fake.address().replace("\n", ", ")
+
+    # Ticket pricing logic
+    is_free = random.random() < 0.2  # 20% chance of free event
+    ticket_price = 0 if is_free else round(random.uniform(15, 120), 2)
+
+    # Date within next 30 days
+    date = fake.future_datetime(end_date="+30d")
+
+    # Create event
+    event = Event(
+        title=title,
+        description=description,
+        category=category,
+        venue=venue,
+        ticket_price=ticket_price,
+        date=date,
+        image_url=image_url,
+        capacity_max=random.choice([50, 100, 200]),
+        organizer_id=1,
+    )
+
     db.add(event)
 
 db.commit()
