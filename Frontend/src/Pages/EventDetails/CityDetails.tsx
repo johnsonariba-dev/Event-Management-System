@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { cities } from "./CityLilst";
-import { FiChevronDown } from "react-icons/fi";
 import { NavLink } from "react-router-dom";
 import { FaLocationDot } from "react-icons/fa6";
 import Button from "../../components/button";
@@ -26,7 +25,7 @@ function CityDetails() {
     setCity(foundCity || null);
 
     if (foundCity) {
-      fetchEvents(foundCity.venue);
+      fetchEvents(foundCity.name);
     }
   }, [id]);
 
@@ -47,30 +46,22 @@ function CityDetails() {
   if (!city) return <div>City not found</div>;
 
   return (
+    <>
     <div className="w-full flex flex-col items-center justify-center pb-10">
-      <img
-        src={city.image}
-        alt={city.title}
-        className="mt-20 w-[95vw] h-[80vh] shadow-lg rounded-2xl"
-      />
-      <h1 className="text-4xl bottom-20 absolute font-bold text-secondary hover:bg-white/20 hover:scale-105 transition-transform duration-300 bg-primary/60 px-5 py-2 rounded-lg shadow-lg">
-        View all events in {city.title}{" "}
-        <FiChevronDown
-          className="inline animate-bounce transition-transform duration-300"
-          size={54}
+      <div className="flex bg-secondary/10 rounded-lg gap-7 shadow-lg h-[80vh] p-15 mt-25 w-full">
+        <div className="w-[50%] h-full flex-col justify-center items-center py-8 pr-20">
+          <p className="text-xl font-semibold" >Events in</p>
+          <p className="text-7xl font-bold text-primary pb-5">{city.name}, <span>{city.region}</span></p>
+          <p> {city.desc}</p>
+        </div>
+      <div className="w-[50%] h-full"> 
+        <img
+          src={city.image}
+          alt={city.name}
+          className="w-full h-full object-cover rounded-lg"
         />
-      </h1>
-
-      <div className="w-[95vw] flex items-center justify-between px-10 mt-5 bg-primary/10 rounded-lg shadow-lg py-5">
-        <div className="flex flex-col">
-          <p className="text-xl font-semibold">{city.country}</p>
-        </div>
-        <div className="flex flex-col items-end space-y-3">
-          <p>{city.date}</p>
-          <p>{city.venue}</p>
-        </div>
       </div>
-
+    </div>
       <div className="w-[95vw] mt-10">
         <h2 className="text-2xl font-semibold">Upcoming Events</h2>
         <div className="mt-5 space-y-5 flex flex-wrap justify-evenly items-center gap-8">
@@ -113,6 +104,7 @@ function CityDetails() {
         </div>
       </div>
     </div>
+  </>
   );
 }
 

@@ -12,6 +12,11 @@ import cameroon from "../assets/images/cameroon.jpeg"
 import mtn from "../assets/images/mtn.jpeg"
 import orange from "../assets/images/orange.jpeg"
 import Paypal from "../assets/images/paypal.jpeg"
+import yaounde from "../assets/images/yaounde.jpg"
+import douala from "../assets/images/douala.jpg"
+import bamenda from "../assets/images/Bamenda.jpg"
+import bafoussam from "../assets/images/Bafoussam.jpg"
+
 
 export default{
     logo,
@@ -27,5 +32,9 @@ export default{
     cameroon,
     mtn,
     orange, Paypal
+    yaounde,
+    douala,
+    bamenda,
+    bafoussam,
 
 }
