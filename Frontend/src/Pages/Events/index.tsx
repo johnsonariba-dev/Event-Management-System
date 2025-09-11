@@ -28,13 +28,13 @@ const Events: React.FC = () => {
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
   const [popularity, setPopularity] = useState("");
-  const [loader, setLoader] = useState(true);
+  // const [loader, setLoader] = useState(true);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setLoader(false);
-    }, 2000);
-  }, []);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     setLoader(false);
+  //   }, 2000);
+  // }, []);
 
   useEffect(() => {
     axios

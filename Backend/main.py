@@ -5,6 +5,11 @@ env_path = Path(__file__).parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
 from endpoints import event_fake, user, ticket, like, paypal
+from endpoints import event_fake, user, ticket, like
+from database import Base,engine
+from endpoints import user
+# from payment import 
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from endpoints import user
@@ -19,7 +24,7 @@ Base.metadata.create_all(bind=engine)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5174"],
+    allow_origins= ["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

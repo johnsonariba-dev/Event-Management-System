@@ -24,12 +24,10 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
   return (
     <div className="relative z-4">
       <div className="flex justify-between items-center fixed bg-white w-full px-6">
-        <div className="w-20">
-          <NavLink to={"/"}>
-            <img src={images.logo} alt="" className="w-full object-contain" />
-          </NavLink>
-        </div>
-
+        <NavLink to={"/"}
+        className="w-20 object-cover">
+          <img src={images.logo} alt="" className="w-full" />
+        </NavLink>
         {/* Desktop Nav */}
         <div className="flex gap-10 items-center max-lg:hidden">
           <ul className="flex gap-8 text-xl max-xl:gap-4">
