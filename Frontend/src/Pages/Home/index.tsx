@@ -1,5 +1,5 @@
-import React, { useRef, useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react"; // nice icons
+import { useRef, useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   HiArrowRight,
@@ -11,7 +11,6 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../components/button";
 import { FaChartLine } from "react-icons/fa6";
 import { cities } from "../EventDetails/CityLilst";
-
 
 type EventItem = {
   id: number;
@@ -25,8 +24,6 @@ type EventItem = {
   capacity_max: number;
   country?: string;
 };
-
-
 
 function Home() {
   const navigate = useNavigate();
@@ -70,15 +67,13 @@ function Home() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch(
-          "http://127.0.0.1:8000/event_fake/events"
-        );
+        const res = await fetch("http://127.0.0.1:8000/events");
         if (!res.ok) throw new Error("Failed to fetch events");
         const data: EventItem[] = await res.json();
         setEvents(data);
       } catch (err) {
         console.error(err);
-        setEvents([]); // fallback
+        setEvents([]); 
       } finally {
         setIsLoading(false);
       }
