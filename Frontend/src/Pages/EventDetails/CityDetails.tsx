@@ -48,17 +48,19 @@ function CityDetails() {
   return (
     <>
     <div className="w-full flex flex-col items-center justify-center pb-10">
-      <div className="flex bg-secondary/10 rounded-lg gap-7 shadow-lg h-[80vh] p-15 mt-25 w-full">
-        <div className="w-[50%] h-full flex-col justify-center items-center py-8 pr-20">
-          <p className="text-xl font-semibold" >Events in</p>
-          <p className="text-7xl font-bold text-primary pb-5">{city.name}, <span>{city.region}</span></p>
+<div
+  className="flex max-md:flex-col text-white md:gap-7 shadow-lg md:h-[85vh] p-5 md:p-15 md:mt-25 mt-10 w-full bg-cover bg-center"
+  style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${city.image})` }}
+>
+        <div className="md:w-[50%] h-full flex flex-col gap-15 justify-center items-center py-20 md:pr-20">
+          <p className="md:text-7xl text-6xl font-bold pb-5">{city.name}, <span>{city.region}</span></p>
           <p> {city.desc}</p>
         </div>
-      <div className="w-[50%] h-full"> 
+      <div className="md:w-[50%] h-full"> 
         <img
           src={city.image}
           alt={city.name}
-          className="w-full h-full object-cover rounded-lg"
+          className="w-full h-full object-cover max-md:hidden rounded-lg"
         />
       </div>
     </div>
