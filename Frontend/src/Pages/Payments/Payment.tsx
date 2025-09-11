@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Button from "../../components/button";
 import images from "../../types/images";
 import { useParams } from "react-router-dom";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 interface Event {
   id: number;
@@ -49,6 +50,7 @@ function Payment() {
   const increment = () => {
     setCount(count + 1);
   };
+
   useEffect(() => {
     const total = Number(((event?.ticket_price || 0) * count).toFixed(2));
     setAmount(total);
@@ -57,7 +59,7 @@ function Payment() {
   return (
     <div className="flex flex-col items-center justify-center bg-purple-50">
       <div className="py-10 mt-25 mb-10 flex flex-col px-6 w-full md:w-200 justify-center bg-white rounded-lg shadow-lg">
-
+        {/* Event details */}
         <div className="flex items-center font-semibold text-2xl gap-10 px-4 md:px-10 pb-10">
           <FaArrowLeftLong />
           <h1>Ticket Purchase</h1>
@@ -86,8 +88,9 @@ function Payment() {
           </div>
         </div>
 
-        {/* payment */}
+        {/* Payment Section */}
         <div className="flex flex-col md:flex-row justify-between border rounded-lg mt-10 p-5 gap-10">
+          {/* Ticket Section */}
           <div className="flex-1">
             <h1 className="text-xl text-center pb-5 font-semibold">
               Available Tickets
@@ -133,7 +136,7 @@ function Payment() {
             </div>
           </div>
 
-          {/* payment details */}
+          {/* Checkout Section */}
           <div className="flex-1">
             <h1 className="text-xl pb-5 font-semibold">Checkout</h1>
 
@@ -164,6 +167,7 @@ function Payment() {
               />
             </div>
 
+            {/* MTN Payment */}
             {method === "mtn" && (
               <form>
                 <h2 className="font-semibold mb-2">MTN MoMo Payment</h2>
@@ -172,9 +176,11 @@ function Payment() {
                   type="text"
                   className="w-full bg-gray-200 p-2 rounded-sm mb-3"
                 />
+                <Button title="Pay Now" className="mt-10 px-10" />
               </form>
             )}
 
+            {/* Orange Payment */}
             {method === "orange" && (
               <form>
                 <h2 className="font-semibold mb-2">Orange Money Payment</h2>
@@ -183,40 +189,50 @@ function Payment() {
                   type="text"
                   className="w-full bg-gray-200 p-2 rounded-sm mb-3"
                 />
+                <Button title="Pay Now" className="mt-10 px-10" />
               </form>
             )}
 
+            {/* PayPal Payment */}
             {method === "paypal" && (
-              <form>
+              <div>
                 <h2 className="font-semibold mb-2">PayPal Payment</h2>
-                <div>
-                  <label htmlFor="">Cardholder Name</label>
-                  <input
-                    type="text"
-                    className="w-full bg-gray-200 p-2 rounded-sm"
+                <PayPalScriptProvider
+                  options={{
+                    clientId:
+                      "AWcbUIkfqRx51ILXg1sIoHVdDWqFfrYsKPDCrzoXNSf_2StjtXPBn75giD0bYLCnQ8YrtWTw0VQxddIB",
+                  }}
+                >
+                  <PayPalButtons
+                    style={{ layout: "vertical", shape: "rect" }}
+                    createOrder={async () => {
+                      const res = await fetch(
+                        `http://127.0.0.1:8000/create-order?amount=${amount}`,
+                        {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify(amount),
+                        }
+                      );
+                      const data = await res.json();
+                      return data.id;
+                    }}
+                    onApprove={async (data) => {
+                      const res = await fetch(
+                        `http://127.0.0.1:8000/capture-order/${data.orderID}`,
+                        { method: "POST" }
+                      );
+                      const details = await res.json();
+                      alert(
+                        "Transaction completed by " +
+                          details.payer.name.given_name
+                      );
+                      // ✅ Here you can generate ticket QR & redirect
+                    }}
                   />
-                </div>
-                <br />
-                <div>
-                  <label htmlFor="">Card Number</label>
-                  <input
-                    type="text"
-                    className="w-full bg-gray-200 p-2 rounded-sm"
-                  />
-                </div>
-                <br />
-                <div>
-                  <label htmlFor="">CVV2</label>
-                  <input
-                    type="text"
-                    className="w-full bg-gray-200 p-2 rounded-sm"
-                  />
-                </div>
-              </form>
+                </PayPalScriptProvider>
+              </div>
             )}
-            <div className="flex justify-center">
-              <Button title="Pay Now" className="mt-20 px-10" />
-            </div>
           </div>
         </div>
       </div>

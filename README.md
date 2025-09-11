@@ -46,3 +46,11 @@ python -m endpoints.faker_events
 # run recommender
 python convert_db.py
 python recommender.py
+
+# qrcode
+pip install qrcode fpdf
+
+
+# for paypal payment
+npm install @paypal/react-paypal-js   (for the frontend)
+pip install python-dotenv  (for backend)
