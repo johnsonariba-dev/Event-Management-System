@@ -15,7 +15,7 @@ env/
 ENV/
 .venv/
 
-# SQLite database
+# SQLite / other local databases
 *.db
 *.sqlite3
 
@@ -29,9 +29,10 @@ ENV/
 *.npz
 *.model
 
-# Environment variables
+# Environment variables (do not commit real secrets)
 .env
-*.env
+*.env          # Matches any accidental env files
+!*.env.example # <-- allow tracked .env.example
 
 # ----------------------------
 # Frontend (React/Vite/Next)

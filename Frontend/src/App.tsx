@@ -12,6 +12,7 @@ import CityDetails from "./Pages/EventDetails/CityDetails";
 import NewEvent from "./Pages/NewEvent";
 import Payment from "./Pages/Payments/Payment";
 import Chatbot from "./Pages/Chatbot";
+import Attendees from "./Pages/Attendees";
 
 const NavBarItems = [
   {
@@ -48,6 +49,7 @@ function App() {
         <Route path="/Event/:id" element={<EventDetails />}></Route>
         <Route path="/cities/:id" element={<CityDetails />}></Route>
         <Route path="/payment/:id" element={<Payment />}></Route>
+        <Route path="/attendees/:id" element={<Attendees />}></Route>
       </Routes>
       <Chatbot/>
       {showfooter && <Footer />}
