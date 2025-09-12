@@ -2,7 +2,7 @@ from logging.config import fileConfig
 import os
 from dotenv import load_dotenv
 
-from sqlalchemy import create_engine, pool
+from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 # Load environment variables
@@ -45,7 +45,10 @@ def run_migrations_online() -> None:
     connectable = create_engine(DATABASE_URL, poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata
+        )
 
         with context.begin_transaction():
             context.run_migrations()

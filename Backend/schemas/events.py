@@ -1,11 +1,10 @@
-from typing import  Optional, List
+from typing import Optional, List
 from datetime import datetime
 from pydantic import BaseModel
-from sqlalchemy import func
+from .review import Review
 
 
-
-# Schémas de base
+# Base schema for creating an event
 class CreateEvent(BaseModel):
     title: str
     description: str
@@ -13,19 +12,27 @@ class CreateEvent(BaseModel):
     venue: str
     ticket_price: float
     category: str
-    image_url: str 
-    # capacity_max : Optional[int] = 0
+    image_url: str
+    # capacity_max: Optional[int] = 0
 
 
-# Pydantic schema to serialize Event data
+class Event(CreateEvent):
+    id: int
+    reviews: List[Review] = []  # embed list of reviews
+
+    class Config:
+        orm_mode = True
+
+
+# Schema for returning event data
 class EventResponse(CreateEvent):
     id: int
 
     class Config:
-        From_attributes = True
+        orm_mode = True
 
 
-# Schéma pour la mise à jour
+# Schema for updating an event
 class EventUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
@@ -33,8 +40,9 @@ class EventUpdate(BaseModel):
     venue: Optional[str] = None
     ticket_price: Optional[float] = None
     category: Optional[str] = None
-    # capacity_max: Optional[int] = None
     image_url: Optional[str] = None
+    # capacity_max: Optional[int] = None
+
 
 class UserInterests(BaseModel):
     interests: List[str]
