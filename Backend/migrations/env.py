@@ -1,36 +1,36 @@
 from logging.config import fileConfig
 import os
+from dotenv import load_dotenv
 
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+# Load environment variables
+load_dotenv()
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise ValueError("❌ DATABASE_URL is not set in .env")
+
+# Alembic config object
 config = context.config
 
-# Set sqlalchemy.url from environment variable if available
-section = config.get_section(config.config_ini_section)
-section['sqlalchemy.url'] = os.environ.get(
-    'DATABASE_URL',
-    'postgresql://username:password@localhost:5432/your_db_name'
-)
+# Set sqlalchemy.url dynamically
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
-# Interpret the config file for Python logging.
+# Enable logging
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-target_metadata = None
+# Import your models' Base
+from database import Base
+target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
-    url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=url,
+        url=DATABASE_URL,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -42,11 +42,7 @@ def run_migrations_offline() -> None:
 
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    connectable = create_engine(DATABASE_URL, poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
         context.configure(

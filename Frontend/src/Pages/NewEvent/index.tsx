@@ -21,6 +21,12 @@ interface EventFormData {
   ticket_price: string;
 }
 
+interface MediaFile {
+  id: string;
+  file: File;
+  preview: string;
+}
+
 export default function NewEvent() {
   const [formData, setFormData] = useState<EventFormData>({
     title: "",
@@ -35,8 +41,7 @@ export default function NewEvent() {
     ticket_price: "",
   });
 
-  const [flyerPreview, setFlyerPreview] = useState<string | null>(null);
-  const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
+  const [flyer, setFlyer] = useState<MediaFile | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -50,89 +55,42 @@ export default function NewEvent() {
   const handleFlyerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setFlyerPreview(reader.result as string);
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleFlyerDelete = () => setFlyerPreview(null);
-
-  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      Array.from(files).forEach((file) => {
-        const reader = new FileReader();
-        reader.onloadend = () =>
-          setMediaPreviews((prev) => [...prev, reader.result as string]);
-        reader.readAsDataURL(file);
+      setFlyer({
+        id: crypto.randomUUID(),
+        file,
+        preview: URL.createObjectURL(file),
       });
     }
   };
 
-  const handleMediaDelete = (index: number) => {
-    setMediaPreviews((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const scheduleReminder = () => {
-    if (formData.reminder === "none") return;
-    if (!formData.date || !formData.from) return;
-
-    const eventDateTime = new Date(`${formData.date}T${formData.from}`);
-    let reminderOffset = 0;
-
-    switch (formData.reminder) {
-      case "10m":
-        reminderOffset = 10 * 60 * 1000;
-        break;
-      case "30m":
-        reminderOffset = 30 * 60 * 1000;
-        break;
-      case "1h":
-        reminderOffset = 60 * 60 * 1000;
-        break;
-      case "1d":
-        reminderOffset = 24 * 60 * 60 * 1000;
-        break;
-    }
-
-    const reminderTime = eventDateTime.getTime() - reminderOffset;
-    const delay = reminderTime - Date.now();
-
-    if (delay > 0) {
-      setTimeout(() => {
-        new Notification(`Reminder: ${formData.title}`, {
-          body: `Your event "${formData.title}" starts at ${formData.from}`,
-        });
-      }, delay);
-    }
-  };
+  const handleFlyerDelete = () => setFlyer(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Create JSON payload to match FastAPI CreateEvent
-    const payload = {
-      title: formData.title,
-      category: formData.category,
-      description: formData.description,
-      venue: formData.venue,
-      date: `${formData.date}T${formData.from}:00`,
-      ticket_price: Number(formData.ticket_price),
-      image_url: flyerPreview || "",
-      capacity_max: Number(formData.capacity_max),
-    };
-
     try {
+      const data = new FormData();
+      data.append("title", formData.title);
+      data.append("category", formData.category);
+      data.append("description", formData.description);
+      data.append("venue", formData.venue);
+      data.append("date", `${formData.date}T${formData.from}:00`);
+      data.append("ticket_price", formData.ticket_price);
+      data.append("capacity_max", formData.capacity_max);
+
+      // The backend expects "image"
+      if (flyer?.file) data.append("image", flyer.file);
+
       const response = await axios.post(
-        "http://127.0.0.1:8000/event_fake/events",
-        payload,
-        { headers: { "Content-Type": "application/json" } }
+        "http://127.0.0.1:8000/events",
+        data,
+        {
+          headers: { "Content-Type": "form-data" },
+        }
       );
 
       console.log("Backend response:", response.data);
-
-      alert(response.data.message || "Event created!");
+      alert("Event created successfully!");
 
       // Reset form
       setFormData({
@@ -147,25 +105,16 @@ export default function NewEvent() {
         capacity_max: "",
         ticket_price: "",
       });
-      setFlyerPreview(null);
-      setMediaPreviews([]);
+      setFlyer(null);
     } catch (err: any) {
-      if (axios.isAxiosError(err)) {
-        console.error("Error response:", err.response?.data);
-        alert(`Failed: ${err.response?.data?.detail || "Unknown error"}`);
-      } else {
-        console.error(err);
-        alert("Unexpected error");
-      }
+      console.error("Error response:", err.response?.data || err);
+      alert("Failed to create event");
     }
-
-    // Schedule reminder
-    scheduleReminder();
   };
 
   return (
     <div className="flex h-full bg-violet-100 relative">
-      {/* Sidebar */}
+      {/* Sidebar Preview */}
       <aside className="w-64 bg-white border-r shadow-md p-4 hidden md:block pt-20 fixed h-screen">
         <h2 className="text-lg font-semibold text-purple-700 mb-4">
           Event Preview
@@ -195,7 +144,7 @@ export default function NewEvent() {
         </div>
       </aside>
 
-      {/* Main */}
+      {/* Main Content */}
       <div className="flex flex-col p-8 pt-20 pl-100 max-md:pl-0">
         <h1 className="text-2xl font-bold text-primary mb-6 pl-5">
           Create Event
@@ -210,7 +159,7 @@ export default function NewEvent() {
             {flyerPreview ? (
               <div className="relative w-full h-70">
                 <img
-                  src={flyerPreview}
+                  src={flyer.preview}
                   alt="Flyer Preview"
                   className="w-full h-full object-cover rounded-lg"
                 />
@@ -250,11 +199,14 @@ export default function NewEvent() {
           >
             {/* Title */}
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-purple-700">
+              <label
+                htmlFor="title"
+                className="block text-sm font-medium text-purple-700"
+              >
                 Title
               </label>
               <input
-              id="title"
+                id="title"
                 type="text"
                 name="title"
                 value={formData.title}
@@ -266,12 +218,15 @@ export default function NewEvent() {
 
             {/* Category */}
             <div>
-              <label htmlFor="category" className="block text-sm font-medium text-purple-700">
+              <label
+                htmlFor="category"
+                className="block text-sm font-medium text-purple-700"
+              >
                 Category
               </label>
               <select
-                name="category"
                 id="category"
+                name="category"
                 value={formData.category}
                 onChange={handleChange}
                 className="w-full p-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 bg-purple-200"
@@ -287,11 +242,14 @@ export default function NewEvent() {
 
             {/* Description */}
             <div>
-              <label htmlFor="desc" className="block text-sm font-medium text-purple-700">
+              <label
+                htmlFor="desc"
+                className="block text-sm font-medium text-purple-700"
+              >
                 Description
               </label>
               <textarea
-              id="desc"
+                id="desc"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
@@ -299,14 +257,17 @@ export default function NewEvent() {
               />
             </div>
 
-            {/* Date/Time/Location */}
+            {/* Date/Time */}
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label htmlFor="date" className="block text-sm font-medium text-purple-700">
+                <label
+                  htmlFor="date"
+                  className="block text-sm font-medium text-purple-700"
+                >
                   Date
                 </label>
                 <input
-                id="date"
+                  id="date"
                   type="date"
                   name="date"
                   value={formData.date}
@@ -316,11 +277,14 @@ export default function NewEvent() {
                 />
               </div>
               <div>
-                <label htmlFor="time" className="block text-sm font-medium text-purple-700">
+                <label
+                  htmlFor="time"
+                  className="block text-sm font-medium text-purple-700"
+                >
                   From
                 </label>
                 <input
-                id="time"
+                  id="time"
                   type="time"
                   name="from"
                   value={formData.from}
@@ -330,11 +294,14 @@ export default function NewEvent() {
                 />
               </div>
               <div>
-                <label htmlFor="to" className="block text-sm font-medium text-purple-700">
+                <label
+                  htmlFor="to"
+                  className="block text-sm font-medium text-purple-700"
+                >
                   To
                 </label>
                 <input
-                id="to"
+                  id="to"
                   type="time"
                   name="to"
                   value={formData.to}
@@ -347,11 +314,14 @@ export default function NewEvent() {
 
             {/* Venue */}
             <div>
-              <label htmlFor="location" className="block text-sm font-medium text-purple-700">
+              <label
+                htmlFor="venue"
+                className="block text-sm font-medium text-purple-700"
+              >
                 Location
               </label>
               <textarea
-              id="location"
+                id="venue"
                 name="venue"
                 value={formData.venue}
                 onChange={handleChange}
@@ -359,14 +329,17 @@ export default function NewEvent() {
               />
             </div>
 
-            {/* Number of Attendees / Ticket Price / Reminder */}
+            {/* Attendees / Ticket / Reminder */}
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label htmlFor="cp" className="block text-sm font-medium text-primary">
+                <label
+                  htmlFor="capacity_max"
+                  className="block text-sm font-medium text-primary"
+                >
                   Number of Attendees
                 </label>
                 <input
-                id="cp"
+                  id="capacity_max"
                   type="number"
                   name="capacity_max"
                   value={formData.capacity_max}
@@ -375,11 +348,14 @@ export default function NewEvent() {
                 />
               </div>
               <div>
-                <label htmlFor="tp" className="block text-sm font-medium text-primary">
+                <label
+                  htmlFor="ticket_price"
+                  className="block text-sm font-medium text-primary"
+                >
                   Ticket Price ($)
                 </label>
                 <input
-                id="tp"
+                  id="ticket_price"
                   type="number"
                   name="ticket_price"
                   value={formData.ticket_price}
@@ -388,11 +364,14 @@ export default function NewEvent() {
                 />
               </div>
               <div>
-                <label htmlFor="reminder" className="block text-sm font-medium text-purple-700">
+                <label
+                  htmlFor="reminder"
+                  className="block text-sm font-medium text-purple-700"
+                >
                   Reminder
                 </label>
                 <select
-                id="reminder"
+                  id="reminder"
                   name="reminder"
                   value={formData.reminder}
                   onChange={handleChange}
@@ -407,32 +386,8 @@ export default function NewEvent() {
               </div>
             </div>
 
-            {/* Media previews */}
-            {mediaPreviews.length > 0 && (
-              <div className="grid grid-cols-3 gap-2 mt-4">
-                {mediaPreviews.map((src, index) => (
-                  <div key={index} className="relative">
-                    <img
-                      src={src}
-                      alt={`Media ${index + 1}`}
-                      className="w-full h-24 object-cover rounded-md"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleMediaDelete(index)}
-                      className="absolute top-1 right-1 bg-purple-200 p-1 rounded-full shadow hover:bg-red-100"
-                    >
-                      <FaTrash className="text-red-500 w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Submit */}
             <button
               type="submit"
-              onClick={handleSubmit}
               className="bg-secondary text-white font-bold p-2 rounded-lg w-full hover:bg-orange-100 hover:text-secondary transition duration-300"
             >
               Create Event

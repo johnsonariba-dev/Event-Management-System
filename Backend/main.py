@@ -14,9 +14,11 @@ from fastapi import FastAPI
 from endpoints import user
 from endpoints import event_fake
 from database import Base, engine
+from sqlalchemy import text
 
 
 app = FastAPI(title="Event Planner", version="1.0.0")
+
 
 Base.metadata.create_all(bind=engine)
 

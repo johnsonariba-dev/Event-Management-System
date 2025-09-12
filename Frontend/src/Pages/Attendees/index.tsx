@@ -1,10 +1,12 @@
+import { MdList } from "react-icons/md"
 
 
 const Attendees = () => {
   return (
    <>
-   <div>
-    
+   <div className="h">
+      <MdList/>
+      sfdghjh
    </div>
    </>
   )

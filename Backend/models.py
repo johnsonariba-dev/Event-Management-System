@@ -3,8 +3,9 @@ from sqlalchemy.orm import relationship
 from database import Base
 from datetime import datetime
 
-
 # -------------------- USER --------------------
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -62,10 +63,6 @@ class Ticket(Base):
     event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
     purchase_date = Column(DateTime, default=datetime.utcnow)
 
- # Relations
-    # user = relationship("User", back_populates="ticket")
-    # event = relationship("Event", back_populates="ticket")
-
 # -------------------- REVIEW --------------------
 
 
@@ -73,7 +70,7 @@ class Review(Base):
     __tablename__ = "reviews"
 
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(Text, nullable=False)       
+    username = Column(Text, nullable=False)
     event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
     comment = Column(Text, index=True)
     rating = Column(Integer)
@@ -86,17 +83,15 @@ class Review(Base):
 
 
 class Like(Base):
-    __tablename__ = "Likes"
+    __tablename__ = "likes"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
 
-# Un utilisateur ne peut liker un item qu’une seule fois
     __table_args__ = (UniqueConstraint(
         "user_id", "event_id", name="unique_like"),)
 
-    # Relations
     user = relationship("User", back_populates="like")
     event = relationship("Event", back_populates="like")
 
@@ -111,9 +106,6 @@ class Notification(Base):
     title = Column(String, index=True)
     message = Column(Text, index=True)
 
-# Relation
-    # user = relationship("User", back_populates="notification")
-
 # -------------------- USER PREFERENCES --------------------
 
 
@@ -125,9 +117,6 @@ class UserPreference(Base):
     preference = Column(String, index=True)
     last_activity = Column(DateTime, default=datetime.utcnow)
 
-    # Relation
-    # user = relationship("User", back_populates="preference")
-
 # -------------------- MESSAGE CHAT --------------------
 
 
@@ -138,10 +127,6 @@ class MessageChat(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     event_id = Column(Integer, ForeignKey("events.id"), nullable=True)
     message = Column(Text, nullable=False)
-    type = Column(String)  # 'question' ou 'response'
+    type = Column(String)
     intent = Column(String(50))
     created_at = Column(DateTime, default=datetime.utcnow)
-
-# Relations
-    # user = relationship("User", back_populates="messages")
-    # event = relationship("Event", back_populates="messages")
