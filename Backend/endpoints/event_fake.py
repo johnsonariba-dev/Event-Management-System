@@ -1,39 +1,70 @@
-from endpoints.auth import get_current_organizer
-from schemas.events import CreateEvent, EventResponse, EventUpdate, UserInterests
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
-from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from recommender import recommend_events
-from typing import List
-from pydantic import BaseModel
-from database import db_dependency, get_db
-import models
-import html
-from typing import Optional
+from typing import List, Optional
+from datetime import datetime
 
+import models
+from database import get_db
+from .supabase_test import upload_file
+
+from pydantic import BaseModel
 
 router = APIRouter()
 
+# ---------------- SCHEMAS ----------------
+class EventBase(BaseModel):
+    title: str
+    category: str
+    description: Optional[str]
+    venue: str
+    date: datetime
+    ticket_price: float
+    capacity_max: Optional[int]
 
-# Endpoint to fetch all events
+class EventResponse(EventBase):
+    id: int
+    image_url: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+class EventForm(EventBase):
+    @classmethod
+    def as_form(
+        cls,
+        title: str = Form(...),
+        category: str = Form(...),
+        description: Optional[str] = Form(None),
+        venue: str = Form(...),
+        date: datetime = Form(...),
+        ticket_price: float = Form(...),
+        capacity_max: Optional[int] = Form(None),
+    ):
+        return cls(
+            title=title,
+            category=category,
+            description=description,
+            venue=venue,
+            date=date,
+            ticket_price=ticket_price,
+            capacity_max=capacity_max,
+        )
+
+# ---------------- GET ALL EVENTS ----------------
 @router.get("/events", response_model=List[EventResponse])
-async def read_events(db: db_dependency):
+async def read_events(db: Session = Depends(get_db)):
     return db.query(models.Event).all()
 
-# Endpoint to fetch one event
-
-
+# ---------------- GET SINGLE EVENT ----------------
 @router.get("/events/{event_id}", response_model=EventResponse)
-def get_event(event_id: int, db: db_dependency):
+def get_event(event_id: int, db: Session = Depends(get_db)):
     event = db.query(models.Event).filter(models.Event.id == event_id).first()
     if not event:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Événement non trouvé"
-        )
+        raise HTTPException(status_code=404, detail="Event not found")
     return event
 
-
+# ---------------- SHARE EVENT HTML ----------------
 @router.get("/events/{event_id}/share", response_class=HTMLResponse)
 def share_event(event_id: int, db: Session = Depends(get_db)):
     event = db.query(models.Event).filter(models.Event.id == event_id).first()
@@ -58,82 +89,53 @@ def share_event(event_id: int, db: Session = Depends(get_db)):
     """
     return HTMLResponse(content=html_content)
 
-# Endpoint to create an event
-@router.post("/event_fake/events", response_model=EventResponse)
-async def create_events(db: db_dependency,
-                        event: CreateEvent,
-                        # current_user: models.User = Depends(get_current_organizer)
-                        ):
-
-    # check if the event exist
-    existing_event = db.query(models.Event).filter(
-        models.Event.title == event.title).first()
+# ---------------- CREATE EVENT ----------------
+@router.post("/events", response_model=EventResponse)
+async def create_event(
+    form_data: EventForm = Depends(EventForm.as_form),
+    image: Optional[UploadFile] = File(None),
+     db: Session = Depends(get_db) 
+):
+    existing_event = db.query(models.Event).filter(models.Event.title == form_data.title).first()
     if existing_event:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Please this event already exist"
-        )
+        raise HTTPException(status_code=400, detail="Event already exists")
 
-    db_event = models.Event(
-        title=event.title,
-        description=event.description,
-        category=event.category,
-        venue=event.venue,
-        ticket_price=event.ticket_price,
-        date=event.date,
-        image_url=event.image_url,
-        capacity_max= 100,
-    )
+    image_url = upload_file(image, folder="events") if image else ""
 
+    db_event = models.Event(**form_data.dict(), image_url=image_url)
     db.add(db_event)
     db.commit()
     db.refresh(db_event)
+    return db_event
 
-    return (db_event)
-
-
-# endpoint to update events
-
-@router.put("/{event_id}", response_model=EventResponse)
-def update_event(event_id: int, event_update: EventUpdate, db: db_dependency):
-    # Récupère l'événement existant
-    db_event = db.query(models.Event).filter(
-        models.Event.id == event_id).first()
+# ---------------- UPDATE EVENT ----------------
+@router.put("/events/{event_id}", response_model=EventResponse)
+async def update_event(
+    event_id: int,
+    form_data: EventForm = Depends(EventForm.as_form),
+    image: Optional[UploadFile] = File(None),
+     db: Session = Depends(get_db) 
+):
+    db_event = db.query(models.Event).filter(models.Event.id == event_id).first()
     if not db_event:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Event not found")
+        raise HTTPException(status_code=404, detail="Event not found")
 
-    # Met à jour uniquement les champs fournis
-    for key, value in event_update.model_dump(exclude_unset=True).items():
+    if image:
+        db_event.image_url = upload_file(image, folder="events")
+
+    for key, value in form_data.dict(exclude_unset=True).items():
         setattr(db_event, key, value)
 
     db.commit()
     db.refresh(db_event)
     return db_event
 
-# endpoint to delete an event
-
-
-@router.delete("/{event_id}")
-async def delete_event(db: db_dependency, event_id: int):
-
-    db_event = db.query(models.Event).filter(
-        models.Event.id == event_id).first()
+# ---------------- DELETE EVENT ----------------
+@router.delete("/events/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_event(event_id: int, db: Session = Depends(get_db)):
+    db_event = db.query(models.Event).filter(models.Event.id == event_id).first()
     if not db_event:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Événement non trouvé"
-        )
+        raise HTTPException(status_code=404, detail="Event not found")
 
     db.delete(db_event)
     db.commit()
-
-
-@router.post("/recommendations", response_model=List[dict])
-def recommend(user: UserInterests):
-    """
-    Recommend events based on user interests.
-    """
-    recommended_events = recommend_events(user.interests, top_n=5)
-    return recommended_events

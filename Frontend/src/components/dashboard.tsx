@@ -1,98 +1,83 @@
 import { IoCreateOutline } from "react-icons/io5";
-import { FaCircle } from "react-icons/fa";
+import { FaTicketAlt } from "react-icons/fa";
+import { BsThreeDots } from "react-icons/bs"; // "..." icon
 import Button from "./button";
-import { useState } from "react";
+import axios from "axios";
+import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
+import { FaLocationDot } from "react-icons/fa6";
 
-type Event = {
+interface Event {
   id: number;
-  day: string;
-  month: string;
-  name: string;
-  location: string;
-  dateFull: string;
-  image: string;
-  sold: string
-  price: string;
-  status: string;
-};
-
-const initialEvents: Event[] = [
-  {
-    id: 1,
-    day: "12",
-    month: "OCT",
-    name: "Music Festival",
-    location: "Yaoundé",
-    dateFull: "Tuesday, 02 Sept. 2025",
-    image: "https://via.placeholder.com/80x80",
-    sold: "150/250",
-    price: "XAF 10,000",
-    status: "On Sale",
-  },
-  {
-    id: 2,
-    day: "15",
-    month: "NOV",
-    name: "Tech Conference",
-    location: "Douala",
-    dateFull: "Friday, 05 Sept. 2025",
-    image: "https://via.placeholder.com/80x80",
-    sold: "50/200",
-    price: "XAF 25,000",
-    status: "On Sale",
-  },
-];
+  title: string;
+  description: string;
+  category: string;
+  venue: string;
+  ticket_price: number;
+  date: string;
+  sold?: number;
+  status?: string;
+  image_url: string;
+}
 
 const Dashboard: React.FC = () => {
-  const [events] = useState<Event[]>(initialEvents);
+  const [events, setEvents] = useState<Event[]>([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
+  const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8000/events")
+      .then((res) => setEvents(res.data))
+      .catch((err) => console.error("Error fetching events:", err));
+  }, []);
 
   const filteredEvents = events.filter((event) => {
     return (
-      event.name.toLowerCase().includes(search.toLowerCase()) &&
-      (category
-        ? event.name.toLowerCase().includes(category.toLowerCase())
-        : true) &&
-      (price ? event.price.toLowerCase().includes(price.toLowerCase()) : true)
+      event.title.toLowerCase().includes(search.toLowerCase()) &&
+      (category ? event.category.toLowerCase() === category.toLowerCase() : true) &&
+      (price === "free"
+        ? event.ticket_price === 0
+        : price === "paid"
+        ? event.ticket_price > 0
+        : true)
     );
   });
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <h1 className="flex items-center gap-4 px-4 sm:px-7 py-3 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
-        Welcome 
-        <span className=" md:text-2xl lg:text-3xl text-secondary font-light">
-           John Doe
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Welcome Header */}
+      <h1 className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 py-6 text-3xl sm:text-4xl md:text-5xl font-bold">
+        Welcome
+        <span className="text-secondary font-light text-xl sm:text-2xl md:text-3xl">
+          John Doe
         </span>
       </h1>
 
-      <div className="p-6 sm:p-9 bg-gray-100 flex flex-col items-center justify-center rounded-lg mx-4 sm:mx-6 mb-10 text-center">
-        <IoCreateOutline size={33} />
-        <h1 className="font-bold text-xl sm:text-2xl pt-3">Create a new event</h1>
-        <p className="text-base sm:text-lg md:text-xl py-5">
-          Add all your event details, create new tickets, and set up recurring
-          events.
+      {/* Create Event Box */}
+      <div className="bg-gray-100 flex flex-col items-center justify-center rounded-lg p-6 sm:p-9 mb-10 text-center">
+        <IoCreateOutline size={36} />
+        <h2 className="font-bold text-xl sm:text-2xl pt-3">Create a new event</h2>
+        <p className="text-base sm:text-lg md:text-xl py-4">
+          Add all your event details, create new tickets, and set up recurring events.
         </p>
-        <NavLink to={"/NewEvent"}>
-
-        <Button title="Create Event" className="bg-black text-white mt-5" />
+        <NavLink to="/NewEvent">
+          <Button title="Create Event" className="bg-black text-white mt-3 sm:mt-5" />
         </NavLink>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row flex-wrap gap-4 px-4 sm:px-5 py-4">
+      <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mb-6">
         <input
           type="text"
           placeholder="Search events ..."
           onChange={(e) => setSearch(e.target.value)}
-          className="bg-purple-100 p-3 rounded-lg flex-1 min-w-0 text-[16px]"
+          className="flex-1 min-w-0 p-3 rounded-lg bg-purple-100 text-base sm:text-[16px]"
         />
-
         <select
-          className="bg-purple-100 p-3 rounded-lg text-[16px]"
+          className="p-3 rounded-lg bg-purple-100 text-base sm:text-[16px]"
           onChange={(e) => setCategory(e.target.value)}
         >
           <option value="">All Categories</option>
@@ -102,64 +87,91 @@ const Dashboard: React.FC = () => {
           <option value="business">Business</option>
           <option value="sports">Sports</option>
         </select>
-
         <select
-          className="bg-purple-100 p-3 rounded-lg text-[16px]"
+          className="p-3 rounded-lg bg-purple-100 text-base sm:text-[16px]"
           onChange={(e) => setPrice(e.target.value)}
         >
-          <option value="">All Organisers</option>
-          <option value="appstech">Appstech</option>
-          <option value="activspaces">ActivSpaces</option>
+          <option value="">All Prices</option>
+          <option value="free">Free</option>
+          <option value="paid">Paid</option>
         </select>
       </div>
 
-      {/* Event List */}
-      <div className="w-full px-4 sm:px-6 mt-10">
-        {/* Header (hide on small screens) */}
-        <div className="hidden md:flex bg-primary text-white font-bold rounded-t-md px-6 md:px-10 p-4">
-          <span className="flex-1">Event</span>
-          <div className="flex gap-10 md:gap-20">
-            <span>Sold</span>
-            <span>Price</span>
-            <span>Status</span>
-          </div>
-        </div>
-
-        {filteredEvents.map((event) => (
-          <div
-            key={event.id}
-            className="flex flex-col md:flex-row md:items-center bg-violet-100 p-4 border-b border-violet-200 rounded-md md:rounded-none mb-4 md:mb-0"
-          >
-
-            <div className="flex items-center gap-4 md:gap-10 flex-1">
-              <div className="flex flex-col text-violet-600 font-bold text-xs sm:text-sm w-10 text-center">
-                <span>{event.month}</span>
-                <span className="text-lg sm:text-2xl">{event.day}</span>
-              </div>
-              <img
-                src={event.image}
-                alt={event.name}
-                className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded"
-              />
-              <div>
-                <h3 className="font-bold text-black text-sm sm:text-base md:text-lg">
-                  {event.name}
-                </h3>
-                <p className="text-xs sm:text-sm text-gray-600">{event.location}</p>
-                <p className="text-xs sm:text-sm text-gray-600">{event.dateFull}</p>
-              </div>
-            </div>
-
-            <div className="flex justify-between md:justify-start md:gap-10 mt-3 md:mt-0 text-sm sm:text-base">
-              <span className="text-gray-700">{event.sold}</span>
-              <span className="text-gray-700">{event.price}</span>
-              <span className="flex items-center gap-2 text-green-600 font-semibold">
-                <FaCircle size={8} /> {event.status}
-              </span>
-            </div>
-          </div>
-        ))}
+      {/* Event List Header */}
+      <div className="hidden sm:flex justify-between font-bold bg-gray-200 rounded-t-lg px-4 py-2 mb-2">
+        <span className="flex-1">Event</span>
+        <span className="w-24 text-center">Sold</span>
+        <span className="w-24 text-center">Price</span>
+        <span className="w-24 text-center">Status</span>
+        <span className="w-8"></span> {/* placeholder for menu icon */}
       </div>
+
+      {/* Event List */}
+      <ul className="divide-y divide-gray-200">
+        {filteredEvents.map((event) => (
+          <li
+            key={event.id}
+            className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 py-4 hover:bg-gray-50 transition rounded-lg px-2 sm:px-4"
+          >
+            {/* Checkbox */}
+            <input type="checkbox" className="self-start sm:self-auto w-5 h-5 " />
+
+            {/* Thumbnail */}
+            <img
+              src={event.image_url}
+              alt={event.title}
+              className="w-full sm:w-28 h-40 sm:h-20 object-cover rounded-lg shadow flex-shrink-0"
+            />
+
+            {/* Details */}
+            <div className="flex-1 border  flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
+              <div className="flex flex-col">
+                <h3 className="font-bold text-lg">{event.title}</h3>
+                <p className="text-gray-500 text-sm flex items-center gap-1">
+                  <FaLocationDot color="blue"/> {event.venue}
+                </p>
+                <p className="text-gray-600 text-sm">{event.date}</p>
+              </div>
+
+              {/* Sold, Price, Status */}
+              <div className="flex justify-center border items-center">
+                <span className="text-center">{event.sold ?? 0}</span>
+                <span className="text-center">
+                  <FaTicketAlt className="inline mr-1" />
+                  {event.ticket_price} FCFA
+                </span>
+                <span className="text-center">{event.status ?? "Active"}</span>
+              </div>
+
+              {/* Menu icon */}
+              <div className="relative">
+                <BsThreeDots
+                  className="cursor-pointer text-xl"
+                  onClick={() =>
+                    setMenuOpenId(menuOpenId === event.id ? null : event.id)
+                  }
+                />
+                {menuOpenId === event.id && (
+                  <div className="absolute right-0 transition-smooth top-6 bg-white border rounded shadow-md z-10 flex flex-col">
+                    <NavLink
+                      to={`/event/${event.id}`}
+                      className="px-4 py-2 hover:bg-gray-100"
+                    >
+                      View
+                    </NavLink>
+                    <button className="px-4 py-2 text-left hover:bg-gray-100">
+                      Edit
+                    </button>
+                    <button className="px-4 py-2 text-left hover:bg-gray-100 text-red-600">
+                      Delete
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
