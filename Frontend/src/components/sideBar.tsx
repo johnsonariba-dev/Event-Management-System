@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { HiHome } from "react-icons/hi2";
-import { FaRegCalendarAlt } from "react-icons/fa";
+import { FaRegCalendarAlt, FaUsers } from "react-icons/fa";
 import { GrTicket } from "react-icons/gr";
 import { VscSettingsGear } from "react-icons/vsc";
 import { TbLogout } from "react-icons/tb";
@@ -9,10 +9,12 @@ import { Link } from "react-router-dom";
 import Dashboard from "./dashboard";
 import Settings from "./settings";
 import Calendar from "./myCalendar";
+import Attendees from "../Pages/Attendees";
 import Tickets from "./tickets";
 import images from "../types/images";
 import HeaderDashboard from "./headerDashbord";
 import CalendarComponent from "./myCalendar";
+import { FaList,  } from "react-icons/fa6";
 
 const SideBar = () => {
   const [active, setActive] = useState("dashboard");
@@ -25,6 +27,10 @@ const SideBar = () => {
       label: "Calendar",
     },
     { id: "tickets", icon: <GrTicket size={28} className="max-md:w-5"/>, label: "Tickets" },
+    { id: "attendees", icon: (<div className="flex">
+       <FaUsers size={28} className="max-md:w-5"/>
+        <FaList size={10} className="max-md:w-5"/>
+    </div>), label: "Attendees" },
     { id: "settings", icon: <VscSettingsGear size={28} className="max-md:w-5" />, label: "Settings" },
   ];
   const activeTitle = (active: string) => {
@@ -35,6 +41,8 @@ const SideBar = () => {
         return "Calendar";
       case "tickets":
         return "Tickets";
+      case "Attendees":
+        return "attendees";
       case "settings":
         return "Settings";
       default:
@@ -82,6 +90,7 @@ const SideBar = () => {
         {active === "dashboard" && <Dashboard />}
         {active === "Calendar" && <CalendarComponent />}
         {active === "tickets" && <Tickets />}
+        {active === "attendees" && <Attendees />}
         {active === "settings" && <Settings />}
       </div>
     </div>
