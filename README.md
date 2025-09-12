@@ -68,5 +68,3 @@ python recommender.py
 python -m endpoints.faker_events [pour run]
 python3 convert_db.py
 python3 recommender.py
-
-
