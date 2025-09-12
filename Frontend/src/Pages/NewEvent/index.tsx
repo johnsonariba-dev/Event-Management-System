@@ -208,7 +208,7 @@ export default function NewEvent() {
             className="flex flex-col items-center justify-center border border-dashed border-purple-400 rounded-lg p-6 cursor-pointer bg-white hover:bg-purple-100 transition"
           >
             {flyerPreview ? (
-              <div className="relative w-full h-full">
+              <div className="relative w-full h-70">
                 <img
                   src={flyerPreview}
                   alt="Flyer Preview"
