@@ -4,7 +4,8 @@ from pathlib import Path
 env_path = Path(__file__).parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
-from endpoints import event_fake, user, ticket, like, paypal, review
+from endpoints import event_fake, user, ticket, like, paypal,review
+from endpoints import event_fake, user, ticket, like
 from database import Base,engine
 from endpoints import user
 

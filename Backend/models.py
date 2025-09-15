@@ -1,3 +1,4 @@
+
 from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, Text, DateTime, UniqueConstraint
 from sqlalchemy.orm import relationship
 from database import Base
@@ -5,7 +6,7 @@ from datetime import datetime
 
 # -------------------- USER --------------------
 
-
+# -------------------- USER --------------------
 class User(Base):
     __tablename__ = "users"
 
@@ -19,6 +20,7 @@ class User(Base):
  # Relations
     # event = relationship("Event", back_populates="organizer")   # "back_populates" fait référence à l'attribut dans la classe Message
     # ticket = relationship("Ticket", back_populates="user")
+    review = relationship("Review", back_populates="user")
 
     # notification = relationship("Notification", back_populates="user")
     # message = relationship("MessageChat", back_populates="user")
@@ -70,14 +72,15 @@ class Review(Base):
     __tablename__ = "reviews"
 
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(Text, nullable=False)
-    event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
+    user_id = Column(Text, ForeignKey("users.id"))
+    event_id = Column(Integer, ForeignKey("events.id"))
     comment = Column(Text, index=True)
     rating = Column(Integer)
-    time = Column(DateTime, default=datetime.utcnow)
+    # time = Column(DateTime, default=datetime.utcnow)
 
 # Relations
     event = relationship("Event", back_populates="review")
+    user = relationship("User", back_populates="review")
 
 # -------------------- LIKE --------------------
 
@@ -89,6 +92,7 @@ class Like(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
 
+# Un utilisateur ne peut liker un item qu’une seule fois
     __table_args__ = (UniqueConstraint(
         "user_id", "event_id", name="unique_like"),)
 
@@ -130,3 +134,7 @@ class MessageChat(Base):
     type = Column(String)
     intent = Column(String(50))
     created_at = Column(DateTime, default=datetime.utcnow)
+
+# Relations
+    # user = relationship("User", back_populates="messages")
+# event = relationship("Event", back_populates="messages”)
