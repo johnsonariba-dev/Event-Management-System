@@ -4,7 +4,6 @@ from typing import Optional
 
 
 class ReviewBase(BaseModel):
-    username: str                      
     comment: Optional[str] = None
     rating: int                      
 
@@ -15,7 +14,11 @@ class ReviewCreate(ReviewBase):
 
 class Review(ReviewBase):
     id: int
-    time: datetime            
+    username: str
+    comment: str
+    rating: int
+    event_id: int
+    # time: datetime            
 
     class Config:
         orm_mode = True
