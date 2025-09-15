@@ -302,7 +302,7 @@ const EventDetails = () => {
                   <FaMoneyBill size={24} className="text-primary" />
                   <div className="">
                     <h1 className="text-sm font-semibold">Ticket Price</h1>
-                    <p className="text-sm">${event.ticket_price}</p>
+                    <p className="text-sm">{event.ticket_price}FCFA</p>
                   </div>
                 </div>
               </div>
@@ -311,7 +311,7 @@ const EventDetails = () => {
         </div>
         <div className="w-md max-md:w-full m-8 flex flex-col items-center justify-center p-4 bg-gray-400 shadow-md h-[65vh] max-md:h-[94vh] rounded-2xl">
           <div className="w-full flex justify-around gap-4 items-center p-4">
-            <h1 className="text-white text-2xl">${event.ticket_price} per</h1>
+            <h1 className="text-white text-2xl">{event.ticket_price}FCFA per</h1>
             <HiTicket size={44} className="text-primary" />
           </div>
           <p className="text-white p-4">847 people registered</p>

@@ -35,7 +35,7 @@ app.add_middleware(
 )
 
 app.include_router(user.router, prefix="/user", tags=["user"])
-app.include_router(event_fake.router, tags=["event_fake"])
+app.include_router(event_fake.router, tags=["event"])
 app.include_router(ticket.router, prefix="/ticket", tags=["ticket"])
 app.include_router(like.router,  tags=["like"])
 app.include_router(paypal.router,  tags=["paypal"])

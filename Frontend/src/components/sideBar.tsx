@@ -8,30 +8,47 @@ import { Link } from "react-router-dom";
 
 import Dashboard from "./dashboard";
 import Settings from "./settings";
-import Calendar from "./myCalendar";
-import Attendees from "../Pages/Attendees";
+import Reviews from "./reviews";
 import Tickets from "./tickets";
 import images from "../types/images";
 import HeaderDashboard from "./headerDashbord";
 import CalendarComponent from "./myCalendar";
-import { FaList,  } from "react-icons/fa6";
+import { FaList } from "react-icons/fa6";
 
 const SideBar = () => {
   const [active, setActive] = useState("dashboard");
 
   const links = [
-    { id: "dashboard", icon: <HiHome size={28} className="max-md:w-5"/>, label: "Dashboard" },
+    {
+      id: "dashboard",
+      icon: <HiHome size={28} className="max-md:w-5" />,
+      label: "Dashboard",
+    },
     {
       id: "Calendar",
-      icon: <FaRegCalendarAlt size={28} className="max-md:w-4"/>,
+      icon: <FaRegCalendarAlt size={28} className="max-md:w-4" />,
       label: "Calendar",
     },
-    { id: "tickets", icon: <GrTicket size={28} className="max-md:w-5"/>, label: "Tickets" },
-    { id: "attendees", icon: (<div className="flex">
-       <FaUsers size={28} className="max-md:w-5"/>
-        <FaList size={10} className="max-md:w-5"/>
-    </div>), label: "Attendees" },
-    { id: "settings", icon: <VscSettingsGear size={28} className="max-md:w-5" />, label: "Settings" },
+    {
+      id: "tickets",
+      icon: <GrTicket size={28} className="max-md:w-5" />,
+      label: "Tickets",
+    },
+    {
+      id: "reviews",
+      icon: (
+        <div className="flex">
+          <FaUsers size={28} className="max-md:w-5" />
+          <FaList size={10} className="max-md:w-5" />
+        </div>
+      ),
+      label: "Reviews",
+    },
+    {
+      id: "settings",
+      icon: <VscSettingsGear size={28} className="max-md:w-5" />,
+      label: "Settings",
+    },
   ];
   const activeTitle = (active: string) => {
     switch (active) {
@@ -41,8 +58,8 @@ const SideBar = () => {
         return "Calendar";
       case "tickets":
         return "Tickets";
-      case "Attendees":
-        return "attendees";
+      case "reviews":
+        return "Reviews";
       case "settings":
         return "Settings";
       default:
@@ -78,7 +95,7 @@ const SideBar = () => {
         </div>
 
         <div className="flex items-center justify-center p-3 rounded-xl text-gray-600 hover:bg-purple-200 relative group cursor-pointer">
-          <TbLogout size={28} className="max-md:w-7"/>
+          <TbLogout size={28} className="max-md:w-7" />
           <span className="absolute left-16 opacity-0 group-hover:opacity-100 transition bg-gray-800 text-white text-sm rounded-md px-2 py-1 whitespace-nowrap">
             Logout
           </span>
@@ -90,7 +107,7 @@ const SideBar = () => {
         {active === "dashboard" && <Dashboard />}
         {active === "Calendar" && <CalendarComponent />}
         {active === "tickets" && <Tickets />}
-        {active === "attendees" && <Attendees />}
+        {active === "reviews" && <Reviews />}
         {active === "settings" && <Settings />}
       </div>
     </div>

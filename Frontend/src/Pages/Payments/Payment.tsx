@@ -2,14 +2,11 @@ import { FaArrowLeftLong } from "react-icons/fa6";
 import { LuClock2 } from "react-icons/lu";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Button from "../../components/button";
 import images from "../../types/images";
 import { useParams } from "react-router-dom";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import TicketCard from "../Ticket/TicketCard";
-import * as htmlToImage from "html-to-image";
-import { jsPDF } from "jspdf";
 
 interface Event {
   id: number;
@@ -30,9 +27,8 @@ function Payment() {
   const { id } = useParams<{ id: string }>();
   const [count, setCount] = useState(1);
   const [amount, setAmount] = useState(0);
-  const [ticketGenerated, setTicketGenerated] = useState(false);
+  const [usdAmount, setUsdAmount] = useState<number | null>(null);
   const [phone, setPhone] = useState("");
-  const ticketRef = useRef<HTMLDivElement>(null);
 
   // Fetch event from backend
   useEffect(() => {
@@ -64,94 +60,28 @@ function Payment() {
     setCount(count + 1);
   };
 
-  const handleFreeTicket = () => {
-    setTicketGenerated(true);
+  const handleConvert = async () => {
+    try {
+      const res = await fetch(
+        `https://api.exchangerate.host/convert?from=XAF&to=USD&amount=${amount}`
+      );
+      const data = await res.json();
+      setUsdAmount(Number(data.result.toFixed(2)));
+    } catch (err) {
+      console.error("Conversion failed", err);
+    }
   };
 
   const handleMtnOrangePayment = () => {
-    if (!phone) {
-      alert("Please enter phone number");
-      return;
-    }
-    alert(`Payment of £${amount} successful via ${method.toUpperCase()}`);
-    setTicketGenerated(true);
+    alert(`Paying ${amount} FCFA via ${method.toUpperCase()} with phone ${phone}`);
+    // Add your MTN/Orange payment logic here
   };
 
-  const downloadTicket = async () => {
-    if (!ticketRef.current) return;
-    try {
-      const dataUrl = await htmlToImage.toPng(ticketRef.current, {
-        cacheBust: true,
-        pixelRatio: 5,
-        style: { filter: "none", background: "white" },
-      });
-
-      const pdf = new jsPDF("p", "pt", "a4");
-      const imgProps = pdf.getImageProperties(dataUrl);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      const scale = Math.min(
-        pdfWidth / imgProps.width,
-        pdfHeight / imgProps.height
-      );
-      const newWidth = imgProps.width * scale;
-      const newHeight = imgProps.height * scale;
-      const x = (pdfWidth - newWidth) / 2;
-      const y = (pdfHeight - newHeight) / 2;
-
-      pdf.addImage(dataUrl, "PNG", x, y, newWidth, newHeight);
-      pdf.save(`${event?.title || "ticket"}-ticket.pdf`);
-    } catch (err) {
-      console.error("Download failed:", err);
-      alert("Something went wrong while generating the PDF");
-    }
+  const handleFreeTicket = () => {
+    alert("Your free ticket has been issued!");
+    // Add your free ticket generation logic here
   };
 
-  const resetPage = () => {
-    setTicketGenerated(false);
-    setMethod("paypal");
-    setCount(1);
-    setPhone("");
-  };
-
-  // Ticket view after generation
-  if (ticketGenerated && event) {
-    const ticketId = `ticket-${event.id}-${Date.now()}`; // unique QR code
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white p-6">
-        <div className="w-full md:w-1/2 flex flex-col items-center gap-6">
-          <div ref={ticketRef}>
-            <TicketCard
-              eventTitle={event.title}
-              location={event.venue}
-              date={event.date}
-              time={event.time}
-              organizer={event.organizer}
-              userName="zounka"
-              price={event.ticket_price}
-              imageUrl={event.image_url}
-              ticketId={ticketId}
-            />
-          </div>
-
-          <Button
-            title="Download Ticket"
-            onClick={downloadTicket}
-            className="bg-blue-500 text-white px-6 py-2"
-          />
-
-          <Button
-            title="Go Back"
-            onClick={resetPage}
-            className="bg-gray-300 text-black px-6 py-2"
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // Regular payment page
   return (
     <div className="flex flex-col items-center justify-center bg-purple-50">
       <div className="py-10 mt-25 mb-10 flex flex-col px-6 w-full md:w-200 justify-center bg-white rounded-lg shadow-lg">
@@ -167,7 +97,7 @@ function Payment() {
         <div className="border rounded-lg p-6">
           <img
             src={event?.image_url}
-            alt="image"
+            alt={event?.title || "Event image"}
             className="w-full h-60 object-cover rounded-lg mb-4"
           />
           <h1 className="font-semibold text-xl">{event?.title}</h1>
@@ -195,7 +125,7 @@ function Payment() {
             <div className="border rounded-lg p-2">
               <div className="flex justify-between pb-3">
                 <h1>Standard Ticket</h1>
-                <p>{event?.ticket_price ?? 0}</p>
+                <p>{event?.ticket_price.toLocaleString()} FCFA</p>
               </div>
               <div className="text-gray-400 text-md">
                 <p>Standard entry to the event</p>
@@ -217,7 +147,7 @@ function Payment() {
               </h1>
               <div className="flex justify-between pb-3">
                 <p>Ticket Price</p>
-                <p>{event?.ticket_price ?? 0}</p>
+                <p>{event?.ticket_price.toLocaleString()} FCFA</p>
               </div>
               <div className="flex justify-between pb-3">
                 <p>Number</p>
@@ -226,7 +156,23 @@ function Payment() {
               <hr />
               <div className="flex justify-between py-3">
                 <p>Total</p>
-                <p>{amount}</p>
+                <p>{amount.toLocaleString()} FCFA</p>
+              </div>
+
+              {/* Conversion section */}
+              <div className="flex justify-between items-center py-3">
+                <button
+                  onClick={handleConvert}
+                  className="text-sm text-blue-600 underline"
+                >
+                  Convert to USD
+                </button>
+                {usdAmount !== null && (
+                  <p className="text-gray-600 text-sm">
+                    {amount.toLocaleString()} FCFA ≈{" "}
+                    <span className="font-semibold">{usdAmount} USD</span>
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -252,7 +198,7 @@ function Payment() {
                   <img
                     src={images.mtn}
                     alt="MTN MoMo"
-                    className={`w-20 h-10 cursor-pointer border-2 rounded ${
+                    className={`w-20 h-10 cursor-pointer border-2 rounded transition-transform ${
                       method === "mtn"
                         ? "border-yellow-500 scale-105"
                         : "border-gray-300"
@@ -262,7 +208,7 @@ function Payment() {
                   <img
                     src={images.orange}
                     alt="Orange Money"
-                    className={`w-20 h-10 cursor-pointer border-2 rounded ${
+                    className={`w-20 h-10 cursor-pointer border-2 rounded transition-transform ${
                       method === "orange"
                         ? "border-orange-500 scale-105"
                         : "border-gray-300"
@@ -272,7 +218,7 @@ function Payment() {
                   <img
                     src={images.Paypal}
                     alt="PayPal"
-                    className={`w-20 h-10 cursor-pointer border-2 rounded ${
+                    className={`w-20 h-10 cursor-pointer border-2 rounded transition-transform ${
                       method === "paypal"
                         ? "border-blue-500 scale-105"
                         : "border-gray-300"
@@ -293,7 +239,7 @@ function Payment() {
                       placeholder="Enter phone number"
                     />
                     <Button
-                      title={`Pay £${amount} via ${method.toUpperCase()}`}
+                      title={`Pay ${amount.toLocaleString()} FCFA via ${method.toUpperCase()}`}
                       onClick={handleMtnOrangePayment}
                       className="mt-2 px-4 py-2 bg-yellow-500 text-white"
                     />
@@ -302,28 +248,27 @@ function Payment() {
 
                 {/* PayPal Payment */}
                 {method === "paypal" && (
-                  <div className="p-4 border rounded-lg shadow-md bg-white">
+                  <div>
+                    <h2 className="font-semibold mb-2">PayPal Payment</h2>
                     <PayPalScriptProvider
-                      options={{ clientId: "AWcbUIkfqRx51ILXg1sIoHVdDWqFfrYsKPDCrzoXNSf_2StjtXPBn75giD0bYLCnQ8YrtWTw0VQxddIB" }}
+                      options={{
+                        clientId:
+                          "AWcbUIkfqRx51ILXg1sIoHVdDWqFfrYsKPDCrzoXNSf_2StjtXPBn75giD0bYLCnQ8YrtWTw0VQxddIB",
+                      }}
                     >
                       <PayPalButtons
-                        style={{
-                          layout: "vertical",
-                          color: "blue",
-                          shape: "rect",
-                          label: "pay",
-                        }}
-                        createOrder={async () => {
-                          const res = await fetch(
+                        style={{ layout: "vertical", shape: "rect" }}
+                        createOrder={(_, actions) => {
+                          return fetch(
                             `http://127.0.0.1:8000/create-order`,
                             {
                               method: "POST",
                               headers: { "Content-Type": "application/json" },
                               body: JSON.stringify({ amount }),
                             }
-                          );
-                          const data = await res.json();
-                          return data.id;
+                          )
+                            .then((res) => res.json())
+                            .then((data) => data.id);
                         }}
                         onApprove={async (data) => {
                           const res = await fetch(
@@ -335,7 +280,6 @@ function Payment() {
                             "Transaction completed by " +
                               details.payer.name.given_name
                           );
-                          setTicketGenerated(true);
                         }}
                       />
                     </PayPalScriptProvider>
