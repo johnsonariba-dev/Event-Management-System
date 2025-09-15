@@ -1,7 +1,7 @@
 
 from endpoints.auth import get_current_user
 from fastapi import APIRouter, Depends, HTTPException
-from database import db_dependency, Session, get_db
+from database import db_dependency, SessionLocal as Session, get_db
 import models
 from schemas.review import ReviewCreate, Review
 
