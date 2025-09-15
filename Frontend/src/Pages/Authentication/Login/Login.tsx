@@ -37,7 +37,7 @@ function Register() {
 
       setTimeout(() => {
         navigate("/events"); 
-      }, 3000);
+      }, 1000);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");
     }

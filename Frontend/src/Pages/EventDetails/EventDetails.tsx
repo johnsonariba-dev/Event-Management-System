@@ -1,4 +1,3 @@
-
 import Button from "../../components/button";
 import { CiEdit } from "react-icons/ci";
 
@@ -489,4 +488,3 @@ const EventDetails = () => {
 };
 
 export default EventDetails;
-
