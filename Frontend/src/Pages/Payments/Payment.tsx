@@ -2,11 +2,14 @@ import { FaArrowLeftLong } from "react-icons/fa6";
 import { LuClock2 } from "react-icons/lu";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Button from "../../components/button";
 import images from "../../types/images";
 import { useParams } from "react-router-dom";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import TicketCard from "../Ticket/TicketCard";
+import * as htmlToImage from "html-to-image";
+import { jsPDF } from "jspdf";
 
 interface Event {
   id: number;
@@ -22,12 +25,16 @@ interface Event {
 }
 
 function Payment() {
-  const [method, setMethod] = useState<string>("paypal"); //default start with paypal payment
+  const [method, setMethod] = useState<string>("paypal");
   const [event, setEvent] = useState<Event | null>(null);
   const { id } = useParams<{ id: string }>();
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(1);
   const [amount, setAmount] = useState(0);
+  const [ticketGenerated, setTicketGenerated] = useState(false);
+  const [phone, setPhone] = useState("");
+  const ticketRef = useRef<HTMLDivElement>(null);
 
+  // Fetch event from backend
   useEffect(() => {
     const fetchEvent = async () => {
       try {
@@ -40,27 +47,119 @@ function Payment() {
         setEvent(null);
       }
     };
-
     fetchEvent();
   }, [id]);
 
+  // Calculate total amount
+  useEffect(() => {
+    const total = Number(((event?.ticket_price ?? 0) * count).toFixed(2));
+    setAmount(total);
+  }, [event?.ticket_price, count]);
+
   const decrement = () => {
-    if (count > 0) setCount(count - 1);
+    if (count > 1) setCount(count - 1);
   };
+
   const increment = () => {
     setCount(count + 1);
   };
 
-  useEffect(() => {
-    const total = Number(((event?.ticket_price || 0) * count).toFixed(2));
-    setAmount(total);
-  }, [event?.ticket_price, count]);
+  const handleFreeTicket = () => {
+    setTicketGenerated(true);
+  };
 
+  const handleMtnOrangePayment = () => {
+    if (!phone) {
+      alert("Please enter phone number");
+      return;
+    }
+    alert(`Payment of £${amount} successful via ${method.toUpperCase()}`);
+    setTicketGenerated(true);
+  };
+
+  const downloadTicket = async () => {
+    if (!ticketRef.current) return;
+    try {
+      const dataUrl = await htmlToImage.toPng(ticketRef.current, {
+        cacheBust: true,
+        pixelRatio: 5,
+        style: { filter: "none", background: "white" },
+      });
+
+      const pdf = new jsPDF("p", "pt", "a4");
+      const imgProps = pdf.getImageProperties(dataUrl);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      const scale = Math.min(
+        pdfWidth / imgProps.width,
+        pdfHeight / imgProps.height
+      );
+      const newWidth = imgProps.width * scale;
+      const newHeight = imgProps.height * scale;
+      const x = (pdfWidth - newWidth) / 2;
+      const y = (pdfHeight - newHeight) / 2;
+
+      pdf.addImage(dataUrl, "PNG", x, y, newWidth, newHeight);
+      pdf.save(`${event?.title || "ticket"}-ticket.pdf`);
+    } catch (err) {
+      console.error("Download failed:", err);
+      alert("Something went wrong while generating the PDF");
+    }
+  };
+
+  const resetPage = () => {
+    setTicketGenerated(false);
+    setMethod("paypal");
+    setCount(1);
+    setPhone("");
+  };
+
+  // Ticket view after generation
+  if (ticketGenerated && event) {
+    const ticketId = `ticket-${event.id}-${Date.now()}`; // unique QR code
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-white p-6">
+        <div className="w-full md:w-1/2 flex flex-col items-center gap-6">
+          <div ref={ticketRef}>
+            <TicketCard
+              eventTitle={event.title}
+              location={event.venue}
+              date={event.date}
+              time={event.time}
+              organizer={event.organizer}
+              userName="zounka"
+              price={event.ticket_price}
+              imageUrl={event.image_url}
+              ticketId={ticketId}
+            />
+          </div>
+
+          <Button
+            title="Download Ticket"
+            onClick={downloadTicket}
+            className="bg-blue-500 text-white px-6 py-2"
+          />
+
+          <Button
+            title="Go Back"
+            onClick={resetPage}
+            className="bg-gray-300 text-black px-6 py-2"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Regular payment page
   return (
     <div className="flex flex-col items-center justify-center bg-purple-50">
       <div className="py-10 mt-25 mb-10 flex flex-col px-6 w-full md:w-200 justify-center bg-white rounded-lg shadow-lg">
         {/* Event details */}
-        <div className="flex items-center font-semibold text-2xl gap-10 px-4 md:px-10 pb-10">
+        <div
+          className="flex items-center font-semibold text-2xl gap-10 px-4 md:px-10 pb-10 cursor-pointer"
+          onClick={() => window.history.back()}
+        >
           <FaArrowLeftLong />
           <h1>Ticket Purchase</h1>
         </div>
@@ -73,15 +172,15 @@ function Payment() {
           />
           <h1 className="font-semibold text-xl">{event?.title}</h1>
           <div className="p-3 text-gray-500">
-            <div className="items-center flex gap-3 ">
+            <div className="flex items-center gap-3">
               <FaRegCalendarAlt />
               <p>{event?.date}</p>
             </div>
-            <div className="flex items-center gap-3  ">
+            <div className="flex items-center gap-3">
               <LuClock2 />
               <p>{event?.time}</p>
             </div>
-            <div className="flex items-center gap-3  ">
+            <div className="flex items-center gap-3">
               <FaLocationDot />
               <p>{event?.venue}</p>
             </div>
@@ -90,16 +189,13 @@ function Payment() {
 
         {/* Payment Section */}
         <div className="flex flex-col md:flex-row justify-between border rounded-lg mt-10 p-5 gap-10">
-          {/* Ticket Section */}
+          {/* Ticket Selection */}
           <div className="flex-1">
-            <h1 className="text-xl text-center pb-5 font-semibold">
-              Available Tickets
-            </h1>
-
+            <h1 className="text-xl text-center pb-5 font-semibold">Tickets</h1>
             <div className="border rounded-lg p-2">
               <div className="flex justify-between pb-3">
                 <h1>Standard Ticket</h1>
-                <p>{event?.ticket_price}</p>
+                <p>{event?.ticket_price ?? 0}</p>
               </div>
               <div className="text-gray-400 text-md">
                 <p>Standard entry to the event</p>
@@ -115,123 +211,137 @@ function Payment() {
                 </button>
               </div>
             </div>
-
             <div className="mt-10">
               <h1 className="text-xl text-center pb-5 font-semibold">
                 Order Summary
               </h1>
               <div className="flex justify-between pb-3">
                 <p>Ticket Price</p>
-                <p>{event?.ticket_price}</p>
+                <p>{event?.ticket_price ?? 0}</p>
               </div>
               <div className="flex justify-between pb-3">
-                <p>Number </p>
+                <p>Number</p>
                 <p>{count}</p>
               </div>
               <hr />
-              <div className="flex justify-between py-3 ">
+              <div className="flex justify-between py-3">
                 <p>Total</p>
                 <p>{amount}</p>
               </div>
             </div>
           </div>
 
-          {/* Checkout Section */}
+          {/* Checkout */}
           <div className="flex-1">
             <h1 className="text-xl pb-5 font-semibold">Checkout</h1>
 
-            <div className="flex flex-wrap md:flex-nowrap gap-5 md:gap-10 pb-10">
-              <img
-                src={images.mtn}
-                alt="MTN MoMo"
-                className={`w-20 h-10 cursor-pointer ${
-                  method === "mtn" ? "ring-2 ring-yellow-500" : ""
-                }`}
-                onClick={() => setMethod("mtn")}
+            {/* Free Ticket */}
+            {(event?.ticket_price ?? 0) === 0 && (
+              <Button
+                title="Get Ticket for Free"
+                onClick={handleFreeTicket}
+                className="bg-green-500 text-white px-4 py-2"
               />
-              <img
-                src={images.orange}
-                alt="Orange Money"
-                className={`w-20 h-10 cursor-pointer ${
-                  method === "orange" ? "ring-2 ring-orange-500" : ""
-                }`}
-                onClick={() => setMethod("orange")}
-              />
-              <img
-                src={images.Paypal}
-                alt="PayPal"
-                className={`w-20 h-10 cursor-pointer ${
-                  method === "paypal" ? "ring-2 ring-blue-500" : ""
-                }`}
-                onClick={() => setMethod("paypal")}
-              />
-            </div>
-
-            {/* MTN Payment */}
-            {method === "mtn" && (
-              <form>
-                <h2 className="font-semibold mb-2">MTN MoMo Payment</h2>
-                <label>Phone Number</label>
-                <input
-                  type="text"
-                  className="w-full bg-gray-200 p-2 rounded-sm mb-3"
-                />
-                <Button title="Pay Now" className="mt-10 px-10" />
-              </form>
             )}
 
-            {/* Orange Payment */}
-            {method === "orange" && (
-              <form>
-                <h2 className="font-semibold mb-2">Orange Money Payment</h2>
-                <label>Phone Number</label>
-                <input
-                  type="text"
-                  className="w-full bg-gray-200 p-2 rounded-sm mb-3"
-                />
-                <Button title="Pay Now" className="mt-10 px-10" />
-              </form>
-            )}
-
-            {/* PayPal Payment */}
-            {method === "paypal" && (
-              <div>
-                <h2 className="font-semibold mb-2">PayPal Payment</h2>
-                <PayPalScriptProvider
-                  options={{
-                    clientId:
-                      "AWcbUIkfqRx51ILXg1sIoHVdDWqFfrYsKPDCrzoXNSf_2StjtXPBn75giD0bYLCnQ8YrtWTw0VQxddIB",
-                  }}
-                >
-                  <PayPalButtons
-                    style={{ layout: "vertical", shape: "rect" }}
-                    createOrder={async () => {
-                      const res = await fetch(
-                        `http://127.0.0.1:8000/create-order?amount=${amount}`,
-                        {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify(amount),
-                        }
-                      );
-                      const data = await res.json();
-                      return data.id;
-                    }}
-                    onApprove={async (data) => {
-                      const res = await fetch(
-                        `http://127.0.0.1:8000/capture-order/${data.orderID}`,
-                        { method: "POST" }
-                      );
-                      const details = await res.json();
-                      alert(
-                        "Transaction completed by " +
-                          details.payer.name.given_name
-                      );
-                      // ✅ Here you can generate ticket QR & redirect
-                    }}
+            {/* Paid Ticket */}
+            {(event?.ticket_price ?? 0) > 0 && (
+              <>
+                {/* Payment methods */}
+                <div className="flex flex-wrap md:flex-nowrap gap-5 md:gap-10 pb-10">
+                  <img
+                    src={images.mtn}
+                    alt="MTN MoMo"
+                    className={`w-20 h-10 cursor-pointer border-2 rounded ${
+                      method === "mtn"
+                        ? "border-yellow-500 scale-105"
+                        : "border-gray-300"
+                    }`}
+                    onClick={() => setMethod("mtn")}
                   />
-                </PayPalScriptProvider>
-              </div>
+                  <img
+                    src={images.orange}
+                    alt="Orange Money"
+                    className={`w-20 h-10 cursor-pointer border-2 rounded ${
+                      method === "orange"
+                        ? "border-orange-500 scale-105"
+                        : "border-gray-300"
+                    }`}
+                    onClick={() => setMethod("orange")}
+                  />
+                  <img
+                    src={images.Paypal}
+                    alt="PayPal"
+                    className={`w-20 h-10 cursor-pointer border-2 rounded ${
+                      method === "paypal"
+                        ? "border-blue-500 scale-105"
+                        : "border-gray-300"
+                    }`}
+                    onClick={() => setMethod("paypal")}
+                  />
+                </div>
+
+                {/* MTN & Orange Inputs */}
+                {(method === "mtn" || method === "orange") && (
+                  <div className="flex flex-col gap-3">
+                    <label>Phone Number</label>
+                    <input
+                      type="text"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full bg-gray-200 p-2 rounded-sm mb-3"
+                      placeholder="Enter phone number"
+                    />
+                    <Button
+                      title={`Pay £${amount} via ${method.toUpperCase()}`}
+                      onClick={handleMtnOrangePayment}
+                      className="mt-2 px-4 py-2 bg-yellow-500 text-white"
+                    />
+                  </div>
+                )}
+
+                {/* PayPal Payment */}
+                {method === "paypal" && (
+                  <div className="p-4 border rounded-lg shadow-md bg-white">
+                    <PayPalScriptProvider
+                      options={{ clientId: "AWcbUIkfqRx51ILXg1sIoHVdDWqFfrYsKPDCrzoXNSf_2StjtXPBn75giD0bYLCnQ8YrtWTw0VQxddIB" }}
+                    >
+                      <PayPalButtons
+                        style={{
+                          layout: "vertical",
+                          color: "blue",
+                          shape: "rect",
+                          label: "pay",
+                        }}
+                        createOrder={async () => {
+                          const res = await fetch(
+                            `http://127.0.0.1:8000/create-order`,
+                            {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ amount }),
+                            }
+                          );
+                          const data = await res.json();
+                          return data.id;
+                        }}
+                        onApprove={async (data) => {
+                          const res = await fetch(
+                            `http://127.0.0.1:8000/capture-order/${data.orderID}`,
+                            { method: "POST" }
+                          );
+                          const details = await res.json();
+                          alert(
+                            "Transaction completed by " +
+                              details.payer.name.given_name
+                          );
+                          setTicketGenerated(true);
+                        }}
+                      />
+                    </PayPalScriptProvider>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

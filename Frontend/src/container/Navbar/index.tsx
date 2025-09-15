@@ -21,6 +21,10 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
     setisOpen(!isOpen);
   };
 
+  const toggleCllick = () => {
+    setisOpen(false);
+  }
+
   return (
     <div className="relative z-4">
       <div className="flex justify-between items-center fixed bg-white w-full px-6">
@@ -62,18 +66,19 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
       <div>
         <div
           onClick={toggleMenu}
-          className="hidden max-lg:block absolute top-8 right-12 cursor-pointer fixed z-1 "
+          className="hidden max-lg:block absolute top-8 right-12 cursor-pointer  z-1 "
         >
-          {isOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+          {isOpen ? <FiX size={24} className="fixed"/> : <FiMenu size={24} className="fixed"/>}
         </div>
 
         {isOpen && (
-          <div className="hidden max-lg:block flex flex-col gap-2 items-center bg-purple-50 transparent p-5 fixed absolute w-full right-0 rounded-lg shadow-lg">
+          <div className="hidden max-lg:block flex-col gap-2 items-center bg-purple-50 transparent p-5 fixed absolute w-full right-0 rounded-lg shadow-lg">
             <ul className="flex flex-col gap-2 text-xl items-center pt-10">
               {items.map((item) => (
                 <li key={item.path}>
                   <NavLink
                     to={item.path}
+                    onClick={toggleCllick}
                     className={({ isActive }) =>
                       `hover:text-primary ${
                         isActive ? "text-primary font-semibold underline" : ""
@@ -88,16 +93,17 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
             <div className="flex flex-col items-center justify-center">
               <NavLink to="/CreateEvent">
                 <Button
+                  onClick={toggleCllick}
                   title="Create Event"
                   icon={<FaPlus />}
                   className="mt-6 px-10"
                 />
               </NavLink>
               <NavLink to="/Login">
-                <Button title="Login" className="my-3 px-20" />
+                <Button title="Login" className="my-3 px-20" onClick={toggleCllick} />
               </NavLink>
               <NavLink to="/Register">
-                <Button title="Register" className="px-18" />
+                <Button title="Register" className="px-18" onClick={toggleCllick} />
               </NavLink>
             </div>
           </div>

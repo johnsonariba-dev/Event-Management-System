@@ -46,7 +46,6 @@ function Register() {
   return (
     <div className="h-screen flex items-center justify-center bg-gray-100 p-6 pt-20">
       <div className="flex w-full max-w-6xl rounded-2xl shadow-2xl bg-white max-md:flex-col">
-    
         <div className="max-md:hidden w-1/2 items-center justify-center overflow-hidden rounded-br-[50px] rounded-l-2xl">
           <img
             src={images.register}
@@ -55,7 +54,6 @@ function Register() {
           />
         </div>
 
-  
         <div className="w-full md:w-1/2 flex flex-col justify-center bg-[url(/src/assets/images/sign.jpg)] max-md:rounded-2xl bg-rotate-90 bg-cover rounded-r-2xl">
           <div className="p-10 flex flex-col justify-center bg-white h-full max-md:rounded-2xl rounded-r-2xl rounded-tl-[50px]">
             <form
@@ -70,7 +68,7 @@ function Register() {
               </h1>
 
               {success && (
-                 <div className="bg-green-500 shadow-lg rounded-lg">
+                <div className="bg-green-500 shadow-lg rounded-lg">
                   <h1 className="text-center p-2 text-2xl text-white">
                     Successful Registration
                   </h1>
@@ -102,7 +100,11 @@ function Register() {
                   onClick={handlePassword}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-violet-500"
                 >
-                  {showPassword ? <FaRegEye size={22} /> : <FaRegEyeSlash size={22} />}
+                  {showPassword ? (
+                    <FaRegEye size={22} />
+                  ) : (
+                    <FaRegEyeSlash size={22} />
+                  )}
                 </button>
               </div>
 
@@ -117,11 +119,12 @@ function Register() {
               </div>
 
               <div className="flex justify-center pt-4">
-                <Button
-                  title="Login"
-                  
-                  className="px-8 py-3 text-white rounded-md transition"
-                />
+                <Link to="/events">
+                  <Button
+                    title="Login"
+                    className="px-8 py-3 text-white rounded-md transition"
+                  />
+                </Link>
               </div>
 
               <div className="text-center">

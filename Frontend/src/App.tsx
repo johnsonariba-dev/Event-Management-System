@@ -13,6 +13,11 @@ import NewEvent from "./Pages/NewEvent";
 import Payment from "./Pages/Payments/Payment";
 import Chatbot from "./Pages/Chatbot";
 import Attendees from "./Pages/Attendees";
+import BuyTicket from "../src/Pages/Ticket/BuyTicket";
+import TicketScan from "../src/Pages/Ticket/TicketScan";
+import ScrollToTop from "./components/ScrollTop";
+
+
 
 const NavBarItems = [
   {
@@ -38,6 +43,7 @@ function App() {
   return (
     <div>
       {showNavbar && <NavBar items={NavBarItems} />}
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />}></Route>
         <Route path="/about" element={<About />}></Route>
@@ -50,6 +56,8 @@ function App() {
         <Route path="/cities/:id" element={<CityDetails />}></Route>
         <Route path="/payment/:id" element={<Payment />}></Route>
         <Route path="/attendees/:id" element={<Attendees />}></Route>
+        <Route path="/buy-ticket/:eventId" element={<BuyTicket />} />
+        <Route path="/scan" element={<TicketScan />} />
       </Routes>
       <Chatbot/>
       {showfooter && <Footer />}

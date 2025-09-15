@@ -28,17 +28,17 @@ const Events: React.FC = () => {
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
   const [popularity, setPopularity] = useState("");
-  // const [loader, setLoader] = useState(true);
+  const [loader, setLoader] = useState(true);
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     setLoader(false);
-  //   }, 2000);
-  // }, []);
+  useEffect(() => {
+    setTimeout(() => {
+      setLoader(false);
+    }, 2000);
+  }, []);
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/events")
+      .get("http://127.0.0.1:8000/events")
       .then((res) => {
         setEvents(res.data);
       })
@@ -55,7 +55,7 @@ const Events: React.FC = () => {
   // }
 
   return (
-    <div className="bg-accent">
+    <div className="bg-accent" >
       {/* Hero Section */}
       <div className="relative h-120 flex flex-col mx-6">
         <div className="absolute inset-0 bg-[url(/src/assets/images/carnaval.jpeg)] bg-contain brightness-80 rounded-2xl mt-25"></div>
@@ -76,7 +76,7 @@ const Events: React.FC = () => {
       <div className="px-6 bg-accent py-20">
         <div className="bg-white shadow-md rounded-2xl flex flex-wrap gap-4 px-5 py-10 justify-between">
           <input
-            type="text"
+            type="search"
             placeholder="Search events ..."
             onChange={(e) => setSearch(e.target.value)}
             className="bg-purple-100 p-3 rounded-lg flex-1"
