@@ -1,4 +1,3 @@
-Model
 
 from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, Text, DateTime, UniqueConstraint
 from sqlalchemy.orm import relationship
