@@ -22,6 +22,11 @@ npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/timegrid @fu
 
 # eventdetails sharing
 npm install --save-dev @types/react @types/react-dom
+# pdf frontend
+npm install html-to-image
+npm install jspdf
+npm install --save-dev @types/jspdf
+npm install qrcode.react
 
 
 # Virtual environment

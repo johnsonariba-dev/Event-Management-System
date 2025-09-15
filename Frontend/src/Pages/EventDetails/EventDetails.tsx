@@ -231,7 +231,7 @@ function EventDetails() {
             <HiOutlineClock size={24} className="text-secondary" />
             <p className="text-white">Almost full!</p>
           </div>
-          <Link to={`/Payment/${event.id}`}>
+          <Link to={`/payment/${event.id}`}>
             <Button
               icon={<FiBookmark />}
               title="Buy ticket"

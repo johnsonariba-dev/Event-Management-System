@@ -47,11 +47,11 @@ function CityDetails() {
 
   return (
     <>
-    <div className="w-full flex flex-col items-center justify-center pb-10">
-<div
-  className="flex max-md:flex-col text-white md:gap-7 shadow-lg md:h-[85vh] p-5 md:p-15 md:mt-25 mt-10 w-full bg-cover bg-center"
-  style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${city.image})` }}
->
+       <div className="w-full flex flex-col items-center justify-center pb-10">
+      <div
+        className="flex max-md:flex-col text-white md:gap-7 shadow-lg md:h-[85vh] p-5 md:p-15 md:mt-25 mt-10 w-full bg-cover bg-center"
+        style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${city.image})` }}
+      >
         <div className="md:w-[50%] h-full flex flex-col gap-15 justify-center items-center py-20 md:pr-20">
           <p className="md:text-7xl text-6xl font-bold pb-5">{city.name}, <span>{city.region}</span></p>
           <p> {city.desc}</p>
@@ -62,9 +62,21 @@ function CityDetails() {
           alt={city.name}
           className="w-full h-full object-cover max-md:hidden rounded-lg"
         />
+      <div className="flex bg-primary/10 rounded-lg justify-between shadow-lg  p-6 max-md:p-8 mt-25 w-full max-md:flex-col gap-8 items-center max-md:justify-center">
+        <div className="w-[50%] max-md:w-full flex-col justify-center items-center ">
+          <p className="text-xl font-semibold" >Events in</p>
+          <p className="text-[5.3vw] max-lg:text-6xl max-md:text-4xl font-bold text-primary pb-0">{city.name}, <span>{city.region}</span> <span className="text-2xl">Region of Cameroon</span></p>
+          <p> {city.desc}</p>
+        </div>
+        <div className="w-[50%] object-cover max-md:w-full max-md:h-[200px]"> 
+          <img
+            src={city.image}
+            alt={city.name}
+            className="w-full h-full object-cover rounded-lg"
+          />
+        </div>
       </div>
-    </div>
-      <div className="w-[95vw] mt-10">
+      <div className="w-[95vw] mt-10 p-8 bg-white rounded-lg shadow-lg">
         <h2 className="text-2xl font-semibold">Upcoming Events</h2>
         <div className="mt-5 space-y-5 flex flex-wrap justify-evenly items-center gap-8">
           {events.length > 0 ? (
