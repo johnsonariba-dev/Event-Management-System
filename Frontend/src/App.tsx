@@ -12,7 +12,7 @@ import CityDetails from "./Pages/EventDetails/CityDetails";
 import NewEvent from "./Pages/NewEvent";
 import Payment from "./Pages/Payments/Payment";
 import LikePage from "./components/like";
-
+import PrivateRoute from "./components/privateRoute";
 
 const NavBarItems = [
   {
@@ -27,15 +27,17 @@ const NavBarItems = [
     title: "Events",
     path: "/events",
   },
-  {
-    title: "LikePage",
-    path: "/like",
-  },
 ];
 
 function App() {
   const location = useLocation();
-  const hidefooter = ["/login", "/register", "/CreateEvent", "/NewEvent", "/payment/:id"];
+  const hidefooter = [
+    "/login",
+    "/register",
+    "/CreateEvent",
+    "/NewEvent",
+    "/payment/:id",
+  ];
   const hideNavbar = ["/CreateEvent"];
   const showfooter = !hidefooter.includes(location.pathname);
   const showNavbar = !hideNavbar.includes(location.pathname);
@@ -54,7 +56,6 @@ function App() {
         <Route path="/cities/:id" element={<CityDetails />}></Route>
         <Route path="/payment/:id" element={<Payment />}></Route>
         <Route path="/Payment" element={<Payment />}></Route>
-        <Route path="/like" element={<LikePage eventId={1}/>}></Route>
       </Routes>
       {showfooter && <Footer />}
     </div>

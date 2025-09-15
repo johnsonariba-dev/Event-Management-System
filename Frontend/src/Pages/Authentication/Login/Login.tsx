@@ -3,10 +3,16 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "../../../components/button";
 import images from "../../../types/images";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import {jwtDecode} from "jwt-decode"
 
 const URL_API = "http://localhost:8000/user/login";
 
-function Register() {
+interface jwtPayload  {
+  sub: string
+}
+
+
+function Login() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -19,7 +25,9 @@ function Register() {
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     setError(null);
     try {
       const response = await fetch(URL_API, {
@@ -29,24 +37,35 @@ function Register() {
       });
 
       if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.message || "Login failed");
+        // const errData = await response.json();
+        throw new Error( "Email or password incorrect");
       }
 
+      const data = await response.json();
+      const token = data.access_token;
+      console.log(data.access_token)
+
+      localStorage.setItem("token", token);
+
+      // decode token
+      const decoded = jwtDecode<{ sub: string }>(token);
+      localStorage.setItem("email", decoded.sub)
+      console.log(decoded.sub)
       setSuccess(true);
 
       setTimeout(() => {
-        navigate("/events"); 
-      }, 3000);
+        navigate("/events");
+      }, 1000);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "An unknown error occurred");
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred"
+      );
     }
   };
 
   return (
     <div className="h-screen flex items-center justify-center bg-gray-100 p-6 pt-20">
       <div className="flex w-full max-w-6xl rounded-2xl shadow-2xl bg-white max-md:flex-col">
-    
         <div className="max-md:hidden w-1/2 items-center justify-center overflow-hidden rounded-br-[50px] rounded-l-2xl">
           <img
             src={images.register}
@@ -55,14 +74,10 @@ function Register() {
           />
         </div>
 
-  
         <div className="w-full md:w-1/2 flex flex-col justify-center bg-[url(/src/assets/images/sign.jpg)] max-md:rounded-2xl bg-rotate-90 bg-cover rounded-r-2xl">
           <div className="p-10 flex flex-col justify-center bg-white h-full max-md:rounded-2xl rounded-r-2xl rounded-tl-[50px]">
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSubmit();
-              }}
+              onSubmit={handleSubmit}
               className="flex flex-col space-y-5"
             >
               <h1 className="text-3xl font-bold text-center pb-10">
@@ -70,7 +85,7 @@ function Register() {
               </h1>
 
               {success && (
-                 <div className="bg-green-500 shadow-lg rounded-lg">
+                <div className="bg-green-500 shadow-lg rounded-lg">
                   <h1 className="text-center p-2 text-2xl text-white">
                     Successful Registration
                   </h1>
@@ -102,7 +117,11 @@ function Register() {
                   onClick={handlePassword}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-violet-500"
                 >
-                  {showPassword ? <FaRegEye size={22} /> : <FaRegEyeSlash size={22} />}
+                  {showPassword ? (
+                    <FaRegEye size={22} />
+                  ) : (
+                    <FaRegEyeSlash size={22} />
+                  )}
                 </button>
               </div>
 
@@ -119,7 +138,6 @@ function Register() {
               <div className="flex justify-center pt-4">
                 <Button
                   title="Login"
-                  
                   className="px-8 py-3 text-white rounded-md transition"
                 />
               </div>
@@ -143,4 +161,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default Login;

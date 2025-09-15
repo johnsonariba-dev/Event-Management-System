@@ -21,7 +21,11 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+     /* ⚡ Ajouter ces deux options */
+     "esModuleInterop": true,
+     "allowSyntheticDefaultImports": true
   },
   "include": ["src"]
 }

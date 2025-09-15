@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { FiMenu, FiX } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa6";
@@ -20,6 +20,15 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
   const toggleMenu = () => {
     setisOpen(!isOpen);
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+    const email = localStorage.getItem("email")
+
+    if (token && email){
+      
+    }
+  },[])
 
   return (
     <div className="relative z-4">

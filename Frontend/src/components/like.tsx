@@ -1,73 +1,70 @@
-import React from 'react'
-import { useState, useEffect } from 'react'
-import { data } from 'react-router-dom';
+import React from "react";
+import { useState, useEffect } from "react";
+import { HiHeart } from "react-icons/hi";
+import { useParams } from "react-router-dom";
 
-interface eventProps{
-   eventId: number
-
+interface LikeResponse {
+  event_id: number;
+  total_like: number;
+  liked_by_user: boolean;
 }
 
-
-
-const LikePage: React.FC<eventProps> = ({ eventId })  => {
+const LikePage: React.FC = () => {
   const [like, setLike] = useState(false);
   const [totalLike, setTotalLike] = useState(0);
 
+  const { id } = useParams<{ id: string }>();
+  const eventId = Number(id);
   const token = localStorage.getItem("token");
 
+  useEffect(() => {
+    if (!token || !eventId) return;
 
-  useEffect(() =>{
     fetch(`http://127.0.0.1:8000/events/${eventId}/likes`, {
-      headers: {autorization: `Beare ${token}`,
-    }
-  }).then((res) => res.json())
-  .then((data) =>{
-    setLike(data.like_by_user);
-    setTotalLike(data.totalLike);
-  })
-  .catch((err) => console.log("err to execute", err));
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setLike(data.liked_by_user);
+        setTotalLike(data.total_like);
+      })
+      .catch((err) => console.log("Error fetching likes", err));
   }, [eventId, token]);
-  
-  const handleclickLike = async () =>{
-      try{
-        const res = await fetch("http://127.0.0.1:8000/events/like", {
-          method: "POST",
-          headers: {"content-type" : "application/json", 
-          autorisation: `Bearer ${token}`},
-          body: JSON.stringify({event_id: eventId}),
-          
-        });
-        if(res.ok){
-          const data = await res.json();
-          setLike(true);
-          setTotalLike((prev) => prev - 1);
-        }
-        else{
-          console.error("error:",);
-        }
+
+  const handleclickLike = async () => {
+    if (!token) return alert("Vous devez être connecté !");
+
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/likes`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ event_id: eventId }),
+      });
+      if (res.ok) {
+        // const data: LikeResponse = await res.json();
+        setLike(!like);
+        setTotalLike((prev) => (like ? prev - 1 : prev + 1));
+      } else {
+        console.error("Error liking event");
       }
-      catch(err){
-        console.error("failed to fetch", err);
-      }
+    } catch (err) {
+      console.error("failed to fetch", err);
+    }
   };
 
-
-
   return (
-    <div>
-      <div className='w-full h-screen flex flex-col items-center justify-center'>
-      <button
-        onClick={handleclickLike }
-        className={`px-4 py-2 rounded ${
-          like ? "bg-red-500 text-white" : "bg-gray-300"
+    <div onClick={handleclickLike} className="flex items-center gap-2">
+      <span className="text-[1.2rem]">{isNaN(totalLike) ? 0 : totalLike}</span>
+      <HiHeart
+        className={`cursor-pointer text-2xl ${
+          like ? "text-red-500" : "text-gray-400"
         }`}
-      >
-        {like ? "Unlike ❤️" : "Like 🤍"}
-      </button>
-      <p>{totalLike} likes</p>
-    </div>
+      />
     </div>
   );
-}
+};
 
 export default LikePage;

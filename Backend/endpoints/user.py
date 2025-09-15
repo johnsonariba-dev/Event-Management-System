@@ -29,7 +29,7 @@ async def login(login_data: UserLogin, db: db_dependency):
 
 
 # Route pour l'inscription
-@router.post("/register", response_model = Token, status_code = status.HTTP_201_CREATED)
+@router.post("/register", response_model = UserResponse, status_code = status.HTTP_201_CREATED)
 async def register(user: CreateUser, db: db_dependency):
 
     # Vérifie si l'email existe déjà
@@ -47,10 +47,7 @@ async def register(user: CreateUser, db: db_dependency):
     db.commit()
     db.refresh(db_user)
 
-    # Générer le JWT directement
-    access_token = create_access_token(data = {"sub":user.email})
-
-    return {"access_token": access_token, "token_type": "bearer"}
+    return db_user
  
 
 #Route to get accounts

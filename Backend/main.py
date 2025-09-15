@@ -4,7 +4,7 @@ from pathlib import Path
 env_path = Path(__file__).parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
-from endpoints import event_fake, user, ticket, like, paypal
+from endpoints import event_fake, user, ticket, like, paypal,review
 from endpoints import event_fake, user, ticket, like
 from database import Base,engine
 from endpoints import user
@@ -37,3 +37,4 @@ app.include_router(event_fake.router, tags=["event_fake"])
 app.include_router(ticket.router, prefix="/ticket", tags=["ticket"])
 app.include_router(like.router,  tags=["like"])
 app.include_router(paypal.router,  tags=["paypal"])
+app.include_router(review.router,  tags=["review"])

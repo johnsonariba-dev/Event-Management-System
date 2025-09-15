@@ -31,7 +31,8 @@ export default{
     london,
     cameroon,
     mtn,
-    orange, Paypal
+    orange,
+    Paypal,
     yaounde,
     douala,
     bamenda,

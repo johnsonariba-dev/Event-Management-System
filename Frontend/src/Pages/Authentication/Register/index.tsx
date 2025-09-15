@@ -32,26 +32,28 @@ const Register: React.FC = () => {
 
       if (!response.ok) {
         const errData = await response.json();
-        throw new Error(errData.message || "Registration failed");
-      }
+        if (errData.detail && errData.detail.length > 0) {
+          setError(errData.detail[0].msg);
+        } else {
+          setError("Une erreur est survenue. Veuillez réessayer.");
+        }
+        return;      }
+
 
       setSuccess(true);
-
       setTimeout(() => {
         navigate("/Login");
-      }, 3000);
+      }, 1000);
 
-    } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred"
-      );
+    } catch (err: any) {
+        setError("Une erreur est survenue. Veuillez réessayer.");
     }
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-100 p-6 pt-20 max-md:pt-25">
-      <div className="flex w-full max-w-6xl rounded-2xl shadow-2xl bg-white">
-        <div className="w-full md:w-1/2 flex flex-col justify-center bg-[url(/src/assets/images/sign.jpg)] bg-rotate-90 bg-cover rounded-l-2xl max-md:rounded-2xl">
+    <div className="w-full h-scree  p-8 flex items-center justify-center bg-gray-100  pt-20 max-md:pt-25">
+      <div className="flex w-full max-w-6xl h-[95vh] rounded-2xl shadow-2xl bg-white">
+        <div className="w-full md:w-1/2 flex  flex-col justify-center bg-[url(/src/assets/images/sign.jpg)] bg-rotate-90 bg-cover rounded-l-2xl max-md:rounded-2xl">
           <div className=" p-10 flex flex-col justify-center rounded-br-[50px] bg-white h-full rounded-l-2xl max-md:rounded-2xl">
             <form
               onSubmit={(e) => {
@@ -112,7 +114,7 @@ const Register: React.FC = () => {
               >
                 <option value="">Select Role</option>
                 <option value="user">User</option>
-                <option value="organiser">Organiser</option>
+                <option value="organiser">Organizer</option>
               </select>
               <div className="flex items-center">
                 <input id="remember" type="checkbox" className="mr-2" />
