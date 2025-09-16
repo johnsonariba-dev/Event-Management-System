@@ -49,12 +49,14 @@ function CityDetails() {
   return (
     <>
       <div className="w-full flex flex-col items-center justify-center pb-10">
+        {/* City header */}
         <div
           className="flex max-md:flex-col text-white md:gap-7 shadow-lg md:h-[85vh] p-5 md:p-15 md:mt-25 mt-10 w-full bg-cover bg-center"
           style={{
             backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${city.image})`,
           }}
         >
+          {/* City intro */}
           <div className="md:w-[50%] h-full flex flex-col gap-15 justify-center items-center py-20 md:pr-20">
             <p className="md:text-7xl text-6xl font-bold pb-5">
               {city.name}, <span>{city.region}</span>
@@ -62,6 +64,7 @@ function CityDetails() {
             <p>{city.desc}</p>
           </div>
 
+          {/* City image */}
           <div className="md:w-[50%] h-full">
             <img
               src={city.image}
@@ -69,6 +72,7 @@ function CityDetails() {
               className="w-full h-full object-cover max-md:hidden rounded-lg"
             />
 
+            {/* City details box */}
             <div className="flex bg-primary/10 rounded-lg justify-between shadow-lg p-6 max-md:p-8 mt-25 w-full max-md:flex-col gap-8 items-center max-md:justify-center">
               <div className="w-[50%] max-md:w-full flex-col justify-center items-center">
                 <p className="text-xl font-semibold">Events in</p>
@@ -88,6 +92,7 @@ function CityDetails() {
               </div>
             </div>
 
+            {/* Upcoming events */}
             <div className="w-[95vw] mt-10 p-8 bg-white rounded-lg shadow-lg">
               <h2 className="text-2xl font-semibold">Upcoming Events</h2>
               <div className="mt-5 space-y-5 flex flex-wrap justify-evenly items-center gap-8">
