@@ -2,17 +2,17 @@ from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from database import Base
 from datetime import datetime
+from sqlalchemy.orm import Mapped, mapped_column
 
 # -------------------- USER --------------------
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    username = Column(String, index=True, nullable=False)
-    role = Column(String, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
-
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
+    username: Mapped[str] = mapped_column(String, index=True, nullable=False)
+    role: Mapped[str] = mapped_column(String, index=True, nullable=False)
+    hashed_password: Mapped[str] = mapped_column(String, nullable=False)
     # created_at = Column(DateTime, default=datetime.utcnow)
 
  # Relations
@@ -29,18 +29,15 @@ class User(Base):
 class Event(Base):
     __tablename__ = "events"
 
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(100), nullable=False, unique=True, index=True)
-    description = Column(Text, nullable=True)
-    date = Column(DateTime, nullable=False, index=True)
-    venue = Column(String(150), nullable=False, index=True)
-    ticket_price = Column(Float, default=0.0, nullable=False)
-    category = Column(String(50), nullable=False, index=True)
-    image_url = Column(String, nullable=True)
-    capacity_max = Column(Integer, nullable=True)
-    status = Column(String, default="Pending")
-    organizer_id = Column(Integer, ForeignKey(
-        "users.id"), nullable=True, index=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str]
+    category: Mapped[str]
+    description: Mapped[str | None] = mapped_column(String, nullable=True)
+    venue: Mapped[str]
+    date: Mapped[datetime]
+    ticket_price: Mapped[float]
+    capacity_max: Mapped[int | None] = mapped_column(nullable=True)
+    image_url: Mapped[str | None] = mapped_column(nullable=True)
 
     # Relations
     review = relationship("Review", back_populates="event",

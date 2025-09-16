@@ -60,7 +60,7 @@ class EventResponse(EventBase):
     image_url: Optional[str]
 
     class Config:
-        orm_mode = True
+        from_attributes = True  # Pydantic v2
 
 
 class EventForm(EventBase):
@@ -71,9 +71,9 @@ class EventForm(EventBase):
         category: str = Form(...),
         description: Optional[str] = Form(None),
         venue: str = Form(...),
-        date: str = Form(...),
-        ticket_price: float = Form(...),
-        capacity_max: Optional[int] = Form(None),
+        date: datetime = Form(...),
+        ticket_price: float = Form(..., description="Ticket price as float"),
+        capacity_max: Optional[int] = Form(None, description="Maximum capacity as int"),
     ):
         return cls(
             title=title,
@@ -182,10 +182,12 @@ async def update_event(
     if not db_event:
         raise HTTPException(status_code=404, detail="Event not found")
 
+    # Update image if uploaded
     if image:
         db_event.image_url = upload_file(image, folder="events")
 
-    for key, value in form_data.dict(exclude_unset=True).items():
+    # Update other fields
+    for key, value in form_data.model_dump(exclude_unset=True).items():
         setattr(db_event, key, value)
 
     db.commit()

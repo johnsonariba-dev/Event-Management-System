@@ -9,8 +9,8 @@ load_dotenv()
 router = APIRouter()
 
 # Load credentials from environment
-PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
-PAYPAL_SECRET = os.getenv("PAYPAL_SECRET")
+PAYPAL_CLIENT_ID = os.getenv("AWcbUIkfqRx51ILXg1sIoHVdDWqFfrYsKPDCrzoXNSf_2StjtXPBn75giD0bYLCnQ8YrtWTw0VQxddIB")
+PAYPAL_SECRET = os.getenv("EAdYWDSSqxA1iK3FydFl8es5C5JsqGKZPULFYm-SGYgZqxJX9UoTxmDRLO-b1MpZBJgGvimgDHLRPW2fQ")
 
 PAYPAL_BASE = "https://api-m.sandbox.paypal.com"  # Sandbox for testing
 
@@ -20,6 +20,8 @@ class OrderCreate(BaseModel):
 
 
 def get_access_token():
+    if PAYPAL_CLIENT_ID is None or PAYPAL_SECRET is None:
+        raise RuntimeError("PAYPAL_CLIENT_ID and PAYPAL_SECRET must be set in environment variables.")
     auth = (PAYPAL_CLIENT_ID, PAYPAL_SECRET)
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     data = {"grant_type": "client_credentials"}
