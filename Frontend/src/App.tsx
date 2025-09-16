@@ -8,6 +8,7 @@ import Register from "./Pages/Authentication/Register";
 import Login from "./Pages/Authentication/Login/Login";
 import CreateEvent from "./Pages/CreateEvents";
 import EventDetails from "./Pages/EventDetails/EventDetails";
+import CityDetails from "./Pages/EventDetails/CityDetails";
 import NewEvent from "./Pages/NewEvent";
 import Payment from "./Pages/Payments/Payment";
 import Chatbot from "./Pages/Chatbot";

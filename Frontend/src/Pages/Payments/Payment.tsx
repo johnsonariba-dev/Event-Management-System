@@ -258,7 +258,7 @@ function Payment() {
                     >
                       <PayPalButtons
                         style={{ layout: "vertical", shape: "rect" }}
-                        createOrder={(_, actions) => {
+                        createOrder={(_,) => {
                           return fetch(
                             `http://127.0.0.1:8000/create-order`,
                             {

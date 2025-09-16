@@ -5,7 +5,7 @@ import {
   FiBookmark,
   FiCalendar,
   FiMessageCircle,
-  // FiShare2,
+
 } from "react-icons/fi";
 import { HiLocationMarker, HiOutlineClock, HiUserCircle } from "react-icons/hi";
 import { HiStar, HiTicket } from "react-icons/hi2";
@@ -52,17 +52,13 @@ const EventDetails = () => {
   const [loading, setLoading] = useState(true);
   const [comment, setComment] = useState(" ");
   const [submitC, setsubmitc] = useState<string[]>([]);
-
-  // const [heartC, setHeartC] = useState(false);
   const [bookC, setBookC] = useState(false);
   const [reviews, setReviews] = useState<Reviews[]>([]);
-  // const [userName, setUserName] = useState("");
   const [currentRating, setCurrentRating] = useState(0);
   const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
   const [editingComment, setEditingComment] = useState("");
   const [editingRating, setEditingRating] = useState(0);
-
-  // const currentUserName = localStorage.getItem("username") || "";
+  const [showAllReviews, setShowAllReviews] = useState(false);
 
   const startEditing = (review: Reviews) => {
     setEditingReviewId(review.id);
@@ -137,7 +133,6 @@ const EventDetails = () => {
       setReviews([...reviews, savedReview]);
       setComment("");
       setCurrentRating(0);
-      // setUserName("");
     } catch (error) {
       console.error(error);
     }
@@ -147,7 +142,7 @@ const EventDetails = () => {
     const token = localStorage.getItem("token");
 
     const fetchReviews = async () => {
-      const res = await fetch(`http://127.0.0.1:8000/review`, {
+      const res = await fetch(`http://127.0.0.1:8000/events/${id}/reviews`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -161,9 +156,6 @@ const EventDetails = () => {
   const handleBookClick = () => {
     setBookC(!bookC);
   };
-  // const handleHeartClick = () => {
-  //   setHeartC(!heartC);
-  // };
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -225,12 +217,6 @@ const EventDetails = () => {
                 About This Event
               </h1>
               <div className="flex gap-4 text-2xl">
-                {/* <HiHeart
-                  className={`cursor-pointer ${
-                    heartC ? "text-red-500" : "text-gray-400"
-                  }`}
-                  onClick={()=>{handleHeartClick;  }}
-                /> */}
                 <Like />
 
                 <FiBookmark
@@ -311,7 +297,9 @@ const EventDetails = () => {
         </div>
         <div className="w-md max-md:w-full m-8 flex flex-col items-center justify-center p-4 bg-gray-400 shadow-md h-[65vh] max-md:h-[94vh] rounded-2xl">
           <div className="w-full flex justify-around gap-4 items-center p-4">
-            <h1 className="text-white text-2xl">{event.ticket_price}FCFA per</h1>
+            <h1 className="text-white text-2xl">
+              {event.ticket_price}FCFA per
+            </h1>
             <HiTicket size={44} className="text-primary" />
           </div>
           <p className="text-white p-4">847 people registered</p>
@@ -374,13 +362,6 @@ const EventDetails = () => {
       <div className="w-full flex flex-col items-center gap-4 p-8">
         <div className="w-full flex flex-col gap-2 p-4 rounded-2xl bg-gray-100 shadow-md">
           <h1 className="font-bold text-xl">Leave a Review</h1>
-          {/* <input
-            type="text"
-            placeholder="Your Name"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-            className="w-full p-2 border rounded"
-          />  */}
           <h4 className="font-semibold mt-2">Your Rating</h4>
           <div className="flex items-center gap-1 p-2">
             {[...Array(5)].map((_, i) => (
@@ -410,7 +391,7 @@ const EventDetails = () => {
         </div>
 
         <div className="w-full flex flex-col gap-4 mt-4">
-          {reviews.map((rev) => (
+          {(showAllReviews ? reviews : reviews.slice(0, 5)).map((rev) => (
             <div
               key={rev.id}
               className="p-4 bg-gray-100 text-black rounded-xl shadow flex flex-col gap-2"
@@ -481,6 +462,16 @@ const EventDetails = () => {
               )}
             </div>
           ))}
+
+          {/* Show "See more" button if reviews > 5 */}
+          {reviews.length > 5 && (
+            <button
+              onClick={() => setShowAllReviews(!showAllReviews)}
+              className="text-secondary font-semibold self-end mt-2 hover:underline"
+            >
+              {showAllReviews ? "See less" : "See more"}
+            </button>
+          )}
         </div>
       </div>
     </div>

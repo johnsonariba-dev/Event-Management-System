@@ -1,9 +1,10 @@
 from typing import List
-from endpoints.auth import create_access_token, hash_password, verify_password
-from schemas.users import CreateUser, UserLogin, UserResponse,Token, UserUpdate
-from fastapi import HTTPException, status, APIRouter
+from fastapi import APIRouter, HTTPException, status, Depends
+from sqlalchemy.orm import Session
 import models
-from database import db_dependency
+from database import get_db
+from schemas.users import CreateUser, UserLogin, UserResponse, Token, UserUpdate
+from endpoints.auth import create_access_token, hash_password, verify_password
 
 router = APIRouter()
 
@@ -11,7 +12,7 @@ router = APIRouter()
 
 
 @router.post('/login', response_model=Token)
-async def login(login_data: UserLogin, db: db_dependency):
+async def login(login_data: UserLogin, db: Session = Depends(get_db)):
 
     user = db.query(models.User).filter(
         models.User.email == login_data.email).first()
@@ -30,7 +31,7 @@ async def login(login_data: UserLogin, db: db_dependency):
 
 # Route pour l'inscription
 @router.post("/register", response_model = Token, status_code = status.HTTP_201_CREATED)
-async def register(user: CreateUser, db: db_dependency):
+async def register(user: CreateUser, db: Session = Depends(get_db)):
 
     # Vérifie si l'email existe déjà
     existing_user = db.query(models.User).filter(
@@ -55,13 +56,13 @@ async def register(user: CreateUser, db: db_dependency):
 
 #Route to get accounts
 @router.get("/users", response_model = List[UserResponse])
-async def get_users(db:db_dependency):
+async def get_users(db: Session = Depends(get_db)):
     return db.query(models.User).all()
 
 
 #Route to get accounts
 @router.get("/{user_id}", response_model = UserResponse)
-async def get_user(user_id : int, db: db_dependency):
+async def get_user(user_id : int, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(
@@ -73,7 +74,7 @@ async def get_user(user_id : int, db: db_dependency):
 # Route to update user
 @router.put("/{user_id}", response_model = UserResponse)
 
-def update_user(user_id: int, user_update: UserUpdate, db: db_dependency):
+def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get_db)):
    
     # Récupère l'événement existant
     user = db.query(models.User).filter(models.User.id == user_id).first()
@@ -92,7 +93,7 @@ def update_user(user_id: int, user_update: UserUpdate, db: db_dependency):
 
 # Route pour delete un account (admin)
 @router.delete("/{user_id}")
-async def delete_account(user_id: int, db: db_dependency):
+async def delete_account(user_id: int, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.id == user_id).first()
     if not db_user:
         raise HTTPException(

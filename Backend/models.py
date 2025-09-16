@@ -1,10 +1,7 @@
-
 from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, Text, DateTime, UniqueConstraint
 from sqlalchemy.orm import relationship
 from database import Base
 from datetime import datetime
-
-# -------------------- USER --------------------
 
 # -------------------- USER --------------------
 class User(Base):
@@ -27,8 +24,7 @@ class User(Base):
     # preference = relationship("UserPreference", back_populates="user")
     like = relationship("Like", back_populates="user")
 
-# -------------------- EVENT --------------------
-
+# -------------------- EVENT -------------------
 
 class Event(Base):
     __tablename__ = "events"
@@ -55,8 +51,6 @@ class Event(Base):
     # message = relationship("MessageChat", back_populates="event")
 
 # -------------------- TICKET --------------------
-
-
 class Ticket(Base):
     __tablename__ = "tickets"
 
@@ -64,8 +58,6 @@ class Ticket(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
     purchase_date = Column(DateTime, default=datetime.utcnow)
-
-# -------------------- REVIEW --------------------
 
 
 class Review(Base):
@@ -76,14 +68,14 @@ class Review(Base):
     event_id = Column(Integer, ForeignKey("events.id"))
     comment = Column(Text, index=True)
     rating = Column(Integer)
+    reply = Column(String, nullable=True) 
     # time = Column(DateTime, default=datetime.utcnow)
 
 # Relations
     event = relationship("Event", back_populates="review")
     user = relationship("User", back_populates="review")
 
-# -------------------- LIKE --------------------
-
+# -------------------- LIKE -------------------
 
 class Like(Base):
     __tablename__ = "likes"
@@ -100,8 +92,6 @@ class Like(Base):
     event = relationship("Event", back_populates="like")
 
 # -------------------- NOTIFICATION --------------------
-
-
 class Notification(Base):
     __tablename__ = "notifications"
 
@@ -122,8 +112,6 @@ class UserPreference(Base):
     last_activity = Column(DateTime, default=datetime.utcnow)
 
 # -------------------- MESSAGE CHAT --------------------
-
-
 class MessageChat(Base):
     __tablename__ = "messages_chat"
 

@@ -1,11 +1,12 @@
 from models import Ticket
-from fastapi import APIRouter,HTTPException,Query
-from database import db_dependency
+from fastapi import APIRouter, Depends,HTTPException,Query
+from sqlalchemy.orm import Session
+from database import get_db
 
 router = APIRouter()
 
 @router.get("/verify")
-async def verify_ticket(db:db_dependency ,ticket_id: int = Query(...)):
+async def verify_ticket(db: Session = Depends(get_db),ticket_id: int = Query(...)):
     """
     Vérifie un ticket dans la base de données.
     """

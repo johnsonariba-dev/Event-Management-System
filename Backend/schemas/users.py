@@ -4,7 +4,6 @@ from pydantic import BaseModel,EmailStr
 
 class CreateUser(BaseModel):
     username: str
-    role: str
     email:EmailStr
     password: str
     role: str
