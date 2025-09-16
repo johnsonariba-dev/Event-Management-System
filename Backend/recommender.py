@@ -20,15 +20,18 @@ else:
         # Load data
         events_df = pd.read_csv(CSV_FILE)
 
+        # Ensure no NaN values
+        events_df = events_df.fillna("")
+
         # Combine text fields for recommendation
         events_df['combined'] = (
-            events_df['title'].astype(str) + " " +
-            events_df['category'].astype(str) + " " +
-            events_df['description'].astype(str)
+            events_df['title'].astype(str).str.lower() + " " +
+            events_df['category'].astype(str).str.lower() + " " +
+            events_df['description'].astype(str).str.lower()
         )
 
         # Precompute vectorizer & matrix
-        count_vec = CountVectorizer()
+        count_vec = CountVectorizer(stop_words="english")
         count_matrix = count_vec.fit_transform(events_df['combined'])
 
         # Save everything in pickle
@@ -40,19 +43,28 @@ else:
             }, f)
         print("✅ Precomputed data saved to Pickle.")
     else:
-        raise FileNotFoundError(f"Neither Pickle nor CSV file found. Please generate '{CSV_FILE}' first.")
+        raise FileNotFoundError(
+            f"Neither Pickle nor CSV file found. Please generate '{CSV_FILE}' first."
+        )
 
 # ---------------- Recommendation Function ----------------
 def recommend_events(user_interests: list, top_n=5):
     """
     Recommend events based on user interests using precomputed data.
     """
-    user_text = " ".join(user_interests)
+    if not user_interests:
+        return []
+
+    user_text = " ".join(user_interests).lower()
     user_vec = count_vec.transform([user_text])
 
-    similarity = cosine_similarity(user_vec, count_matrix)
-    events_df['score'] = similarity[0]
+    similarity = cosine_similarity(user_vec, count_matrix).flatten()
 
-    recommended = events_df.sort_values('score', ascending=False).head(top_n)
+    # Create a copy with similarity scores
+    results = events_df.copy()
+    results['score'] = similarity
+
+    # Sort and return top N (excluding combined column)
+    recommended = results.sort_values('score', ascending=False).head(top_n)
 
     return recommended.drop(columns=['combined', 'score']).to_dict(orient='records')
