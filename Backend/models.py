@@ -12,13 +12,13 @@ class User(Base):
     username = Column(String, index=True, nullable=False)
     role = Column(String, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
+
     # created_at = Column(DateTime, default=datetime.utcnow)
 
  # Relations
-    # event = relationship("Event", back_populates="organizer")   # "back_populates" fait référence à l'attribut dans la classe Message
     # ticket = relationship("Ticket", back_populates="user")
     review = relationship("Review", back_populates="user")
-
+    event = relationship("Event", back_populates="organizer")  
     # notification = relationship("Notification", back_populates="user")
     # message = relationship("MessageChat", back_populates="user")
     # preference = relationship("UserPreference", back_populates="user")
@@ -45,7 +45,7 @@ class Event(Base):
     review = relationship("Review", back_populates="event",
                           cascade="all, delete-orphan")
     like = relationship("Like", back_populates="event")
-    # organizer = relationship("User", back_populates="event")
+    organizer = relationship("User", back_populates="event")
     # ticket = relationship("Ticket", back_populates="event")
     # update = relationship("Update", back_populates="event")
     # message = relationship("MessageChat", back_populates="event")
@@ -64,7 +64,7 @@ class Review(Base):
     __tablename__ = "reviews"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Text, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
     event_id = Column(Integer, ForeignKey("events.id"))
     comment = Column(Text, index=True)
     rating = Column(Integer)

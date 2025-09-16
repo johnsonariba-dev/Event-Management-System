@@ -22,6 +22,7 @@ npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/timegrid @fu
 
 # eventdetails sharing
 npm install --save-dev @types/react @types/react-dom
+
 # pdf frontend
 npm install html-to-image
 npm install jspdf
@@ -45,23 +46,12 @@ pip install "pydantic[email]"
 pip install "passlib[bcrypt]"
 pip install faker
 
-# run database
-cp .env.example .env  # macOS/Linux
-# Windows
-copy .env.example .env #then you fill in the credentials
-
 # run recommender
 python convert_db.py
 python recommender.py
 
 # qrcode
 pip install qrcode fpdf
-
-# Database Setup (Alembic + Supabase)
-pip install alembic
-alembic init migrations
-alembic revision --autogenerate -m "Initial migration"
-alembic upgrade head
 
 
 # for paypal payment
@@ -73,7 +63,6 @@ python recommender.py
 python -m endpoints.faker_events [pour run]
 python3 convert_db.py
 python3 recommender.py
-
 
 # run app
 uvicorn main:app --reload

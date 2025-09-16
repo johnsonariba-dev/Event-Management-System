@@ -1,16 +1,44 @@
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
+from fastapi import (
+    APIRouter, Depends, HTTPException, status,
+    UploadFile, File, Form
+)
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
+import os
+import shutil
+from uuid import uuid4
 
 import models
 from database import get_db
-
-
 from pydantic import BaseModel
 
+from .auth import get_current_user  # adjust import path
+
 router = APIRouter()
+
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+
+# ---------------- UTILS ----------------
+def upload_file(file: UploadFile, folder: str = "events") -> str:
+    if not file:
+        return ""
+
+    folder_path = os.path.join(UPLOAD_DIR, folder)
+    os.makedirs(folder_path, exist_ok=True)
+
+    filename = f"{uuid4().hex}_{file.filename}"
+    file_path = os.path.join(folder_path, filename)
+
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    # Public URL (served later by StaticFiles)
+    return f"/{folder}/{filename}"
+
 
 # ---------------- SCHEMAS ----------------
 class EventBase(BaseModel):
@@ -22,12 +50,14 @@ class EventBase(BaseModel):
     ticket_price: float
     capacity_max: Optional[int]
 
+
 class EventResponse(EventBase):
     id: int
     image_url: Optional[str]
 
     class Config:
         orm_mode = True
+
 
 class EventForm(EventBase):
     @classmethod
@@ -37,7 +67,7 @@ class EventForm(EventBase):
         category: str = Form(...),
         description: Optional[str] = Form(None),
         venue: str = Form(...),
-        date: datetime = Form(...),
+        date: str = Form(...),
         ticket_price: float = Form(...),
         capacity_max: Optional[int] = Form(None),
     ):
@@ -46,17 +76,18 @@ class EventForm(EventBase):
             category=category,
             description=description,
             venue=venue,
-            date=date,
+            date=datetime.fromisoformat(date),
             ticket_price=ticket_price,
             capacity_max=capacity_max,
         )
 
-# ---------------- GET ALL EVENTS ----------------
+
+# ---------------- ROUTES ----------------
 @router.get("/events", response_model=List[EventResponse])
 async def read_events(db: Session = Depends(get_db)):
     return db.query(models.Event).all()
 
-# ---------------- GET SINGLE EVENT ----------------
+
 @router.get("/events/{event_id}", response_model=EventResponse)
 def get_event(event_id: int, db: Session = Depends(get_db)):
     event = db.query(models.Event).filter(models.Event.id == event_id).first()
@@ -64,7 +95,7 @@ def get_event(event_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Event not found")
     return event
 
-# ---------------- SHARE EVENT HTML ----------------
+
 @router.get("/events/{event_id}/share", response_class=HTMLResponse)
 def share_event(event_id: int, db: Session = Depends(get_db)):
     event = db.query(models.Event).filter(models.Event.id == event_id).first()
@@ -89,34 +120,53 @@ def share_event(event_id: int, db: Session = Depends(get_db)):
     """
     return HTMLResponse(content=html_content)
 
-# ---------------- CREATE EVENT ----------------
+
 @router.post("/events", response_model=EventResponse)
 async def create_event(
     form_data: EventForm = Depends(EventForm.as_form),
     image: Optional[UploadFile] = File(None),
-     db: Session = Depends(get_db) 
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),   # ✅ add this
 ):
-    existing_event = db.query(models.Event).filter(models.Event.title == form_data.title).first()
+    # Check for duplicates
+    existing_event = db.query(models.Event).filter(
+        models.Event.title == form_data.title).first()
     if existing_event:
         raise HTTPException(status_code=400, detail="Event already exists")
 
+    if form_data.ticket_price < 0:
+        raise HTTPException(
+            status_code=400, detail="Ticket price must be positive")
+
+    if form_data.capacity_max is not None and form_data.capacity_max < 0:
+        raise HTTPException(
+            status_code=400, detail="Capacity must be positive")
+
     image_url = upload_file(image, folder="events") if image else ""
 
-    db_event = models.Event(**form_data.dict(), image_url=image_url)
+    # ✅ attach organizer_id from logged-in user
+    db_event = models.Event(
+        **form_data.dict(),
+        image_url=image_url,
+        organizer_id=current_user.id
+    )
+
     db.add(db_event)
     db.commit()
     db.refresh(db_event)
+
     return db_event
 
-# ---------------- UPDATE EVENT ----------------
+
 @router.put("/events/{event_id}", response_model=EventResponse)
 async def update_event(
     event_id: int,
     form_data: EventForm = Depends(EventForm.as_form),
     image: Optional[UploadFile] = File(None),
-     db: Session = Depends(get_db) 
+    db: Session = Depends(get_db),
 ):
-    db_event = db.query(models.Event).filter(models.Event.id == event_id).first()
+    db_event = db.query(models.Event).filter(
+        models.Event.id == event_id).first()
     if not db_event:
         raise HTTPException(status_code=404, detail="Event not found")
 
@@ -130,10 +180,11 @@ async def update_event(
     db.refresh(db_event)
     return db_event
 
-# ---------------- DELETE EVENT ----------------
+
 @router.delete("/events/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_event(event_id: int, db: Session = Depends(get_db)):
-    db_event = db.query(models.Event).filter(models.Event.id == event_id).first()
+    db_event = db.query(models.Event).filter(
+        models.Event.id == event_id).first()
     if not db_event:
         raise HTTPException(status_code=404, detail="Event not found")
 
