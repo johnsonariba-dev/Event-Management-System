@@ -3,15 +3,20 @@ from sqlalchemy import create_engine
 import os
 from dotenv import load_dotenv
 
-# Load .env
+# Load .env (optional, not really needed for SQLite unless you override path)
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
+
+# Default to SQLite
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./app.db")
 
 # Path to save CSV
 CSV_PATH = "events_for_recommender.csv"
 
 # Create SQLAlchemy engine
-engine = create_engine(DATABASE_URL)
+if "sqlite" in DATABASE_URL:
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(DATABASE_URL)
 
 # Load events table into pandas
 df = pd.read_sql("SELECT * FROM events", con=engine)
