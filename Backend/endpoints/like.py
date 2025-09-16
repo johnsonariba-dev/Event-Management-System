@@ -1,6 +1,6 @@
-
 from fastapi import APIRouter, Depends, HTTPException
-from database import db_dependency
+from sqlalchemy.orm import Session
+from database import get_db
 import models 
 from schemas.like import LikeCreate, LikeResponse
 from endpoints.auth import get_current_user
@@ -9,7 +9,7 @@ router = APIRouter()
 
 @router.post("/events/{event_id}/likes", response_model = LikeResponse)
 async def toggle_like(like: LikeCreate,
-                      db:db_dependency,
+                      db: Session = Depends(get_db),
                       current_user: models.User = Depends(get_current_user)):
 
     user_id = current_user.id
@@ -32,7 +32,7 @@ async def toggle_like(like: LikeCreate,
 
 
 @router.get("/events/{event_id}/likes",response_model= LikeResponse)
-async def get_likes(event_id : int, db:db_dependency,
+async def get_likes(event_id : int, db: Session = Depends(get_db),
                     current_user: models.User = Depends(get_current_user)):
     
     total_like = db.query(models.Like).filter(models.Like.event_id==event_id).count()

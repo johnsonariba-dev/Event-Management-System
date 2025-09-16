@@ -3,14 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "../../../components/button";
 import images from "../../../types/images";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
-import {jwtDecode} from "jwt-decode"
+import {jwtDecode} from "jwt-decode";
 
 const URL_API = "http://localhost:8000/user/login";
-
-interface jwtPayload  {
-  sub: string
-}
-
 
 function Login() {
   const navigate = useNavigate();
@@ -21,14 +16,12 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const handlePassword = () => {
-    setShowPassword(!showPassword);
-  };
+  const handlePassword = () => setShowPassword(!showPassword);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setError(null);
+
     try {
       const response = await fetch(URL_API, {
         method: "POST",
@@ -37,29 +30,25 @@ function Login() {
       });
 
       if (!response.ok) {
-        // const errData = await response.json();
-        throw new Error( "Email or password incorrect");
+        throw new Error("Email or password incorrect");
       }
 
       const data = await response.json();
       const token = data.access_token;
-      console.log(data.access_token)
-
       localStorage.setItem("token", token);
 
       // decode token
       const decoded = jwtDecode<{ sub: string }>(token);
-      localStorage.setItem("email", decoded.sub)
-      console.log(decoded.sub)
+      localStorage.setItem("email", decoded.sub);
+
       setSuccess(true);
 
+      // redirect after 1 second
       setTimeout(() => {
         navigate("/events");
       }, 1000);
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred"
-      );
+      setError(err instanceof Error ? err.message : "An unknown error occurred");
     }
   };
 
@@ -76,10 +65,7 @@ function Login() {
 
         <div className="w-full md:w-1/2 flex flex-col justify-center bg-[url(/src/assets/images/sign.jpg)] max-md:rounded-2xl bg-rotate-90 bg-cover rounded-r-2xl">
           <div className="p-10 flex flex-col justify-center bg-white h-full max-md:rounded-2xl rounded-r-2xl rounded-tl-[50px]">
-            <form
-              onSubmit={handleSubmit}
-              className="flex flex-col space-y-5"
-            >
+            <form onSubmit={handleSubmit} className="flex flex-col space-y-5">
               <h1 className="text-3xl font-bold text-center pb-10">
                 Login In Account
               </h1>
@@ -87,7 +73,7 @@ function Login() {
               {success && (
                 <div className="bg-green-500 shadow-lg rounded-lg">
                   <h1 className="text-center p-2 text-2xl text-white">
-                    Successful Registration
+                    Successful Login
                   </h1>
                 </div>
               )}
@@ -136,12 +122,11 @@ function Login() {
               </div>
 
               <div className="flex justify-center pt-4">
-                <Link to="/events">
-                  <Button
-                    title="Login"
-                    className="px-8 py-3 text-white rounded-md transition"
-                  />
-                </Link>
+                <Button
+                  type="submit"
+                  title="Login"
+                  className="px-8 py-3 text-white rounded-md transition"
+                />
               </div>
 
               <div className="text-center">
@@ -164,4 +149,3 @@ function Login() {
 }
 
 export default Login;
-

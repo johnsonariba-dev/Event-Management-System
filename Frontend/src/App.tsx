@@ -12,12 +12,12 @@ import CityDetails from "./Pages/EventDetails/CityDetails";
 import NewEvent from "./Pages/NewEvent";
 import Payment from "./Pages/Payments/Payment";
 import Chatbot from "./Pages/Chatbot";
-import Attendees from "./Pages/Attendees";
 import BuyTicket from "../src/Pages/Ticket/BuyTicket";
 import TicketScan from "../src/Pages/Ticket/TicketScan";
 import ScrollToTop from "./components/ScrollTop";
 
 
+import Attendees from "./components/reviews";
 
 const NavBarItems = [
   {
@@ -36,7 +36,13 @@ const NavBarItems = [
 
 function App() {
   const location = useLocation();
-  const hidefooter = ["/login", "/register", "/CreateEvent", "/NewEvent", "/payment/:id"];
+  const hidefooter = [
+    "/login",
+    "/register",
+    "/CreateEvent",
+    "/NewEvent",
+    "/payment/:id",
+  ];
   const hideNavbar = ["/CreateEvent"];
   const showfooter = !hidefooter.includes(location.pathname);
   const showNavbar = !hideNavbar.includes(location.pathname);
@@ -59,10 +65,11 @@ function App() {
         <Route path="/buy-ticket/:eventId" element={<BuyTicket />} />
         <Route path="/scan" element={<TicketScan />} />
       </Routes>
-      <Chatbot/>
+      <Chatbot />
       {showfooter && <Footer />}
     </div>
   );
 }
+
 
 export default App;

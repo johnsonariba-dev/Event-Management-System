@@ -29,6 +29,7 @@ const Events: React.FC = () => {
   const [price, setPrice] = useState("");
   const [popularity, setPopularity] = useState("");
   const [loader, setLoader] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(10);
 
   useEffect(() => {
     setTimeout(() => {
@@ -39,23 +40,44 @@ const Events: React.FC = () => {
   useEffect(() => {
     axios
       .get("http://127.0.0.1:8000/events")
-      .then((res) => {
-        setEvents(res.data);
-      })
+      .then((res) => setEvents(res.data))
       .catch((err) => console.error("Error fetching events:", err));
   }, []);
 
+  // Apply search, filter, and sort
+  const filteredEvents = events
+    .filter((event) =>
+      event.title.toLowerCase().includes(search.toLowerCase())
+    )
+    .filter((event) =>
+      category ? event.category.toLowerCase() === category.toLowerCase() : true
+    )
+    .filter((event) =>
+      price === "free"
+        ? event.ticket_price === 0
+        : price === "paid"
+        ? event.ticket_price > 0
+        : true
+    )
+    .sort((a, b) => {
+      if (popularity === "top") return b.ticket_price - a.ticket_price;
+      if (popularity === "most") return b.id - a.id;
+      return 0;
+    });
 
-  // if (loader) {
-  //   return (
-  //     <div className="flex items-center justify-center h-screen">
-  //       <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32 animate-spin border-b-gray-500"></div>
-  //     </div>
-  //   );
-  // }
+  // Events currently visible
+  const visibleEvents = filteredEvents.slice(0, visibleCount);
+
+  if (loader) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32 animate-spin border-b-gray-500"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-accent" >
+    <div className="bg-accent">
       {/* Hero Section */}
       <div className="relative h-120 flex flex-col mx-6">
         <div className="absolute inset-0 bg-[url(/src/assets/images/carnaval.jpeg)] bg-contain brightness-80 rounded-2xl mt-25"></div>
@@ -64,7 +86,6 @@ const Events: React.FC = () => {
           <h1 className="text-primary font-bold text-[5vw]">
             Discover <span className="text-secondary">Events</span>
           </h1>
-          6
           <p className="text-gray-200 text-[1.5vw] max-w-xl">
             Explore thousands of events happening around you and connect with
             like-minded people
@@ -115,61 +136,51 @@ const Events: React.FC = () => {
       </div>
 
       {/* Event Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-6 pb-20">
-        {events
-          .filter((event) =>
-            event.title.toLowerCase().includes(search.toLowerCase())
-          )
-          .filter((event) =>
-            category
-              ? event.category.toLowerCase() === category.toLowerCase()
-              : true
-          )
-          .filter((event) =>
-            price === "free"
-              ? event.ticket_price === 0
-              : price === "paid"
-              ? event.ticket_price > 0
-              : true
-          )
-          .sort((a, b) => {
-            if (popularity === "top") return b.ticket_price - a.ticket_price;
-            if (popularity === "most") return b.id - a.id;
-            return 0;
-          })
-          .map((event) => (
-            <div
-              key={event.id}
-              className="bg-white shadow-lg rounded-xl overflow-hidden hover:scale-105 transition-transform"
-            >
-              <img
-                src={event.image_url}
-                alt={event.title}
-                className="h-40 w-full object-cover"
-              />
-              <div className="p-4">
-                <h3 className="font-bold text-lg">{event.title}</h3>
-                <p className="text-gray-600 text-sm mt-1 line-clamp-2">
-                  {event.description}
-                </p>
-                <p className="mt-3 text-sm flex gap-2 items-center pb-3">
-                  <FaLocationDot color="purple" /> {event.venue}
-                </p>
-                <p className="text-gray-800 font-medium pb-2">
-                  {event.ticket_price === 0 ? "Free" : event.ticket_price}
-                </p>
-                <div className="flex justify-end">
-                  <NavLink to={`/event/${event.id}`}>
-                    <Button
-                      title="View Details"
-                      className="bg-secondary hover:bg-primary text-white px-4 py-2 rounded-lg"
-                    />
-                  </NavLink>
-                </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-6 pb-4">
+        {visibleEvents.map((event) => (
+          <div
+            key={event.id}
+            className="bg-white shadow-lg rounded-xl overflow-hidden hover:scale-105 transition-transform"
+          >
+            <img
+              src={event.image_url}
+              alt={event.title}
+              className="h-40 w-full object-cover"
+            />
+            <div className="p-4">
+              <h3 className="font-bold text-lg">{event.title}</h3>
+              <p className="text-gray-600 text-sm mt-1 line-clamp-2">
+                {event.description}
+              </p>
+              <p className="mt-3 text-sm flex gap-2 items-center pb-3">
+                <FaLocationDot color="purple" /> {event.venue}
+              </p>
+              <p className="text-gray-800 font-medium pb-2">
+                {event.ticket_price === 0 ? "Free" : event.ticket_price}
+              </p>
+              <div className="flex justify-end">
+                <NavLink to={`/event/${event.id}`}>
+                  <Button
+                    title="View Details"
+                    className="bg-secondary hover:bg-primary text-white px-4 py-2 rounded-lg"
+                  />
+                </NavLink>
               </div>
             </div>
-          ))}
+          </div>
+        ))}
       </div>
+
+      {/* See More Button */}
+      {visibleCount < filteredEvents.length && (
+        <div className="flex justify-center pb-20">
+          <Button
+            title="See More"
+            className="text-white px-6 py-3 rounded-lg"
+            onClick={() => setVisibleCount((prev) => prev + 20)}
+          />
+        </div>
+      )}
     </div>
   );
 };

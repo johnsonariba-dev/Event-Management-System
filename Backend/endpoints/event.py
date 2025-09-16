@@ -6,7 +6,7 @@ from datetime import datetime
 
 import models
 from database import get_db
-from .supabase_test import upload_file
+
 
 from pydantic import BaseModel
 
