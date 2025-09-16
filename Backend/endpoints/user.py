@@ -8,12 +8,13 @@ from endpoints.auth import create_access_token, hash_password, verify_password
 
 router = APIRouter()
 
-# Route pour le login
+router = APIRouter()
 
 
-@router.post('/login', response_model=Token)
+@router.post("/login", response_model=Token)
 async def login(login_data: UserLogin, db: Session = Depends(get_db)):
 
+    # 1. Get user from DB
     user = db.query(models.User).filter(
         models.User.email == login_data.email).first()
 
@@ -24,13 +25,23 @@ async def login(login_data: UserLogin, db: Session = Depends(get_db)):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    access_token = create_access_token(data={"sub": user.email})
+    # 2. Create JWT with role included
+    access_token = create_access_token(
+        data={
+            "sub": user.email,
+            "role": user.role  # include the role
+        }
+    )
 
-    return {"access_token": access_token, "type_token": "bearer"}
+    # 3. Return token
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
 
 
 # Route pour l'inscription
-@router.post("/register", response_model = Token, status_code = status.HTTP_201_CREATED)
+@router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
 async def register(user: CreateUser, db: Session = Depends(get_db)):
 
     # Vérifie si l'email existe déjà
@@ -43,26 +54,27 @@ async def register(user: CreateUser, db: Session = Depends(get_db)):
         )
 
     hashed_password = hash_password(user.password)
-    db_user = models.User(email = user.email, hashed_password = hashed_password, username = user.username , role = user.role)
+    db_user = models.User(email=user.email, hashed_password=hashed_password,
+                          username=user.username, role=user.role)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
 
     # Générer le JWT directement
-    access_token = create_access_token(data = {"sub":user.email})
+    access_token = create_access_token(data={"sub": user.email})
 
     return {"access_token": access_token, "token_type": "bearer"}
- 
 
-#Route to get accounts
-@router.get("/users", response_model = List[UserResponse])
+
+# Route to get accounts
+@router.get("/users", response_model=List[UserResponse])
 async def get_users(db: Session = Depends(get_db)):
     return db.query(models.User).all()
 
 
-#Route to get accounts
-@router.get("/{user_id}", response_model = UserResponse)
-async def get_user(user_id : int, db: Session = Depends(get_db)):
+# Route to get accounts
+@router.get("/{user_id}", response_model=UserResponse)
+async def get_user(user_id: int, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(
@@ -72,10 +84,11 @@ async def get_user(user_id : int, db: Session = Depends(get_db)):
     return user
 
 # Route to update user
-@router.put("/{user_id}", response_model = UserResponse)
 
+
+@router.put("/{user_id}", response_model=UserResponse)
 def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get_db)):
-   
+
     # Récupère l'événement existant
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
@@ -88,10 +101,12 @@ def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get
         setattr(user, key, value)
 
     db.commit()
-    db.refresh(user) 
+    db.refresh(user)
     return user
 
 # Route pour delete un account (admin)
+
+
 @router.delete("/{user_id}")
 async def delete_account(user_id: int, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.id == user_id).first()

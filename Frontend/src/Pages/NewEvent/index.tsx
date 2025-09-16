@@ -68,6 +68,8 @@ export default function NewEvent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+     const token = localStorage.getItem("token");
+
     try {
       const data = new FormData();
       data.append("title", formData.title);
@@ -85,10 +87,11 @@ export default function NewEvent() {
         "http://127.0.0.1:8000/events",
         data,
         {
-          headers: { "Content-Type": "form-data" },
+          headers: {Authorization: `Bearer ${token}`},
         }
+        
       );
-
+// , "Content-Type": "form-data"
       console.log("Backend response:", response.data);
       alert("Event created successfully!");
 

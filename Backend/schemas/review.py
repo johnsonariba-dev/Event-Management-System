@@ -5,8 +5,8 @@ from typing import Optional
 
 class ReviewBase(BaseModel):
     comment: Optional[str] = None
-    rating: Optional[int] = None                      
-
+    rating: Optional[int] = None
+    
 
 class ReviewCreate(ReviewBase):
     pass
@@ -19,7 +19,7 @@ class Review(ReviewBase):
     rating: int
     event_id: int
     reply: Optional[str] = None
-    # time: datetime            
+    # time: datetime
 
     class Config:
         orm_mode = True
