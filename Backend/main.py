@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from endpoints import event, like, paypal, review, ticket, user
+from endpoints import event, like, paypal, review, ticket, user, mtn 
 from database import Base, engine
 from seed import generate_fake_event  # your Faker generator
 
@@ -27,3 +27,4 @@ app.include_router(ticket.router, prefix="/ticket", tags=["ticket"])
 app.include_router(like.router, tags=["like"]) 
 app.include_router(paypal.router, tags=["paypal"]) 
 app.include_router(review.router, tags=["review"])
+app.include_router(mtn.router, tags=["mtn"]) 
