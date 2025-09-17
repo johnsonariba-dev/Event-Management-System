@@ -196,7 +196,7 @@ async def delete_event(event_id: int, db: Session = Depends(get_db)):
 # ---------------- RECOMMENDATIONS ----------------
 
 # ------------------- RECOMMENDER BASED ON REVIEWS -------------------
-@router.get("/events/recommend/{user_id}")
+@router.get("/recommend/{user_id}")
 def recommend_for_user(user_id: int, top_n: int = 5, db: Session = Depends(get_db)):
     """
     Recommend events for a given user based on their reviews & ratings.

@@ -4,7 +4,7 @@ from io import BytesIO
 from fpdf import FPDF
 import qrcode
 from datetime import datetime, timedelta
-import jwt
+from jose import jwt
 import random
 
 app = FastAPI()
