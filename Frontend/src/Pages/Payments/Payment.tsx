@@ -20,7 +20,7 @@ interface Event {
   venue: string;
   date: string;
   time: string;
-  ticket_price: number;
+  ticket_price: number; // in FCFA
   organizer: string;
 }
 
@@ -32,9 +32,11 @@ function Payment() {
   const [amount, setAmount] = useState(0);
   const [ticketGenerated, setTicketGenerated] = useState(false);
   const [phone, setPhone] = useState("");
+  const [currency, setCurrency] = useState<"XAF" | "USD">("XAF");
+  const [rate, setRate] = useState<number>(0); // XAF → USD
   const ticketRef = useRef<HTMLDivElement>(null);
 
-  // Fetch event from backend
+  // Fetch event
   useEffect(() => {
     const fetchEvent = async () => {
       try {
@@ -50,11 +52,30 @@ function Payment() {
     fetchEvent();
   }, [id]);
 
-  // Calculate total amount
+  // Fetch conversion rate XAF → USD
   useEffect(() => {
-    const total = Number(((event?.ticket_price ?? 0) * count).toFixed(2));
-    setAmount(total);
-  }, [event?.ticket_price, count]);
+    const fetchRate = async () => {
+      try {
+        const res = await fetch("https://open.er-api.com/v6/latest/XAF");
+        const data = await res.json();
+        // Assuming USD is in data.rates.USD
+        setRate(data.rates.USD);
+      } catch (err) {
+        console.error("Failed to fetch conversion rate:", err);
+        setRate(0.0017); // fallback
+      }
+    };
+    fetchRate();
+  }, []);
+
+  // Calculate displayed amount
+  useEffect(() => {
+    if (!event) return;
+    const baseAmount = event.ticket_price * count;
+    const displayAmount =
+      currency === "USD" ? Number((baseAmount * rate).toFixed(2)) : baseAmount;
+    setAmount(displayAmount);
+  }, [event?.ticket_price, count, currency, rate]);
 
   const decrement = () => {
     if (count > 1) setCount(count - 1);
@@ -64,18 +85,45 @@ function Payment() {
     setCount(count + 1);
   };
 
-  const handleFreeTicket = () => {
-    setTicketGenerated(true);
-  };
+  const handleFreeTicket = () => setTicketGenerated(true);
 
-  const handleMtnOrangePayment = () => {
-    if (!phone) {
-      alert("Please enter phone number");
-      return;
+ const handleMtnPayment = async () => {
+  if (!phone) return alert("Enter phone number");
+
+  if (!event) return alert("Event not loaded");
+
+  // Always send amount in XAF to backend
+  const totalAmount = event.ticket_price * count;
+
+  try {
+    const res = await fetch("http://127.0.0.1:8000/pay-mtn", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        phone: phone,       // user enters 9 digits
+        amount: totalAmount // always integer in XAF
+      })
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("MTN Payment error:", res.status, errText);
+      return alert(`Payment failed: ${errText}`);
     }
-    alert(`Payment of £${amount} successful via ${method.toUpperCase()}`);
-    setTicketGenerated(true);
-  };
+
+    const data = await res.json();
+
+    if (data.id) {
+      alert(`Transaction initiated: ${data.id}. Please approve on your phone.`);
+    } else {
+      alert("Failed to initiate MTN payment");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Payment failed");
+  }
+};
+
 
   const downloadTicket = async () => {
     if (!ticketRef.current) return;
@@ -99,7 +147,6 @@ function Payment() {
       const newHeight = imgProps.height * scale;
       const x = (pdfWidth - newWidth) / 2;
       const y = (pdfHeight - newHeight) / 2;
-
       pdf.addImage(dataUrl, "PNG", x, y, newWidth, newHeight);
       pdf.save(`${event?.title || "ticket"}-ticket.pdf`);
     } catch (err) {
@@ -155,7 +202,7 @@ function Payment() {
   return (
     <div className="flex flex-col items-center justify-center bg-purple-50">
       <div className="py-10 mt-25 mb-10 flex flex-col px-6 w-full md:w-200 justify-center bg-white rounded-lg shadow-lg">
-        {/* Event details */}
+        {/* Event header */}
         <div
           className="flex items-center font-semibold text-2xl gap-10 px-4 md:px-10 pb-10 cursor-pointer"
           onClick={() => window.history.back()}
@@ -164,6 +211,7 @@ function Payment() {
           <h1>Ticket Purchase</h1>
         </div>
 
+        {/* Event details */}
         <div className="border rounded-lg p-6">
           <img
             src={event?.image_url}
@@ -195,7 +243,7 @@ function Payment() {
             <div className="border rounded-lg p-2">
               <div className="flex justify-between pb-3">
                 <h1>Standard Ticket</h1>
-                <p>{event?.ticket_price ?? 0}</p>
+                <p>{event?.ticket_price ?? 0} XAF</p>
               </div>
               <div className="text-gray-400 text-md">
                 <p>Standard entry to the event</p>
@@ -211,13 +259,29 @@ function Payment() {
                 </button>
               </div>
             </div>
+
+            {/* Currency selector */}
+            <div className="mt-5 flex justify-center gap-3">
+              <button
+                className={`px-4 py-2 rounded ${currency === "XAF" ? "bg-gray-300" : "bg-white"}`}
+                onClick={() => setCurrency("XAF")}
+              >
+                XAF
+              </button>
+              <button
+                className={`px-4 py-2 rounded ${currency === "USD" ? "bg-gray-300" : "bg-white"}`}
+                onClick={() => setCurrency("USD")}
+              >
+                USD
+              </button>
+            </div>
+
+            {/* Order Summary */}
             <div className="mt-10">
-              <h1 className="text-xl text-center pb-5 font-semibold">
-                Order Summary
-              </h1>
+              <h1 className="text-xl text-center pb-5 font-semibold">Order Summary</h1>
               <div className="flex justify-between pb-3">
                 <p>Ticket Price</p>
-                <p>{event?.ticket_price ?? 0}</p>
+                <p>{currency === "XAF" ? event?.ticket_price ?? 0 : (event?.ticket_price ?? 0 * rate).toFixed(2)}</p>
               </div>
               <div className="flex justify-between pb-3">
                 <p>Number</p>
@@ -225,7 +289,7 @@ function Payment() {
               </div>
               <hr />
               <div className="flex justify-between py-3">
-                <p>Total</p>
+                <p>Total ({currency})</p>
                 <p>{amount}</p>
               </div>
             </div>
@@ -281,7 +345,7 @@ function Payment() {
                   />
                 </div>
 
-                {/* MTN & Orange Inputs */}
+                {/* MTN & Orange */}
                 {(method === "mtn" || method === "orange") && (
                   <div className="flex flex-col gap-3">
                     <label>Phone Number</label>
@@ -293,15 +357,15 @@ function Payment() {
                       placeholder="Enter phone number"
                     />
                     <Button
-                      title={`Pay £${amount} via ${method.toUpperCase()}`}
-                      onClick={handleMtnOrangePayment}
+                      title={`Pay ${currency} ${amount} via ${method.toUpperCase()}`}
+                      onClick={handleMtnPayment}
                       className="mt-2 px-4 py-2 bg-yellow-500 text-white"
                     />
                   </div>
                 )}
 
-                {/* PayPal Payment */}
-                {method === "paypal" && (
+                {/* PayPal */}
+                {method === "paypal" && currency === "USD" && (
                   <div className="p-4 border rounded-lg shadow-md bg-white">
                     <PayPalScriptProvider
                       options={{ clientId: "AWcbUIkfqRx51ILXg1sIoHVdDWqFfrYsKPDCrzoXNSf_2StjtXPBn75giD0bYLCnQ8YrtWTw0VQxddIB" }}
@@ -326,10 +390,7 @@ function Payment() {
                           return data.id;
                         }}
                         onApprove={async (data) => {
-                          const res = await fetch(
-                            `http://127.0.0.1:8000/capture-order/${data.orderID}`,
-                            { method: "POST" }
-                          );
+                          const res = await fetch(`http://127.0.0.1:8000/capture-order/${data.orderID}`, { method: "POST" });
                           const details = await res.json();
                           alert(
                             "Transaction completed by " +
@@ -340,6 +401,15 @@ function Payment() {
                       />
                     </PayPalScriptProvider>
                   </div>
+                )}
+
+                {/* Convert to USD automatically if PayPal selected */}
+                {method === "paypal" && currency === "XAF" && (
+                  <Button
+                    title="Switch to USD for PayPal"
+                    onClick={() => setCurrency("USD")}
+                    className="mt-2 px-4 py-2 bg-blue-500 text-white"
+                  />
                 )}
               </>
             )}
