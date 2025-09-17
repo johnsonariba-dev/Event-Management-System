@@ -6,6 +6,7 @@ import { HiArrowRight, HiCalendar, HiOutlineStar, HiUserGroup } from "react-icon
 import { FaChartLine } from "react-icons/fa6";
 import Button from "../../components/button";
 import { cities } from "../EventDetails/CityLilst";
+import Recommender from "../../components/recommend";
 
 type EventItem = {
   id: number;
@@ -247,6 +248,10 @@ function Home() {
             <Button title="Create Your Events" icon={<HiArrowRight />} className="bg-secondary hover:bg-primary" />
           </Link>
         </div>
+      </div>
+      <div className="px-2">
+        <h1 className="text-center text-2xl mb-5 max-md:text-xl">Recommended for you</h1>
+          <Recommender userId={1} topN={5} />
       </div>
     </div>
   );
