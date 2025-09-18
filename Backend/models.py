@@ -38,6 +38,7 @@ class Event(Base):
     category = Column(String(50), nullable=False, index=True)
     image_url = Column(String, nullable=True)
     capacity_max = Column(Integer, nullable=True)
+    status = Column(String, default="Pending")
     organizer_id = Column(Integer, ForeignKey(
         "users.id"), nullable=True, index=True)
 
@@ -46,6 +47,7 @@ class Event(Base):
                           cascade="all, delete-orphan")
     like = relationship("Like", back_populates="event")
     organizer = relationship("User", back_populates="event")
+    organizer_id = Column(Integer, ForeignKey("users.id"))
     # ticket = relationship("Ticket", back_populates="event")
     # update = relationship("Update", back_populates="event")
     # message = relationship("MessageChat", back_populates="event")

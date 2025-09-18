@@ -10,6 +10,7 @@ import os
 import shutil
 from uuid import uuid4
 
+from schemas.events import EventOut
 import models
 from database import get_db
 from pydantic import BaseModel
@@ -17,6 +18,7 @@ from pydantic import BaseModel
 from .auth import get_current_user  # adjust import path
 # Import recommender function
 from recommender import recommend_events
+
 
 router = APIRouter()
 
@@ -85,6 +87,14 @@ class EventForm(EventBase):
 
 
 # ---------------- ROUTES ----------------
+
+@router.get("/events/my", response_model=List[EventOut])
+def get_my_events(current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    events = db.query(models.Event).filter(
+        models.Event.organizer_id == current_user.id).all()
+    return events
+
+
 @router.get("/events", response_model=List[EventResponse])
 async def read_events(db: Session = Depends(get_db)):
     return db.query(models.Event).all()
@@ -196,6 +206,8 @@ async def delete_event(event_id: int, db: Session = Depends(get_db)):
 # ---------------- RECOMMENDATIONS ----------------
 
 # ------------------- RECOMMENDER BASED ON REVIEWS -------------------
+
+
 @router.get("/recommend/{user_id}")
 def recommend_for_user(user_id: int, top_n: int = 5, db: Session = Depends(get_db)):
     """
@@ -203,15 +215,19 @@ def recommend_for_user(user_id: int, top_n: int = 5, db: Session = Depends(get_d
     """
 
     # 1. Get all reviews by this user
-    user_reviews = db.query(models.Review).filter(models.Review.user_id == user_id).all()
+    user_reviews = db.query(models.Review).filter(
+        models.Review.user_id == user_id).all()
     if not user_reviews:
-        raise HTTPException(status_code=404, detail="No reviews found for this user")
+        raise HTTPException(
+            status_code=404, detail="No reviews found for this user")
 
     # 2. Take positively-rated events (rating >= 4)
-    liked_events = [r.event for r in user_reviews if r.rating and r.rating >= 4]
+    liked_events = [
+        r.event for r in user_reviews if r.rating and r.rating >= 4]
 
     if not liked_events:
-        raise HTTPException(status_code=404, detail="No liked events to base recommendations on")
+        raise HTTPException(
+            status_code=404, detail="No liked events to base recommendations on")
 
     # 3. Extract user interests from those events
     user_interests = []
@@ -225,4 +241,3 @@ def recommend_for_user(user_id: int, top_n: int = 5, db: Session = Depends(get_d
     recommended = recommend_events(user_interests, top_n=top_n)
 
     return {"user_id": user_id, "recommended": recommended}
-

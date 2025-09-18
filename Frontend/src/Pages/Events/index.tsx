@@ -29,7 +29,7 @@ const Events: React.FC = () => {
   const [price, setPrice] = useState("");
   const [popularity, setPopularity] = useState("");
   const [loader, setLoader] = useState(true);
-  const [visibleCount, setVisibleCount] = useState(10);
+  const [visibleCount, setVisibleCount] = useState(30);
 
   useEffect(() => {
     setTimeout(() => {
