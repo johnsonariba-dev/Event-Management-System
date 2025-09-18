@@ -58,11 +58,7 @@ pip install qrcode fpdf
 npm install @paypal/react-paypal-js   (for the frontend)
 pip install python-dotenv  (for backend)
 python -m endpoints.faker_events [pour run]
-python convert_db.py
-python recommender.py
-python -m endpoints.faker_events [pour run]
-python3 convert_db.py
-python3 recommender.py
+
 
 # run app
 uvicorn main:app --reload

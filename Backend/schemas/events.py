@@ -4,8 +4,7 @@ from pydantic import BaseModel
 from .review import Review
 
 
-# Base schema for creating an event
-class CreateEvent(BaseModel):
+class EventCreate(BaseModel):
     title: str
     description: str
     date: datetime
@@ -13,26 +12,19 @@ class CreateEvent(BaseModel):
     ticket_price: float
     category: str
     image_url: str
-    # capacity_max: Optional[int] = 0
+    capacity_max: Optional[int] = 0
+    organizer_id: int
+    status: Optional[str] = "Pending"
 
 
-class Event(CreateEvent):
+class EventOut(EventCreate):
     id: int
-    reviews: List[Review] = []  # embed list of reviews
+    reviews: List[Review] = []
 
     class Config:
         orm_mode = True
 
 
-# Schema for returning event data
-class EventResponse(CreateEvent):
-    id: int
-
-    class Config:
-        orm_mode = True
-
-
-# Schema for updating an event
 class EventUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
@@ -41,7 +33,10 @@ class EventUpdate(BaseModel):
     ticket_price: Optional[float] = None
     category: Optional[str] = None
     image_url: Optional[str] = None
-    # capacity_max: Optional[int] = None
+    capacity_max: Optional[int] = None
+    status: Optional[str] = None
+
+# Optional schema for user interests
 
 
 class UserInterests(BaseModel):

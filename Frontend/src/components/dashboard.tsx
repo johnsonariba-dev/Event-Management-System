@@ -1,12 +1,11 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { NavLink } from "react-router-dom";
 import { IoCreateOutline } from "react-icons/io5";
-import { FaTicketAlt } from "react-icons/fa";
 import { BsThreeDots } from "react-icons/bs";
 import { HiOutlineCalendar } from "react-icons/hi";
-import Button from "./button";
-import axios from "axios";
-import { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
 import { FaLocationDot } from "react-icons/fa6";
+import Button from "./button";
 
 interface Event {
   id: number;
@@ -16,33 +15,47 @@ interface Event {
   venue: string;
   ticket_price: number;
   date: string;
-  sold?: number;
-  status?: string;
+  status: "Pending" | "Approved" | "Cancelled";
   image_url: string;
 }
 
 const Dashboard: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
+  const [displayCount, setDisplayCount] = useState(10);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
   const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
-
-  // Modals
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [deletingEvent, setDeletingEvent] = useState<Event | null>(null);
+  const [userName, setUserName] = useState("");
 
+  const token = localStorage.getItem("token");
+
+  // Fetch events and user
   useEffect(() => {
     axios
-      .get("http://localhost:8000/events")
+      .get("http://localhost:8000/events/my", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then((res) => setEvents(res.data))
       .catch((err) => console.error("Error fetching events:", err));
-  }, []);
 
+    axios
+      .get("http://localhost:8000/user/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setUserName(res.data.name))
+      .catch((err) => console.error("Error fetching username:", err));
+  }, [token]);
+
+  // Filter events
   const filteredEvents = events.filter((event) => {
     return (
       event.title.toLowerCase().includes(search.toLowerCase()) &&
-      (category ? event.category.toLowerCase() === category.toLowerCase() : true) &&
+      (category
+        ? event.category.toLowerCase() === category.toLowerCase()
+        : true) &&
       (price === "free"
         ? event.ticket_price === 0
         : price === "paid"
@@ -51,6 +64,7 @@ const Dashboard: React.FC = () => {
     );
   });
 
+  // Format date for display
   const formatDate = (d: string) => {
     try {
       return new Date(d).toLocaleString(undefined, {
@@ -62,46 +76,43 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Utility: format for datetime-local
+  // Convert backend ISO to input value
   const toDateTimeLocal = (d: string) => {
+    if (!d) return "";
     const date = new Date(d);
-    return date.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:mm"
+    const tzOffset = date.getTimezoneOffset() * 60000;
+    return new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
   };
 
-  // Edit Event
+  // Edit Event Save
   const handleEditSave = async () => {
-  if (!editingEvent) return;
-  try {
-    const payload = {
-      ...editingEvent,
-      // keep backend-friendly format (ISO or original string)
-      date: new Date(editingEvent.date).toISOString(),
-    };
-
-    const res = await axios.put(
-      `http://localhost:8000/events/${editingEvent.id}`,
-      payload
-    );
-
-    // use payload if backend doesn’t echo back
-    setEvents((prev) =>
-      prev.map((ev) =>
-        ev.id === editingEvent.id ? res.data ?? payload : ev
-      )
-    );
-
-    setEditingEvent(null);
-  } catch (err: any) {
-    console.error("Error updating event:", err.response?.data || err.message);
-  }
-};
-
+    if (!editingEvent) return;
+    try {
+      const payload = {
+        ...editingEvent,
+        date: new Date(editingEvent.date).toISOString(), // full ISO for backend
+      };
+      const res = await axios.put(
+        `http://localhost:8000/events/${editingEvent.id}`,
+        payload,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setEvents((prev) =>
+        prev.map((ev) => (ev.id === editingEvent.id ? res.data : ev))
+      );
+      setEditingEvent(null);
+    } catch (err: any) {
+      console.error("Error updating event:", err.response?.data || err.message);
+    }
+  };
 
   // Delete Event
   const handleDeleteConfirm = async () => {
     if (!deletingEvent) return;
     try {
-      await axios.delete(`http://localhost:8000/events/${deletingEvent.id}`);
+      await axios.delete(`http://localhost:8000/events/${deletingEvent.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setEvents((prev) => prev.filter((ev) => ev.id !== deletingEvent.id));
       setDeletingEvent(null);
     } catch (err) {
@@ -109,25 +120,34 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // Load more
+  const handleSeeMore = () => setDisplayCount((prev) => prev + 10);
+
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-hidden">
       {/* Welcome Header */}
       <h1 className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 py-6 text-3xl sm:text-4xl md:text-5xl font-bold">
         Welcome
         <span className="text-secondary font-light text-xl sm:text-2xl md:text-3xl">
-          John Doe
+          {userName || "Organizer"}
         </span>
       </h1>
 
       {/* Create Event Box */}
       <div className="bg-gray-100 flex flex-col items-center justify-center rounded-lg p-6 sm:p-9 mb-10 text-center">
         <IoCreateOutline size={36} />
-        <h2 className="font-bold text-xl sm:text-2xl pt-3">Create a new event</h2>
+        <h2 className="font-bold text-xl sm:text-2xl pt-3">
+          Create a new event
+        </h2>
         <p className="text-base sm:text-lg md:text-xl py-4 max-w-md">
-          Add all your event details, create new tickets, and set up recurring events.
+          Add all your event details, create new tickets, and set up recurring
+          events.
         </p>
         <NavLink to="/NewEvent">
-          <Button title="Create Event" className="bg-black text-white mt-3 sm:mt-5" />
+          <Button
+            title="Create Event"
+            className="bg-black text-white mt-3 sm:mt-5"
+          />
         </NavLink>
       </div>
 
@@ -160,14 +180,13 @@ const Dashboard: React.FC = () => {
         </select>
       </div>
 
-      {/* Event list */}
+      {/* Event List */}
       <ul className="flex flex-col gap-4">
-        {filteredEvents.map((event) => (
+        {filteredEvents.slice(0, displayCount).map((event) => (
           <li
             key={event.id}
             className="group bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition transform hover:-translate-y-0.5 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4"
           >
-            <input type="checkbox" className="w-5 h-5 flex-shrink-0" />
             <img
               src={event.image_url}
               alt={event.title}
@@ -213,7 +232,7 @@ const Dashboard: React.FC = () => {
                           setMenuOpenId(null);
                         }}
                       >
-                        Delete
+                        Cancel
                       </button>
                     </div>
                   )}
@@ -223,26 +242,36 @@ const Dashboard: React.FC = () => {
                 {event.description}
               </p>
             </div>
-            <div className="w-full sm:w-auto flex flex-col sm:items-end items-start gap-2">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <FaTicketAlt /> {event.sold ?? 0} sold
-              </div>
+            <div className="w-full sm:w-auto flex flex-col sm:items-end items-start gap-8">
               <div className="px-3 py-1 border rounded-md text-sm font-medium bg-gray-50">
                 {event.ticket_price} FCFA
               </div>
               <span
-                className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                className={`px-3 py-1 rounded-xl text-xs font-semibold ${
                   event.status === "Cancelled"
                     ? "bg-red-100 text-red-800"
+                    : event.status === "Pending"
+                    ? "bg-yellow-100 text-yellow-800"
                     : "bg-green-100 text-green-800"
                 }`}
               >
-                {event.status ?? "Active"}
+                {event.status}
               </span>
             </div>
           </li>
         ))}
       </ul>
+
+      {/* See More */}
+      {displayCount < filteredEvents.length && (
+        <div className="flex justify-center mt-6">
+          <Button
+            title="See More"
+            className="bg-primary text-white"
+            onClick={handleSeeMore}
+          />
+        </div>
+      )}
 
       {/* Edit Modal */}
       {editingEvent && (
@@ -312,24 +341,24 @@ const Dashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Delete Confirm Modal */}
+      {/* Delete Modal */}
       {deletingEvent && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-20 p-4">
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm text-center">
             <h2 className="text-lg font-semibold">
-              Delete "{deletingEvent.title}"?
+              Cancel "{deletingEvent.title}"?
             </h2>
             <p className="text-sm text-gray-600 mt-2">
-              This action cannot be undone.
+              This action will permanently delete this event.
             </p>
             <div className="mt-4 flex justify-center gap-3">
               <Button
-                title="Cancel"
+                title="Back"
                 className="bg-gray-200 text-gray-700"
                 onClick={() => setDeletingEvent(null)}
               />
               <Button
-                title="Delete"
+                title="Delete Event"
                 className="bg-red-600 text-white"
                 onClick={handleDeleteConfirm}
               />

@@ -43,6 +43,7 @@ export default function NewEvent() {
 
   const [flyer, setFlyer] = useState<MediaFile | null>(null);
 
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -68,7 +69,7 @@ export default function NewEvent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-     const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     try {
       const data = new FormData();
@@ -83,15 +84,10 @@ export default function NewEvent() {
       // The backend expects "image"
       if (flyer?.file) data.append("image", flyer.file);
 
-      const response = await axios.post(
-        "http://127.0.0.1:8000/events",
-        data,
-        {
-          headers: {Authorization: `Bearer ${token}`},
-        }
-        
-      );
-// , "Content-Type": "form-data"
+      const response = await axios.post("http://127.0.0.1:8000/events", data, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // , "Content-Type": "form-data"
       console.log("Backend response:", response.data);
       alert("Event created successfully!");
 
@@ -164,7 +160,7 @@ export default function NewEvent() {
                 <img
                   src={flyer.preview}
                   alt="Flyer Preview"
-                  className="w-full h-full object-cover rounded-lg"
+                  className="w-full h-70 object-cover rounded-lg"
                 />
                 <button
                   type="button"

@@ -11,10 +11,10 @@ body {
 
 @layer utilities {
   .hide-scrollbar::-webkit-scrollbar {
-    height: 0px; /* hides horizontal scrollbar line */
+    height: 0px; 
   }
 
   .hide-scrollbar {
-    scrollbar-width: none; /* Firefox */
+    scrollbar-width: none; 
   }
 }
