@@ -15,7 +15,21 @@ import { useEffect, useState } from "react";
 import { FaMoneyBill } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import ShareButton from "../../components/ShareButton";
+<<<<<<< HEAD
 import Like from "../../components/like";
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+=======
+import Like from "../../components/like";
+import { useNavigate } from "react-router-dom";
+
+>>>>>>> Stashed changes
+>>>>>>> b0ff3c1 (new install)
+=======
+import { useNavigate } from "react-router-dom";
+
+>>>>>>> Stashed changes
 
 // Types for events + reviews
 interface Reviews {
@@ -23,14 +37,35 @@ interface Reviews {
   username: string;
   comment: string;
   rating: number;
+<<<<<<< HEAD
   // time: string;
 }
 
+<<<<<<< Updated upstream
 interface ReviewsEdit {
   comment: string;
   rating: number;
   // time: string;
+=======
+<<<<<<< Updated upstream
+  time: string;
+>>>>>>> b0ff3c1 (new install)
 }
+=======
+  // time: string;
+}
+
+=======
+>>>>>>> Stashed changes
+// interface ReviewsEdit {
+//   comment: string;
+//   rating: number;
+//   // time: string;
+// }
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 
 interface Event {
   id: number;
@@ -55,10 +90,30 @@ const EventDetails = () => {
   const [bookC, setBookC] = useState(false);
   const [reviews, setReviews] = useState<Reviews[]>([]);
   const [currentRating, setCurrentRating] = useState(0);
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> b0ff3c1 (new install)
   const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
   const [editingComment, setEditingComment] = useState("");
   const [editingRating, setEditingRating] = useState(0);
   const [showAllReviews, setShowAllReviews] = useState(false);
+<<<<<<< Updated upstream
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> Stashed changes
+  const navigate = useNavigate(); 
+
+
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role"); // <-- Add this line
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+>>>>>>> b0ff3c1 (new install)
+=======
+>>>>>>> Stashed changes
 
   const startEditing = (review: Reviews) => {
     setEditingReviewId(review.id);
@@ -66,6 +121,14 @@ const EventDetails = () => {
     setEditingRating(review.rating);
   };
 
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+    const newReview: Reviews = {
+      user: userName,
+      comment,
+=======
+>>>>>>> b0ff3c1 (new install)
   const cancelEditing = () => {
     setEditingReviewId(null);
     setEditingComment("");
@@ -106,16 +169,53 @@ const EventDetails = () => {
   };
 
   const handleSubmit = async () => {
+<<<<<<< Updated upstream
+<<<<<<< HEAD
     // if (!username.trim() || !comment.trim()) return;
+=======
+=======
+>>>>>>> Stashed changes
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if (!token) {
+      return alert("You must be logged in to leave a review");
+    }
+
+    // Optional: Only users can leave reviews
+    if (role !== "user") {
+      return alert("Only users can leave reviews");
+    }
+
+<<<<<<< Updated upstream
+>>>>>>> b0ff3c1 (new install)
+=======
+>>>>>>> Stashed changes
     if (!comment.trim() || currentRating === 0) return;
 
     const newReview = {
       comment: comment,
+<<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
+>>>>>>> b0ff3c1 (new install)
       rating: currentRating,
     };
 
+<<<<<<< Updated upstream
+<<<<<<< HEAD
     const token = localStorage.getItem("token");
 
+=======
+<<<<<<< Updated upstream
+    setReviews([...reviews, newReview]);
+    setComment("");
+    setCurrentRating(0);
+    setUserName("");
+=======
+>>>>>>> b0ff3c1 (new install)
+=======
+>>>>>>> Stashed changes
     try {
       const res = await fetch(`http://127.0.0.1:8000/review/${id}`, {
         method: "POST",
@@ -128,7 +228,13 @@ const EventDetails = () => {
 
       if (!res.ok) throw new Error("Failed to submit review");
       const savedReview = await res.json();
+<<<<<<< Updated upstream
+<<<<<<< HEAD
       console.log("Server response:", savedReview);
+=======
+>>>>>>> b0ff3c1 (new install)
+=======
+>>>>>>> Stashed changes
 
       setReviews([...reviews, savedReview]);
       setComment("");
@@ -136,7 +242,12 @@ const EventDetails = () => {
     } catch (error) {
       console.error(error);
     }
+<<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
+>>>>>>> b0ff3c1 (new install)
   };
+  
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -154,6 +265,8 @@ const EventDetails = () => {
   }, [id]);
 
   const handleBookClick = () => {
+    if (!token) return alert("You must be logged in to bookmark this event");
+    if (role !== "user") return alert("Only users can bookmark events"); // optional
     setBookC(!bookC);
   };
 
@@ -191,6 +304,20 @@ const EventDetails = () => {
       </div>
     );
   }
+
+  const handleBuyTicket = () => {
+    if (!token) {
+      alert("You must be logged in to buy a ticket");
+      navigate("/Login"); // redirect to login page
+      return;
+    }
+    if (role !== "user") {
+      alert("Only users can buy tickets");
+      return;
+    }
+    navigate(`/Payment/${event?.id}`);
+  };
+
 
   return (
     <div className="w-full flex flex-col items-center justify-center ">
@@ -246,7 +373,11 @@ const EventDetails = () => {
               <Button
                 icon={<FiMessageCircle size={24} />}
                 title="Contact Organizer"
-                onClick={() => alert(`Contacting organizer for ${event.title}`)}
+                onClick={() =>{ if (!token)
+                  return alert("You must be logged in to contact organizer");
+                if (role !== "user")
+                  return alert("Only users can contact organizer"); // optional
+                alert(`Contacting organizer for ${event.title}`);}}
                 className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105"
               />
             </div>
@@ -314,6 +445,7 @@ const EventDetails = () => {
             <Button
               icon={<FiBookmark />}
               title="Buy ticket"
+              onClick={handleBuyTicket}
               className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105 m-4"
             />
           </Link>
@@ -353,6 +485,7 @@ const EventDetails = () => {
           <Button
             title="Buy tickets"
             icon={<FiBookmark />}
+            onClick={handleBuyTicket}
             className="bg-secondary text-white hover:scale-105 transition-transform duration-200"
           />
         </Link>

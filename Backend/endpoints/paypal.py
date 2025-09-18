@@ -2,7 +2,19 @@ from dotenv import load_dotenv
 import os
 import requests
 from fastapi import APIRouter, HTTPException
+<<<<<<< Updated upstream
+<<<<<<< HEAD
 from pydantic import BaseModel
+=======
+from dotenv import load_dotenv
+load_dotenv()
+=======
+from dotenv import load_dotenv
+load_dotenv()
+
+>>>>>>> Stashed changes
+
+>>>>>>> b0ff3c1 (new install)
 
 load_dotenv()
 
@@ -20,12 +32,31 @@ class OrderCreate(BaseModel):
 
 
 def get_access_token():
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
     if PAYPAL_CLIENT_ID is None or PAYPAL_SECRET is None:
         raise RuntimeError("PAYPAL_CLIENT_ID and PAYPAL_SECRET must be set in environment variables.")
     auth = (PAYPAL_CLIENT_ID, PAYPAL_SECRET)
+<<<<<<< HEAD
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     data = {"grant_type": "client_credentials"}
     r = requests.post(f"{PAYPAL_BASE}/v1/oauth2/token", headers=headers, data=data, auth=auth)
+=======
+=======
+    auth = (PAYPAL_CLIENT_ID or "", PAYPAL_SECRET or "")
+>>>>>>> Stashed changes
+=======
+    auth = (PAYPAL_CLIENT_ID or "", PAYPAL_SECRET or "")
+>>>>>>> Stashed changes
+    print("Using credentials:", auth)
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    data = {"grant_type": "client_credentials"}
+    r = requests.post(f"{PAYPAL_BASE}/v1/oauth2/token",
+                      headers=headers, data=data, auth= auth)
+<<<<<<< Updated upstream
+>>>>>>> b0ff3c1 (new install)
+=======
+>>>>>>> Stashed changes
     if r.status_code != 200:
         raise HTTPException(status_code=r.status_code, detail=r.json())
     return r.json()["access_token"]

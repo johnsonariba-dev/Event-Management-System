@@ -6,6 +6,8 @@ from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
+<<<<<<< Updated upstream
+<<<<<<< HEAD:Backend/endpoints/event.py
 import os
 import shutil
 from uuid import uuid4
@@ -13,13 +15,39 @@ from uuid import uuid4
 from schemas.events import EventOut
 import models
 from database import get_db
+=======
+<<<<<<< Updated upstream:Backend/endpoints/event_fake.py
+import models
+from database import get_db
+from .supabase_test import upload_file
+
+=======
+=======
+>>>>>>> Stashed changes
+import os
+import shutil
+from uuid import uuid4
+
+import models
+from database import get_db
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes:Backend/endpoints/event.py
+>>>>>>> b0ff3c1 (new install):Backend/endpoints/event_fake.py
+=======
+>>>>>>> Stashed changes
 from pydantic import BaseModel
 
 from .auth import get_current_user  # adjust import path
 # Import recommender function
 from recommender import recommend_events
 
+<<<<<<< Updated upstream
+<<<<<<< HEAD:Backend/endpoints/event.py
 
+=======
+>>>>>>> b0ff3c1 (new install):Backend/endpoints/event_fake.py
+=======
+>>>>>>> Stashed changes
 router = APIRouter()
 
 UPLOAD_DIR = "uploads"
@@ -60,8 +88,18 @@ class EventResponse(EventBase):
     image_url: Optional[str]
 
     class Config:
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream:Backend/endpoints/event_fake.py
         from_attributes = True  # Pydantic v2
+=======
+        from_attributes = True
 
+>>>>>>> Stashed changes:Backend/endpoints/event.py
+
+=======
+        from_attributes = True
+
+>>>>>>> Stashed changes
 
 class EventForm(EventBase):
     @classmethod
@@ -71,9 +109,18 @@ class EventForm(EventBase):
         category: str = Form(...),
         description: Optional[str] = Form(None),
         venue: str = Form(...),
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream:Backend/endpoints/event_fake.py
         date: datetime = Form(...),
         ticket_price: float = Form(..., description="Ticket price as float"),
         capacity_max: Optional[int] = Form(None, description="Maximum capacity as int"),
+=======
+=======
+>>>>>>> Stashed changes
+        date: str = Form(...),
+        ticket_price: float = Form(...),
+        capacity_max: Optional[int] = Form(None),
+>>>>>>> Stashed changes:Backend/endpoints/event.py
     ):
         return cls(
             title=title,
@@ -87,6 +134,8 @@ class EventForm(EventBase):
 
 
 # ---------------- ROUTES ----------------
+<<<<<<< Updated upstream
+<<<<<<< HEAD:Backend/endpoints/event.py
 
 @router.get("/events/my", response_model=List[EventOut])
 def get_my_events(current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -95,6 +144,10 @@ def get_my_events(current_user: models.User = Depends(get_current_user), db: Ses
     return events
 
 
+=======
+>>>>>>> b0ff3c1 (new install):Backend/endpoints/event_fake.py
+=======
+>>>>>>> Stashed changes
 @router.get("/events", response_model=List[EventResponse])
 async def read_events(db: Session = Depends(get_db)):
     return db.query(models.Event).all()
@@ -137,6 +190,47 @@ def share_event(event_id: int, db: Session = Depends(get_db)):
 async def create_event(
     form_data: EventForm = Depends(EventForm.as_form),
     image: Optional[UploadFile] = File(None),
+<<<<<<< Updated upstream
+<<<<<<< HEAD:Backend/endpoints/event.py
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),   # ✅ add this
+=======
+<<<<<<< Updated upstream:Backend/endpoints/event_fake.py
+    db: Session = Depends(get_db)
+>>>>>>> b0ff3c1 (new install):Backend/endpoints/event_fake.py
+=======
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),   # ✅ add this
+>>>>>>> Stashed changes
+):
+    # Check for duplicates
+    existing_event = db.query(models.Event).filter(
+        models.Event.title == form_data.title).first()
+    if existing_event:
+        raise HTTPException(status_code=400, detail="Event already exists")
+
+    if form_data.ticket_price < 0:
+        raise HTTPException(
+            status_code=400, detail="Ticket price must be positive")
+
+    if form_data.capacity_max is not None and form_data.capacity_max < 0:
+        raise HTTPException(
+            status_code=400, detail="Capacity must be positive")
+
+    image_url = upload_file(image, folder="events") if image else ""
+
+    # ✅ attach organizer_id from logged-in user
+    db_event = models.Event(
+<<<<<<< Updated upstream
+        **form_data.dict(),
+        image_url=image_url,
+        organizer_id=current_user.id
+    )
+
+<<<<<<< HEAD:Backend/endpoints/event.py
+=======
+    db_event = models.Event(**form_data.model_dump(), image_url=image_url)
+=======
     db: Session = Depends(get_db),
     current_user: dict = Depends(get_current_user),   # ✅ add this
 ):
@@ -158,11 +252,19 @@ async def create_event(
 
     # ✅ attach organizer_id from logged-in user
     db_event = models.Event(
-        **form_data.dict(),
-        image_url=image_url,
-        organizer_id=current_user.id
-    )
+=======
+>>>>>>> Stashed changes
+    **form_data.dict(),
+    image_url=image_url,
+    organizer_id=current_user["id"]  # dict access
+)
 
+
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes:Backend/endpoints/event.py
+>>>>>>> b0ff3c1 (new install):Backend/endpoints/event_fake.py
+=======
+>>>>>>> Stashed changes
     db.add(db_event)
     db.commit()
     db.refresh(db_event)
@@ -175,7 +277,19 @@ async def update_event(
     event_id: int,
     form_data: EventForm = Depends(EventForm.as_form),
     image: Optional[UploadFile] = File(None),
+<<<<<<< Updated upstream
+<<<<<<< HEAD:Backend/endpoints/event.py
     db: Session = Depends(get_db),
+=======
+<<<<<<< Updated upstream:Backend/endpoints/event_fake.py
+    db: Session = Depends(get_db)
+=======
+    db: Session = Depends(get_db),
+>>>>>>> Stashed changes:Backend/endpoints/event.py
+>>>>>>> b0ff3c1 (new install):Backend/endpoints/event_fake.py
+=======
+    db: Session = Depends(get_db),
+>>>>>>> Stashed changes
 ):
     db_event = db.query(models.Event).filter(
         models.Event.id == event_id).first()
@@ -204,18 +318,34 @@ async def delete_event(event_id: int, db: Session = Depends(get_db)):
 
     db.delete(db_event)
     db.commit()
+<<<<<<< Updated upstream
+<<<<<<< HEAD:Backend/endpoints/event.py
+=======
+<<<<<<< Updated upstream:Backend/endpoints/event_fake.py
+=======
+>>>>>>> b0ff3c1 (new install):Backend/endpoints/event_fake.py
+=======
+>>>>>>> Stashed changes
 
 # ---------------- RECOMMENDATIONS ----------------
 
 # ------------------- RECOMMENDER BASED ON REVIEWS -------------------
+<<<<<<< Updated upstream
+<<<<<<< HEAD:Backend/endpoints/event.py
 
 
+=======
+>>>>>>> b0ff3c1 (new install):Backend/endpoints/event_fake.py
+=======
+>>>>>>> Stashed changes
 @router.get("/recommend/{user_id}")
 def recommend_for_user(user_id: int, top_n: int = 5, db: Session = Depends(get_db)):
     """
     Recommend events for a given user based on their reviews & ratings.
     """
 
+<<<<<<< Updated upstream
+<<<<<<< HEAD:Backend/endpoints/event.py
     # 1. Get all reviews by this user
     user_reviews = db.query(models.Review).filter(
         models.Review.user_id == user_id).all()
@@ -232,6 +362,27 @@ def recommend_for_user(user_id: int, top_n: int = 5, db: Session = Depends(get_d
             status_code=404, detail="No liked events to base recommendations on")
 
     # 3. Extract user interests from those events
+=======
+=======
+>>>>>>> Stashed changes
+    # Fetch only reviews with rating >= 4, along with the event
+    liked_reviews = (
+        db.query(models.Review)
+        .filter(models.Review.user_id == user_id, models.Review.rating >= 4)
+        .all()
+    )
+
+    if not liked_reviews:
+        raise HTTPException(status_code=404, detail="No liked events to base recommendations on")
+
+    # Extract events
+    liked_events = [r.event for r in liked_reviews]
+
+    # Extract user interests
+<<<<<<< Updated upstream
+>>>>>>> b0ff3c1 (new install):Backend/endpoints/event_fake.py
+=======
+>>>>>>> Stashed changes
     user_interests = []
     for ev in liked_events:
         user_interests.append(ev.title)
@@ -239,7 +390,21 @@ def recommend_for_user(user_id: int, top_n: int = 5, db: Session = Depends(get_d
         if ev.description:
             user_interests.append(ev.description)
 
+<<<<<<< Updated upstream
+<<<<<<< HEAD:Backend/endpoints/event.py
     # 4. Call the recommender
     recommended = recommend_events(user_interests, top_n=top_n)
 
     return {"user_id": user_id, "recommended": recommended}
+=======
+=======
+>>>>>>> Stashed changes
+    # Call recommender
+    recommended = recommend_events(user_interests, top_n=top_n)
+
+    return {"user_id": user_id, "recommended": recommended}
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes:Backend/endpoints/event.py
+>>>>>>> b0ff3c1 (new install):Backend/endpoints/event_fake.py
+=======
+>>>>>>> Stashed changes

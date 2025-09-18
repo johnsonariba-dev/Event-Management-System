@@ -26,9 +26,19 @@ const Dashboard: React.FC = () => {
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
   const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
+<<<<<<< Updated upstream
+<<<<<<< HEAD
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [deletingEvent, setDeletingEvent] = useState<Event | null>(null);
   const [userName, setUserName] = useState("");
+=======
+  const role = localStorage.getItem("role"); 
+=======
+  const role = localStorage.getItem("role"); 
+
+>>>>>>> Stashed changes
+
+>>>>>>> b0ff3c1 (new install)
 
   const token = localStorage.getItem("token");
 
@@ -64,6 +74,8 @@ const Dashboard: React.FC = () => {
     );
   });
 
+<<<<<<< Updated upstream
+<<<<<<< HEAD
   // Format date for display
   const formatDate = (d: string) => {
     try {
@@ -122,6 +134,34 @@ const Dashboard: React.FC = () => {
 
   // Load more
   const handleSeeMore = () => setDisplayCount((prev) => prev + 10);
+=======
+=======
+>>>>>>> Stashed changes
+
+  const token = localStorage.getItem("token");
+
+  const handleDelete = async (id: number) => {
+    if (!token) return;
+
+    if (!window.confirm("Are you sure you want to delete this event?")) return;
+
+    try {
+      await axios.delete(`http://127.0.0.1:8000/events/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // Remove the deleted event from state
+      setEvents((prev) => prev.filter((e) => e.id !== id));
+      alert("Event deleted successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting event");
+    }
+  };
+
+<<<<<<< Updated upstream
+>>>>>>> b0ff3c1 (new install)
+=======
+>>>>>>> Stashed changes
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-hidden">
@@ -139,7 +179,15 @@ const Dashboard: React.FC = () => {
         <h2 className="font-bold text-xl sm:text-2xl pt-3">
           Create a new event
         </h2>
+<<<<<<< Updated upstream
+<<<<<<< HEAD
         <p className="text-base sm:text-lg md:text-xl py-4 max-w-md">
+=======
+        <p className="text-base sm:text-lg md:text-xl py-4">
+>>>>>>> b0ff3c1 (new install)
+=======
+        <p className="text-base sm:text-lg md:text-xl py-4">
+>>>>>>> Stashed changes
           Add all your event details, create new tickets, and set up recurring
           events.
         </p>
@@ -187,11 +235,22 @@ const Dashboard: React.FC = () => {
             key={event.id}
             className="group bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition transform hover:-translate-y-0.5 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4"
           >
+<<<<<<< HEAD
+=======
+            {/* Checkbox */}
+            <input
+              type="checkbox"
+              className="self-start sm:self-auto w-5 h-5 "
+            />
+
+            {/* Thumbnail */}
+>>>>>>> b0ff3c1 (new install)
             <img
               src={event.image_url}
               alt={event.title}
               className="w-full sm:w-36 h-40 sm:h-20 rounded-md object-cover max-w-full"
             />
+<<<<<<< HEAD
             <div className="flex-1 min-w-0 w-full">
               <div className="flex justify-between gap-3">
                 <div className="min-w-0">
@@ -205,6 +264,62 @@ const Dashboard: React.FC = () => {
                     <span className="flex items-center text-sm text-gray-400 gap-1">
                       <HiOutlineCalendar /> {formatDate(event.date)}
                     </span>
+=======
+
+            {/* Details */}
+            <div className="flex-1 border  flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
+              <div className="flex flex-col">
+                <h3 className="font-bold text-lg">{event.title}</h3>
+                <p className="text-gray-500 text-sm flex items-center gap-1">
+                  <FaLocationDot color="blue" /> {event.venue}
+                </p>
+                <p className="text-gray-600 text-sm">{event.date}</p>
+              </div>
+
+              {/* Sold, Price, Status */}
+              <div className="flex justify-center border items-center">
+                <span className="text-center">{event.sold ?? 0}</span>
+                <span className="text-center">
+                  <FaTicketAlt className="inline mr-1" />
+                  {event.ticket_price} FCFA
+                </span>
+                <span className="text-center">{event.status ?? "Active"}</span>
+              </div>
+
+              {/* Menu icon */}
+              <div className="relative">
+                <BsThreeDots
+                  className="cursor-pointer text-xl"
+                  onClick={() =>
+                    setMenuOpenId(menuOpenId === event.id ? null : event.id)
+                  }
+                />
+                {menuOpenId === event.id && (
+                  <div className="absolute right-0 transition-smooth top-6 bg-white border rounded shadow-md z-10 flex flex-col">
+                    <NavLink
+                      to={`/event/${event.id}`}
+                      className="px-4 py-2 hover:bg-gray-100"
+                    >
+                      View
+                    </NavLink>
+                    {role === "organizer" || role === "admin" ? (
+                      <NavLink to={`/event/update/${event.id}`}>
+                        <Button
+                          title="Update"
+                          className="bg-yellow-500 text-white px-3 py-1 rounded"
+                        />
+                      </NavLink>
+                    ) : null}
+
+                    <Button
+                      title="Delete"
+                      className="bg-red-600 text-white px-3 py-1 rounded"
+                      onClick={() => handleDelete(event.id)}
+                    />
+<<<<<<< Updated upstream
+>>>>>>> b0ff3c1 (new install)
+=======
+>>>>>>> Stashed changes
                   </div>
                 </div>
                 <div className="relative">

@@ -32,8 +32,11 @@ function Payment() {
   const [amount, setAmount] = useState(0);
   const [ticketGenerated, setTicketGenerated] = useState(false);
   const [phone, setPhone] = useState("");
+<<<<<<< Updated upstream
   const [currency, setCurrency] = useState<"XAF" | "USD">("XAF");
   const [rate, setRate] = useState<number>(0); // XAF → USD
+=======
+>>>>>>> Stashed changes
   const ticketRef = useRef<HTMLDivElement>(null);
 
   // Fetch event
@@ -85,6 +88,7 @@ function Payment() {
     setCount(count + 1);
   };
 
+<<<<<<< Updated upstream
   const handleFreeTicket = () => setTicketGenerated(true);
 
  const handleMtnPayment = async () => {
@@ -131,7 +135,15 @@ function Payment() {
       const dataUrl = await htmlToImage.toPng(ticketRef.current, {
         cacheBust: true,
         pixelRatio: 5,
+<<<<<<< HEAD
         style: { filter: "none", background: "gray" },
+=======
+<<<<<<< Updated upstream
+        style: { filter: "none", background: "white" },
+=======
+        style: { filter: "none", background: "gray" },
+>>>>>>> Stashed changes
+>>>>>>> b0ff3c1 (new install)
       });
 
       const pdf = new jsPDF("p", "pt", "a4");
@@ -182,6 +194,79 @@ function Payment() {
             />
           </div>
 
+=======
+  const handleFreeTicket = () => {
+    setTicketGenerated(true);
+  };
+
+  const handleMtnOrangePayment = () => {
+    if (!phone) {
+      alert("Please enter phone number");
+      return;
+    }
+    alert(`Payment of £${amount} successful via ${method.toUpperCase()}`);
+    setTicketGenerated(true);
+  };
+
+  const downloadTicket = async () => {
+    if (!ticketRef.current) return;
+    try {
+      const dataUrl = await htmlToImage.toPng(ticketRef.current, {
+        cacheBust: true,
+        pixelRatio: 5,
+        style: { filter: "none", background: "gray" },
+      });
+
+      const pdf = new jsPDF("p", "pt", "a4");
+      const imgProps = pdf.getImageProperties(dataUrl);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      const scale = Math.min(
+        pdfWidth / imgProps.width,
+        pdfHeight / imgProps.height
+      );
+      const newWidth = imgProps.width * scale;
+      const newHeight = imgProps.height * scale;
+      const x = (pdfWidth - newWidth) / 2;
+      const y = (pdfHeight - newHeight) / 2;
+
+      pdf.addImage(dataUrl, "PNG", x, y, newWidth, newHeight);
+      pdf.save(`${event?.title || "ticket"}-ticket.pdf`);
+    } catch (err) {
+      console.error("Download failed:", err);
+      alert("Something went wrong while generating the PDF");
+    }
+  };
+
+  const resetPage = () => {
+    setTicketGenerated(false);
+    setMethod("paypal");
+    setCount(1);
+    setPhone("");
+  };
+
+  // Ticket view after generation
+  if (ticketGenerated && event) {
+    const ticketId = `ticket-${event.id}-${Date.now()}`; // unique QR code
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-white p-6">
+        <div className="w-full md:w-1/2 flex flex-col items-center gap-6">
+          <div ref={ticketRef}>
+            <TicketCard
+              eventTitle={event.title}
+              location={event.venue}
+              date={event.date}
+              time={event.time}
+              organizer={event.organizer}
+              userName="zounka"
+              price={event.ticket_price}
+              imageUrl={event.image_url}
+              ticketId={ticketId}
+            />
+          </div>
+
+>>>>>>> Stashed changes
           <Button
             title="Download Ticket"
             onClick={downloadTicket}
@@ -243,7 +328,11 @@ function Payment() {
             <div className="border rounded-lg p-2">
               <div className="flex justify-between pb-3">
                 <h1>Standard Ticket</h1>
+<<<<<<< Updated upstream
                 <p>{event?.ticket_price ?? 0} XAF</p>
+=======
+                <p>{event?.ticket_price ?? 0}</p>
+>>>>>>> Stashed changes
               </div>
               <div className="text-gray-400 text-md">
                 <p>Standard entry to the event</p>
@@ -281,7 +370,11 @@ function Payment() {
               <h1 className="text-xl text-center pb-5 font-semibold">Order Summary</h1>
               <div className="flex justify-between pb-3">
                 <p>Ticket Price</p>
+<<<<<<< Updated upstream
                 <p>{currency === "XAF" ? event?.ticket_price ?? 0 : (event?.ticket_price ?? 0 * rate).toFixed(2)}</p>
+=======
+                <p>{event?.ticket_price ?? 0}</p>
+>>>>>>> Stashed changes
               </div>
               <div className="flex justify-between pb-3">
                 <p>Number</p>
@@ -289,7 +382,11 @@ function Payment() {
               </div>
               <hr />
               <div className="flex justify-between py-3">
+<<<<<<< Updated upstream
                 <p>Total ({currency})</p>
+=======
+                <p>Total</p>
+>>>>>>> Stashed changes
                 <p>{amount}</p>
               </div>
             </div>
@@ -357,15 +454,25 @@ function Payment() {
                       placeholder="Enter phone number"
                     />
                     <Button
+<<<<<<< Updated upstream
                       title={`Pay ${currency} ${amount} via ${method.toUpperCase()}`}
                       onClick={handleMtnPayment}
+=======
+                      title={`Pay £${amount} via ${method.toUpperCase()}`}
+                      onClick={handleMtnOrangePayment}
+>>>>>>> Stashed changes
                       className="mt-2 px-4 py-2 bg-yellow-500 text-white"
                     />
                   </div>
                 )}
 
+<<<<<<< Updated upstream
                 {/* PayPal */}
                 {method === "paypal" && currency === "USD" && (
+=======
+                {/* PayPal Payment */}
+                {method === "paypal" && (
+>>>>>>> Stashed changes
                   <div className="p-4 border rounded-lg shadow-md bg-white">
                     <PayPalScriptProvider
                       options={{ clientId: "AWcbUIkfqRx51ILXg1sIoHVdDWqFfrYsKPDCrzoXNSf_2StjtXPBn75giD0bYLCnQ8YrtWTw0VQxddIB" }}
