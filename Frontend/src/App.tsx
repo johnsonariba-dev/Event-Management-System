@@ -20,6 +20,13 @@ import Profile from "./Pages/Profile";
 
 
 import Attendees from "./components/reviews";
+import { EventApproval } from "./components/EventApproval";
+import { HomeDashboard } from "./components/HomeDashboard";
+import AdminDashboard from "./Pages/AdminDashboard";
+import { ReportsAnalytics } from "./components/ReportsAnalytics";
+import OrganizerManagement from "./components/OrganizerManagement";
+import UserManagement from "./components/UserManagement";
+
 
 import type { JSX } from "react/jsx-dev-runtime";
 import { AuthProvider } from "./Pages/Context/AuthProvider";
@@ -147,6 +154,43 @@ function App() {
         {showfooter && <Footer />}
       </div>
     </AuthProvider>
+    "/admindashboard"
+  ];
+  const hideNavbar = ["/CreateEvent", "/admindashboard"];
+
+  const showfooter = !hidefooter.some(path => location.pathname.startsWith(path.split(":")[0]));
+  const showNavbar = !hideNavbar.some(path => location.pathname.startsWith(path));
+  return (
+    <div>
+      {showNavbar && <NavBar items={NavBarItems} />}
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<Home />}></Route>
+        <Route path="/about" element={<About />}></Route>
+        <Route path="/events" element={<Events />}></Route>
+        <Route path="/login" element={<Login />}></Route>
+        <Route path="/register" element={<Register />}></Route>
+        <Route path="/CreateEvent" element={<CreateEvent />}></Route>
+        <Route path="/NewEvent" element={<NewEvent />}></Route>
+        <Route path="/Event/:id" element={<EventDetails />}></Route>
+        <Route path="/cities/:id" element={<CityDetails />}></Route>
+        <Route path="/payment/:id" element={<Payment />}></Route>
+        <Route path="/attendees/:id" element={<Attendees />}></Route>
+        <Route path="/buy-ticket/:eventId" element={<BuyTicket />} />
+        <Route path="/scan" element={<TicketScan />} />
+
+        <Route path="/admindashboard" element={<AdminDashboard />}>
+          <Route index element={<HomeDashboard />} />
+          <Route path="event-approval" element={<EventApproval />} />
+          <Route path="users" element={<UserManagement />} />
+          <Route path="organizers" element={<OrganizerManagement />} />
+          <Route path="reports" element={<ReportsAnalytics/>} />
+        </Route>
+
+      </Routes>
+      <Chatbot />
+      {showfooter && <Footer />}
+    </div>
   );
 }
 

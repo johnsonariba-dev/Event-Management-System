@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, EmailStr
 
@@ -43,3 +44,12 @@ class UserOut(BaseModel):
 class Token(BaseModel):
     access_token: str  # JWT(JSON Web Token) token pour l'authentification
     token_type: str = "bearer"  # Type de token (bearer)
+
+
+class OrganizerResponse(BaseModel):
+    id: int
+    username: str
+    email: EmailStr
+    date_event: Optional[datetime]
+    events: int = 0
+    revenue: float = 0.0

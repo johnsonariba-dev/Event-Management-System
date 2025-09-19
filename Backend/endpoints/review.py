@@ -46,9 +46,7 @@ def get_event_reviews(event_id: int, db: Session = Depends(get_db)):
     return [Review.from_orm(r) for r in reviews]
 
 
-# -------------------------
-# Update review
-# -------------------------
+
 @router.put("/review/{review_id}", response_model=Review)
 def update_review(
     review_id: int,

@@ -19,6 +19,32 @@ class EventCreate(BaseModel):
 
 class EventOut(EventCreate):
     id: int
+    title: str
+    description: str
+    date: datetime
+    venue: str
+    category: str
+    ticket_price: float
+    capacity_max: Optional[int] = 0
+    status: str
+    image_url: Optional[str] = ""
+    reviews: List[Review] = []
+
+    class Config:
+        orm_mode = True
+
+class OrganizerOut(BaseModel):
+    id: int
+    username: str
+    email: str
+
+    class Config:
+        orm_mode = True
+
+class AdminEventOut(EventCreate):
+    id: int
+    organizer: OrganizerOut
+    image_url: Optional[str] = ""
     reviews: List[Review] = []
 
     class Config:
@@ -44,8 +70,22 @@ class EventUpdate(BaseModel):
     capacity_max: Optional[int] = None
     status: Optional[str] = None
 
-# Optional schema for user interests
+class EventBase(BaseModel):
+    title: str
+    category: str
+    description: Optional[str]
+    venue: str
+    date: datetime
+    ticket_price: float
+    capacity_max: Optional[int]
+    image_url: Optional[str] = None
 
+class EventResponse(EventBase):
+    id: int
+    image_url: Optional[str]
+
+    class Config:
+        orm_mode = True
 
 class UserInterests(BaseModel):
     interests: List[str]
