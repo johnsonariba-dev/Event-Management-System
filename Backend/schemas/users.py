@@ -23,10 +23,6 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
@@ -41,7 +37,7 @@ class UserOut(BaseModel):
     username: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class Token(BaseModel):

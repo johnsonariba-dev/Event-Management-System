@@ -1,14 +1,8 @@
 
 import React, { useEffect } from "react";
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-import { Navigate, useNavigate } from "react-router-dom";
-=======
-import {  useNavigate } from "react-router-dom";
->>>>>>> b0ff3c1 (new install)
-=======
-import {  useNavigate } from "react-router-dom";
->>>>>>> Stashed changes
+
+import { useNavigate } from "react-router-dom";
+
 
 type PrivateRouteProps = {
   children: React.ReactNode

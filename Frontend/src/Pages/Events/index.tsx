@@ -2,14 +2,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import Button from "../../components/button";
 import { FaLocationDot } from "react-icons/fa6";
-import { NavLink } from "react-router-dom";
-import { useAuth } from "../Context/UseAuth"; // ✅ Added role context
-import { useNavigate } from "react-router-dom";
-
-
-
-
-
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../Context/UseAuth"; // ✅ role from context
 
 interface Review {
   user: string;
@@ -37,22 +31,11 @@ const Events: React.FC = () => {
   const [price, setPrice] = useState("");
   const [popularity, setPopularity] = useState("");
   const [loader, setLoader] = useState(true);
-<<<<<<< HEAD
-  const [visibleCount, setVisibleCount] = useState(30);
-=======
-<<<<<<< Updated upstream
-=======
-  const [visibleCount, setVisibleCount] = useState(10);
+  const [visibleCount, setVisibleCount] = useState(12);
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
 
-  const token = localStorage.getItem("token");
-  const { role } = useAuth(); // ✅ Using role from context
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
->>>>>>> b0ff3c1 (new install)
-=======
->>>>>>> Stashed changes
+  const navigate = useNavigate();
+  const { token, role } = useAuth();
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -68,19 +51,7 @@ const Events: React.FC = () => {
     fetchEvents();
   }, []);
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  useEffect(() => {
-    axios
-      .get("http://127.0.0.1:8000/events")
-      .then((res) => setEvents(res.data))
-      .catch((err) => console.error("Error fetching events:", err));
-  }, []);
-
-  // Apply search, filter, and sort
-=======
-  // Filter & sort
->>>>>>> Stashed changes
+  // Apply filters and sorting
   const filteredEvents = events
     .filter((event) => event.title.toLowerCase().includes(search.toLowerCase()))
     .filter((event) =>
@@ -99,11 +70,6 @@ const Events: React.FC = () => {
       return 0;
     });
 
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-  // Events currently visible
-=======
->>>>>>> Stashed changes
   const visibleEvents = filteredEvents.slice(0, visibleCount);
 
   const handleDelete = async (id: number) => {
@@ -122,96 +88,24 @@ const Events: React.FC = () => {
     }
   };
 
-  if (loader) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32 animate-spin border-b-gray-500"></div>
-      </div>
-    );
-  }
-=======
-  // if (loader) {
-  //   return (
-  //     <div className="flex items-center justify-center h-screen">
-  //       <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32 animate-spin border-b-gray-500"></div>
-  //     </div>
-  //   );
-  // }
-=======
-  // Filter & sort
-  const filteredEvents = events
-    .filter((event) => event.title.toLowerCase().includes(search.toLowerCase()))
-    .filter((event) =>
-      category ? event.category.toLowerCase() === category.toLowerCase() : true
-    )
-    .filter((event) =>
-      price === "free"
-        ? event.ticket_price === 0
-        : price === "paid"
-        ? event.ticket_price > 0
-        : true
-    )
-    .sort((a, b) => {
-      if (popularity === "top") return b.ticket_price - a.ticket_price;
-      if (popularity === "most") return b.id - a.id;
-      return 0;
-    });
->>>>>>> b0ff3c1 (new install)
-
-<<<<<<< Updated upstream
-  const visibleEvents = filteredEvents.slice(0, visibleCount);
-
-  const handleDelete = async (id: number) => {
-    if (!token) return;
-    if (!window.confirm("Are you sure you want to delete this event?")) return;
-
-    try {
-      await axios.delete(`http://127.0.0.1:8000/events/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setEvents((prev) => prev.filter((e) => e.id !== id));
-      setMessage("Event deleted successfully!");
-    } catch (err) {
-      console.error(err);
-      setMessage("Error deleting event");
-    }
-  };
-
-  if (loader) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32 animate-spin border-b-gray-500"></div>
-      </div>
-    );
-  }
->>>>>>> Stashed changes
-
-=======
->>>>>>> Stashed changes
   const handleViewEvent = (event: EventProps) => {
     if (!token) {
       navigate("/login");
     } else {
       navigate(`/event/${event.id}`);
     }
+  };
+
+  if (loader) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32 animate-spin border-b-gray-500"></div>
+      </div>
+    );
   }
 
-  
   return (
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-=======
-    
->>>>>>> Stashed changes
     <div className="bg-accent">
-=======
-<<<<<<< Updated upstream
-    <div className="bg-accent" >
-=======
-    
-    <div className="bg-accent">
->>>>>>> Stashed changes
->>>>>>> b0ff3c1 (new install)
       {/* Hero Section */}
       <div className="relative h-120 flex flex-col mx-6">
         <div className="absolute inset-0 bg-[url(/src/assets/images/carnaval.jpeg)] bg-contain brightness-80 rounded-2xl mt-25"></div>
@@ -272,63 +166,7 @@ const Events: React.FC = () => {
       )}
 
       {/* Event Cards */}
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-6 pb-20">
-        {events
-          .filter((event) =>
-            event.title.toLowerCase().includes(search.toLowerCase())
-          )
-          .filter((event) =>
-            category
-              ? event.category.toLowerCase() === category.toLowerCase()
-              : true
-          )
-          .filter((event) =>
-            price === "free"
-              ? event.ticket_price === 0
-              : price === "paid"
-              ? event.ticket_price > 0
-              : true
-          )
-          .sort((a, b) => {
-            if (popularity === "top") return b.ticket_price - a.ticket_price;
-            if (popularity === "most") return b.id - a.id;
-            return 0;
-          })
-          .map((event) => (
-            <div
-              key={event.id}
-              className="bg-white shadow-lg rounded-xl overflow-hidden hover:scale-105 transition-transform"
-            >
-              <img
-                src={event.image_url}
-                alt={event.title}
-                className="h-40 w-full object-cover"
-              />
-              <div className="p-4">
-                <h3 className="font-bold text-lg">{event.title}</h3>
-                <p className="text-gray-600 text-sm mt-1 line-clamp-2">
-                  {event.description}
-                </p>
-                <p className="mt-3 text-sm flex gap-2 items-center pb-3">
-                  <FaLocationDot color="purple" /> {event.venue}
-                </p>
-                <p className="text-gray-800 font-medium pb-2">
-                  {event.ticket_price === 0 ? "Free" : event.ticket_price}
-                </p>
-                <div className="flex justify-end">
-                  <NavLink to={`/event/${event.id}`}>
-                    <Button
-                      title="View Details"
-                      className="bg-secondary hover:bg-primary text-white px-4 py-2 rounded-lg"
-                    />
-                  </NavLink>
-                </div>
-=======
->>>>>>> b0ff3c1 (new install)
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-6 pb-4">
         {visibleEvents.map((event) => (
           <div
             key={event.id}
@@ -348,39 +186,20 @@ const Events: React.FC = () => {
                 <FaLocationDot color="purple" /> {event.venue}
               </p>
               <p className="text-gray-800 font-medium pb-2">
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-                {event.ticket_price === 0 ? "Free" : event.ticket_price}
-=======
-                {event.ticket_price === 0 ? "Free" : `£${event.ticket_price}`}
->>>>>>> Stashed changes
+                {event.ticket_price === 0
+                  ? "Free"
+                  : `${event.ticket_price} FCFA`}
               </p>
 
               <div className="flex justify-between gap-2">
-                {/* Conditional View/Buy Button */}
+                {/* View button */}
                 <NavLink to={token ? `/event/${event.id}` : "/login"}>
                   <Button
-                   title="View details"
-                   onClick={() => handleViewEvent(event)}
+                    title="View Details"
+                    onClick={() => handleViewEvent(event)}
                     className="bg-secondary hover:bg-primary text-white px-4 py-2 rounded-lg"
                   />
                 </NavLink>
-<<<<<<< Updated upstream
-=======
-                {event.ticket_price === 0 ? "Free" : `£${event.ticket_price}`}
-              </p>
-
-              <div className="flex justify-between gap-2">
-                {/* Conditional View/Buy Button */}
-                <NavLink to={token ? `/event/${event.id}` : "/login"}>
-                  <Button
-                   title="View details"
-                   onClick={() => handleViewEvent(event)}
-                    className="bg-secondary hover:bg-primary text-white px-4 py-2 rounded-lg"
-                  />
-                </NavLink>
-=======
->>>>>>> Stashed changes
 
                 {/* Organizer/Admin Buttons */}
                 {(role === "organizer" || role === "admin") && (
@@ -398,42 +217,22 @@ const Events: React.FC = () => {
                     />
                   </div>
                 )}
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
->>>>>>> b0ff3c1 (new install)
-=======
->>>>>>> Stashed changes
               </div>
             </div>
           </div>
         ))}
       </div>
-<<<<<<< HEAD
 
-<<<<<<< Updated upstream
       {/* See More Button */}
-=======
-<<<<<<< Updated upstream
-=======
-
-      {/* See More */}
->>>>>>> b0ff3c1 (new install)
-=======
-      {/* See More */}
->>>>>>> Stashed changes
       {visibleCount < filteredEvents.length && (
         <div className="flex justify-center pb-20">
           <Button
             title="See More"
             className="text-white px-6 py-3 rounded-lg"
-            onClick={() => setVisibleCount((prev) => prev + 20)}
+            onClick={() => setVisibleCount((prev) => prev + 12)}
           />
         </div>
       )}
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
->>>>>>> b0ff3c1 (new install)
     </div>
   );
 };

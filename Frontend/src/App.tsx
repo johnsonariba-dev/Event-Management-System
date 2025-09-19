@@ -12,39 +12,16 @@ import CityDetails from "./Pages/EventDetails/CityDetails";
 import NewEvent from "./Pages/NewEvent";
 import Payment from "./Pages/Payments/Payment";
 import Chatbot from "./Pages/Chatbot";
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream
-import Attendees from "./Pages/Attendees";
->>>>>>> b0ff3c1 (new install)
-import BuyTicket from "../src/Pages/Ticket/BuyTicket";
-import TicketScan from "../src/Pages/Ticket/TicketScan";
-=======
 import BuyTicket from "./Pages/Ticket/BuyTicket";
 import TicketScan from "./Pages/Ticket/TicketScan";
->>>>>>> Stashed changes
 import ScrollToTop from "./components/ScrollTop";
 import UpdateEvent from "./Pages/Events/UpdateEvent";
 import Attendees from "./components/reviews";
-<<<<<<< Updated upstream
 
-=======
-import BuyTicket from "./Pages/Ticket/BuyTicket";
-import TicketScan from "./Pages/Ticket/TicketScan";
-import ScrollToTop from "./components/ScrollTop";
-import UpdateEvent from "./Pages/Events/UpdateEvent";
-import Attendees from "./components/reviews";
-=======
->>>>>>> Stashed changes
 import type { JSX } from "react/jsx-dev-runtime";
-// ✅ Import AuthProvider and useAuth
 import { AuthProvider } from "./Pages/Context/AuthProvider";
 import { useAuth } from "./Pages/Context/UseAuth";
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+
 const NavBarItems = [
   { title: "Home", path: "/" },
   { title: "About", path: "/about" },
@@ -60,15 +37,13 @@ const ProtectedRoute = ({
   roles?: string[];
 }) => {
   const { token } = useAuth();
-  const role: string = localStorage.getItem("role")!;
+  const role = localStorage.getItem("role") || "";
 
   if (!token) {
-    // User not logged in
     return <Navigate to="/login" replace />;
   }
 
   if (roles && !roles.includes(role)) {
-    // User role not allowed
     return <Navigate to="/events" replace />;
   }
 
@@ -89,32 +64,6 @@ function App() {
   const showNavbar = !hideNavbar.includes(location.pathname);
 
   return (
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    <div>
-      {showNavbar && <NavBar items={NavBarItems} />}
-      <ScrollToTop />
-      <Routes>
-        <Route path="/" element={<Home />}></Route>
-        <Route path="/about" element={<About />}></Route>
-        <Route path="/events" element={<Events />}></Route>
-        <Route path="/login" element={<Login />}></Route>
-        <Route path="/register" element={<Register />}></Route>
-        <Route path="/CreateEvent" element={<CreateEvent />}></Route>
-        <Route path="/NewEvent" element={<NewEvent />}></Route>
-        <Route path="/Event/:id" element={<EventDetails />}></Route>
-        <Route path="/cities/:id" element={<CityDetails />}></Route>
-        <Route path="/payment/:id" element={<Payment />}></Route>
-        <Route path="/attendees/:id" element={<Attendees />}></Route>
-        <Route path="/buy-ticket/:eventId" element={<BuyTicket />} />
-        <Route path="/scan" element={<TicketScan />} />
-      </Routes>
-      <Chatbot />
-      {showfooter && <Footer />}
-    </div>
-=======
-=======
->>>>>>> Stashed changes
     <AuthProvider>
       <div>
         {showNavbar && <NavBar items={NavBarItems} />}
@@ -128,13 +77,12 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/Event/:id" element={<EventDetails />} />
           <Route path="/cities/:id" element={<CityDetails />} />
-          <Route path="/CreateEvents" element={<CreateEvent />} />
 
           {/* Protected Routes */}
           <Route
             path="/CreateEvent"
             element={
-              <ProtectedRoute roles={["organiser"]}>
+              <ProtectedRoute roles={["organizer", "admin"]}>
                 <CreateEvent />
               </ProtectedRoute>
             }
@@ -142,7 +90,7 @@ function App() {
           <Route
             path="/NewEvent"
             element={
-              <ProtectedRoute roles={["organiser"]}>
+              <ProtectedRoute roles={["organizer", "admin"]}>
                 <NewEvent />
               </ProtectedRoute>
             }
@@ -150,7 +98,7 @@ function App() {
           <Route
             path="/event/update/:id"
             element={
-              <ProtectedRoute roles={["organiser"]}>
+              <ProtectedRoute roles={["organizer", "admin"]}>
                 <UpdateEvent />
               </ProtectedRoute>
             }
@@ -188,17 +136,13 @@ function App() {
             }
           />
 
-          {/* Chatbot always visible */}
+          {/* Fallback */}
           <Route path="*" element={<Home />} />
         </Routes>
         <Chatbot />
         {showfooter && <Footer />}
       </div>
     </AuthProvider>
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   );
 }
 

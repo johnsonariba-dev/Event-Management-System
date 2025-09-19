@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from typing import Optional
 from .users import CreateUser
-from .events import CreateEvent
+from .events import EventCreate
 
 # Schema create/base ticket   
 
@@ -33,4 +33,4 @@ class TicketUpdate(BaseModel):
 # Schéma avec relations
 class TicketWithRelations(Ticket):
     utilisateur: Optional[CreateUser] = None
-    evenement: Optional[CreateEvent] = None
+    evenement: Optional[EventCreate] = None

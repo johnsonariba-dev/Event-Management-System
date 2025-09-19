@@ -1,71 +1,21 @@
 import Button from "../../components/button";
 import { CiEdit } from "react-icons/ci";
-
-import {
-  FiBookmark,
-  FiCalendar,
-  FiMessageCircle,
-
-} from "react-icons/fi";
+import { FiBookmark, FiCalendar, FiMessageCircle } from "react-icons/fi";
 import { HiLocationMarker, HiOutlineClock, HiUserCircle } from "react-icons/hi";
 import { HiStar, HiTicket } from "react-icons/hi2";
-import { FaCheck } from "react-icons/fa6";
-import { useParams } from "react-router-dom";
+import { FaCheck, FaMoneyBill } from "react-icons/fa";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { FaMoneyBill } from "react-icons/fa";
-import { Link } from "react-router-dom";
 import ShareButton from "../../components/ShareButton";
-<<<<<<< HEAD
 import Like from "../../components/like";
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
-import Like from "../../components/like";
-import { useNavigate } from "react-router-dom";
 
->>>>>>> Stashed changes
->>>>>>> b0ff3c1 (new install)
-=======
-import { useNavigate } from "react-router-dom";
-
->>>>>>> Stashed changes
-
-// Types for events + reviews
+// Types
 interface Reviews {
   id: number;
   username: string;
   comment: string;
   rating: number;
-<<<<<<< HEAD
-  // time: string;
 }
-
-<<<<<<< Updated upstream
-interface ReviewsEdit {
-  comment: string;
-  rating: number;
-  // time: string;
-=======
-<<<<<<< Updated upstream
-  time: string;
->>>>>>> b0ff3c1 (new install)
-}
-=======
-  // time: string;
-}
-
-=======
->>>>>>> Stashed changes
-// interface ReviewsEdit {
-//   comment: string;
-//   rating: number;
-//   // time: string;
-// }
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 
 interface Event {
   id: number;
@@ -79,6 +29,8 @@ interface Event {
   ticket_price: number;
   reviews?: Reviews[];
   organizer: string;
+  total_likets?: number; // Add this optional
+  liked_by_user?: boolean;
 }
 
 const EventDetails = () => {
@@ -86,61 +38,85 @@ const EventDetails = () => {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [comment, setComment] = useState(" ");
-  const [submitC, setsubmitc] = useState<string[]>([]);
   const [bookC, setBookC] = useState(false);
   const [reviews, setReviews] = useState<Reviews[]>([]);
   const [currentRating, setCurrentRating] = useState(0);
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> b0ff3c1 (new install)
   const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
   const [editingComment, setEditingComment] = useState("");
   const [editingRating, setEditingRating] = useState(0);
   const [showAllReviews, setShowAllReviews] = useState(false);
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-=======
-=======
->>>>>>> Stashed changes
-  const navigate = useNavigate(); 
 
-
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role"); // <-- Add this line
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
->>>>>>> b0ff3c1 (new install)
-=======
->>>>>>> Stashed changes
+  const role = localStorage.getItem("role");
 
+  // Fetch event data
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/events/${id}`);
+        if (!res.ok) throw new Error("Event not found");
+        const data: Event = await res.json();
+        setEvent(data);
+      } catch (err) {
+        console.error(err);
+        setEvent(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvent();
+  }, [id]);
+
+  // Fetch reviews
+  useEffect(() => {
+    const fetchReviews = async () => {
+      const res = await fetch(`http://127.0.0.1:8000/events/${id}/reviews`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setReviews(data);
+      }
+    };
+    fetchReviews();
+  }, [id, token]);
+
+  // Bookmark event
+  const handleBookClick = () => {
+    if (!token) return alert("You must be logged in to bookmark this event");
+    if (role !== "user") return alert("Only users can bookmark events");
+    setBookC(!bookC);
+  };
+
+  // Buy ticket
+  const handleBuyTicket = () => {
+    if (!token) {
+      alert("You must be logged in to buy a ticket");
+      navigate("/Login");
+      return;
+    }
+    if (role !== "user") {
+      alert("Only users can buy tickets");
+      return;
+    }
+    navigate(`/Payment/${event?.id}`);
+  };
+
+  // Review editing
   const startEditing = (review: Reviews) => {
     setEditingReviewId(review.id);
     setEditingComment(review.comment);
     setEditingRating(review.rating);
   };
-
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream
-    const newReview: Reviews = {
-      user: userName,
-      comment,
-=======
->>>>>>> b0ff3c1 (new install)
   const cancelEditing = () => {
     setEditingReviewId(null);
     setEditingComment("");
     setEditingRating(0);
   };
-
   const handleUpdate = async () => {
     if (!editingComment.trim() || editingRating === 0) return;
-
-    const token = localStorage.getItem("token");
     if (!token) return alert("You must be logged in");
-
     try {
       const res = await fetch(
         `http://127.0.0.1:8000/review/${editingReviewId}`,
@@ -168,54 +144,13 @@ const EventDetails = () => {
     }
   };
 
+  // Submit new review
   const handleSubmit = async () => {
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-    // if (!username.trim() || !comment.trim()) return;
-=======
-=======
->>>>>>> Stashed changes
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
-
-    if (!token) {
-      return alert("You must be logged in to leave a review");
-    }
-
-    // Optional: Only users can leave reviews
-    if (role !== "user") {
-      return alert("Only users can leave reviews");
-    }
-
-<<<<<<< Updated upstream
->>>>>>> b0ff3c1 (new install)
-=======
->>>>>>> Stashed changes
+    if (!token) return alert("You must be logged in to leave a review");
+    if (role !== "user") return alert("Only users can leave reviews");
     if (!comment.trim() || currentRating === 0) return;
 
-    const newReview = {
-      comment: comment,
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
->>>>>>> b0ff3c1 (new install)
-      rating: currentRating,
-    };
-
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-    const token = localStorage.getItem("token");
-
-=======
-<<<<<<< Updated upstream
-    setReviews([...reviews, newReview]);
-    setComment("");
-    setCurrentRating(0);
-    setUserName("");
-=======
->>>>>>> b0ff3c1 (new install)
-=======
->>>>>>> Stashed changes
+    const newReview = { comment, rating: currentRating };
     try {
       const res = await fetch(`http://127.0.0.1:8000/review/${id}`, {
         method: "POST",
@@ -225,106 +160,36 @@ const EventDetails = () => {
         },
         body: JSON.stringify(newReview),
       });
-
       if (!res.ok) throw new Error("Failed to submit review");
       const savedReview = await res.json();
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-      console.log("Server response:", savedReview);
-=======
->>>>>>> b0ff3c1 (new install)
-=======
->>>>>>> Stashed changes
-
       setReviews([...reviews, savedReview]);
       setComment("");
       setCurrentRating(0);
     } catch (error) {
       console.error(error);
     }
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
->>>>>>> b0ff3c1 (new install)
-  };
-  
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    const fetchReviews = async () => {
-      const res = await fetch(`http://127.0.0.1:8000/events/${id}/reviews`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setReviews(data);
-      }
-    };
-    fetchReviews();
-  }, [id]);
-
-  const handleBookClick = () => {
-    if (!token) return alert("You must be logged in to bookmark this event");
-    if (role !== "user") return alert("Only users can bookmark events"); // optional
-    setBookC(!bookC);
   };
 
-  useEffect(() => {
-    const fetchEvent = async () => {
-      try {
-        const res = await fetch(`http://127.0.0.1:8000/events/${id}`);
-        if (!res.ok) throw new Error("Event not found");
-        const data: Event = await res.json();
-        setEvent(data);
-      } catch (err) {
-        console.error(err);
-        setEvent(null);
-      } finally {
-        setLoading(false);
-        setsubmitc(submitC);
-      }
-    };
-
-    fetchEvent();
-  }, [id]);
-
-  if (loading) {
+  if (loading)
     return (
       <div className="w-full h-screen flex items-center justify-center">
         Loading event...
       </div>
     );
-  }
-
-  if (!event) {
+  if (!event)
     return (
       <div className="w-full h-screen flex items-center justify-center">
         Event not found
       </div>
     );
-  }
-
-  const handleBuyTicket = () => {
-    if (!token) {
-      alert("You must be logged in to buy a ticket");
-      navigate("/Login"); // redirect to login page
-      return;
-    }
-    if (role !== "user") {
-      alert("Only users can buy tickets");
-      return;
-    }
-    navigate(`/Payment/${event?.id}`);
-  };
-
+    
 
   return (
     <div className="w-full flex flex-col items-center justify-center ">
+      {/* Event Header */}
       <div className="w-full relative h-[80vh] bg-accent flex mt-4 flex-col items-center justify-center">
         <div
-          className="absolute w-[95vw] h-[60vh]  bg-center
-           bg-cover  flex items-center justify-center brightness-70 rounded-2xl"
+          className="absolute w-[95vw] h-[60vh] bg-center bg-cover flex items-center justify-center brightness-70 rounded-2xl"
           style={{ backgroundImage: `url(${event.image_url})` }}
         ></div>
         <div className="relative w-full h-[80vh] flex items-center justify-end">
@@ -336,15 +201,23 @@ const EventDetails = () => {
           </p>
         </div>
       </div>
+
+      {/* Main Content */}
       <div className="w-full flex max-md:flex-col justify-center items-center gap-4 p-5">
+        {/* Left Side: About & Details */}
         <div className="w-full flex flex-col items-center justify-center p-4 gap-6">
-          <div className="flex flex-col gap-6 w-full p-2 rounded-2xl   bg-gray-100 shadow-md">
+          {/* About Event */}
+          <div className="flex flex-col gap-6 w-full p-2 rounded-2xl bg-gray-100 shadow-md">
             <div className="w-full flex justify-between items-center">
               <h1 className="text-lg font-semibold text-secondary">
                 About This Event
               </h1>
               <div className="flex gap-4 text-2xl">
-                <Like />
+                <Like
+                  event_id={event.id}
+                  total_like={event.total_likets || 0} // ✅ matches the type
+                  liked_by_user={event.liked_by_user || false}
+                />
 
                 <FiBookmark
                   className={`cursor-pointer ${
@@ -359,7 +232,7 @@ const EventDetails = () => {
             <div className="w-full flex justify-between items-center max-sm:flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <h1 className="text-lg font-semibold text-secondary">
-                  By AI Learning Hub
+                  By {event.organizer}
                 </h1>
                 <div className="flex items-center gap-2 max-md:flex-col ">
                   Rating 4.8k (124 reviews)
@@ -373,22 +246,26 @@ const EventDetails = () => {
               <Button
                 icon={<FiMessageCircle size={24} />}
                 title="Contact Organizer"
-                onClick={() =>{ if (!token)
-                  return alert("You must be logged in to contact organizer");
-                if (role !== "user")
-                  return alert("Only users can contact organizer"); // optional
-                alert(`Contacting organizer for ${event.title}`);}}
+                onClick={() => {
+                  if (!token)
+                    return alert("You must be logged in to contact organizer");
+                  if (role !== "user")
+                    return alert("Only users can contact organizer");
+                  alert(`Contacting organizer for ${event.title}`);
+                }}
                 className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105"
               />
             </div>
           </div>
-          <div className="w-full flex flex-col gap-6 p-2  rounded-2xl  bg-gray-100 shadow-md">
+
+          {/* Event Details */}
+          <div className="w-full flex flex-col gap-6 p-2 rounded-2xl bg-gray-100 shadow-md">
             <h1 className="text-lg font-semibold text-secondary">
               Event Details
             </h1>
             <div className="flex gap-4 justify-stretch">
               <div className="flex flex-col gap-4 w-full">
-                <div className="flex items-center gap-2 w-full  py-4">
+                <div className="flex items-center gap-2 w-full py-4">
                   <FiCalendar size={24} className="text-primary" />
                   <div className="flex flex-col w-full">
                     <h1 className="text-sm font-semibold">Date & Time</h1>
@@ -408,7 +285,7 @@ const EventDetails = () => {
                 </div>
               </div>
               <div className="flex flex-col gap-4 w-full">
-                <div className="flex  gap-2 w-full justify-end py-4 px-1">
+                <div className="flex gap-2 w-full justify-end py-4 px-1">
                   <HiUserCircle size={24} className="text-secondary" />
                   <div>
                     <h1 className="text-sm font-semibold">Organizer</h1>
@@ -417,7 +294,7 @@ const EventDetails = () => {
                 </div>
                 <div className="flex items-center gap-2 w-full justify-end py-4 px-1">
                   <FaMoneyBill size={24} className="text-primary" />
-                  <div className="">
+                  <div>
                     <h1 className="text-sm font-semibold">Ticket Price</h1>
                     <p className="text-sm">{event.ticket_price}FCFA</p>
                   </div>
@@ -426,6 +303,8 @@ const EventDetails = () => {
             </div>
           </div>
         </div>
+
+        {/* Right Side: Ticket Info */}
         <div className="w-md max-md:w-full m-8 flex flex-col items-center justify-center p-4 bg-gray-400 shadow-md h-[65vh] max-md:h-[94vh] rounded-2xl">
           <div className="w-full flex justify-around gap-4 items-center p-4">
             <h1 className="text-white text-2xl">
@@ -434,7 +313,7 @@ const EventDetails = () => {
             <HiTicket size={44} className="text-primary" />
           </div>
           <p className="text-white p-4">847 people registered</p>
-          <div className="w-full flex   bg-primary h-3 rounded-2xl m-4">
+          <div className="w-full flex bg-primary h-3 rounded-2xl m-4">
             <div className="bg-secondary h-3 rounded-2xl w-[70%]"></div>
           </div>
           <div className="w-full flex justify-between items-center p-4 rounded-2xl bg-secondary/20 shadow m-4">
@@ -450,22 +329,22 @@ const EventDetails = () => {
             />
           </Link>
           <p className="text-white p-4 flex items-center gap-2">
-            <FaCheck className="rounded-full bg-secondary  text-white" />{" "}
+            <FaCheck className="rounded-full bg-secondary text-white" />{" "}
             <span>Instant confirmation</span>
           </p>
         </div>
       </div>
+
+      {/* Reviews Section */}
       <div className="w-full flex flex-col items-center justify-center p-8">
-        <div className="w-full flex flex-col p-2 rounded-2xl bg-gray-100 shadow-md ">
+        <div className="w-full flex flex-col p-2 rounded-2xl bg-gray-100 shadow-md">
           <h1 className="font-bold text-xl">Review & Ratings</h1>
           <div className="w-full flex flex-col items-center justify-center p-4 gap-4">
             <h1 className="font-bold text-2xl">5.0</h1>
             <div className="flex items-center gap-1 p-4">
-              <div className="flex items-center gap-1 p-4">
-                {[...Array(5)].map((_, i) => (
-                  <HiStar key={i} className="text-secondary text-xl" />
-                ))}
-              </div>
+              {[...Array(5)].map((_, i) => (
+                <HiStar key={i} className="text-secondary text-xl" />
+              ))}
             </div>
             <p>
               <span className="text-primary">Based on 100 reviews</span>
@@ -473,6 +352,8 @@ const EventDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* See all reviews */}
       <div className="w-full flex items-center justify-center p-10 mb-10">
         <Link to="/reviews">
           <button className="text-secondary bg-transparent border hover:bg-primary/20 py-2 shadow border-secondary transition rounded-md px-4 cursor-pointer">
@@ -480,6 +361,8 @@ const EventDetails = () => {
           </button>
         </Link>
       </div>
+
+      {/* Buy tickets bottom */}
       <div className="w-[90vw] flex flex-col items-center justify-center p-8 gap-4 border bg-primary/70 border-secondary rounded-2xl mb-10">
         <Link to={`/Payment/${event.id}`}>
           <Button
@@ -489,9 +372,10 @@ const EventDetails = () => {
             className="bg-secondary text-white hover:scale-105 transition-transform duration-200"
           />
         </Link>
-
         <p>125 places left</p>
       </div>
+
+      {/* Leave Review */}
       <div className="w-full flex flex-col items-center gap-4 p-8">
         <div className="w-full flex flex-col gap-2 p-4 rounded-2xl bg-gray-100 shadow-md">
           <h1 className="font-bold text-xl">Leave a Review</h1>
@@ -523,6 +407,7 @@ const EventDetails = () => {
           </button>
         </div>
 
+        {/* Existing Reviews */}
         <div className="w-full flex flex-col gap-4 mt-4">
           {(showAllReviews ? reviews : reviews.slice(0, 5)).map((rev) => (
             <div
@@ -530,7 +415,6 @@ const EventDetails = () => {
               className="p-4 bg-gray-100 text-black rounded-xl shadow flex flex-col gap-2"
             >
               {editingReviewId === rev.id ? (
-                // Edit form
                 <div className="flex flex-col gap-2">
                   <textarea
                     value={editingComment}
@@ -567,7 +451,6 @@ const EventDetails = () => {
                   </div>
                 </div>
               ) : (
-                // Normal view
                 <div className="flex justify-between items-center">
                   <div>
                     <h1 className="text-gray-500">{rev.username}</h1>
@@ -595,8 +478,6 @@ const EventDetails = () => {
               )}
             </div>
           ))}
-
-          {/* Show "See more" button if reviews > 5 */}
           {reviews.length > 5 && (
             <button
               onClick={() => setShowAllReviews(!showAllReviews)}

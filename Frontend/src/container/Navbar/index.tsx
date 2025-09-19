@@ -49,7 +49,7 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
           </ul>
 
           {/* Role-based buttons */}
-          {token && (role === "organiser" || role === "admin") && (
+          {token && role !== "organiser" && (
             <NavLink to="/CreateEvent">
               <Button icon={<FaPlus />} title="Create Event" />
             </NavLink>
@@ -105,7 +105,7 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
 
             <div className="flex flex-col items-center justify-center">
               {/* Role-based buttons */}
-              {token && role === "organiser" && (
+              {token && role !== "organiser" && (
                 <NavLink to="/CreateEvent">
                   <Button
                     onClick={toggleCllick}

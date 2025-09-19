@@ -11,15 +11,8 @@ import {
 import { FaChartLine, FaPlus } from "react-icons/fa6";
 import Button from "../../components/button";
 import { cities } from "../EventDetails/CityLilst";
-<<<<<<< Updated upstream
-<<<<<<< HEAD
 import Recommender from "../../components/recommend";
-=======
-import { useAuth } from "../Context/UseAuth"; // ✅ Added auth
->>>>>>> b0ff3c1 (new install)
-=======
-import { useAuth } from "../Context/UseAuth"; // ✅ Added auth
->>>>>>> Stashed changes
+import { useAuth } from "../Context/UseAuth";
 
 type EventItem = {
   id: number;
@@ -34,10 +27,9 @@ type EventItem = {
   country?: string;
 };
 
-type CityItem ={
-  id:number
-  
-}
+type CityItem = {
+  id: number;
+};
 
 function Home() {
   const navigate = useNavigate();
@@ -45,16 +37,12 @@ function Home() {
   const [isHovered, setIsHovered] = useState(false);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { token, role } = useAuth(); // ✅ Added role
-
+  const { token, role} = useAuth();
   const [showMore, setShowMore] = useState(false);
 
-
-  // Smooth horizontal auto-scroll
   useEffect(() => {
     const scrollContainer = scrollRef.current;
     if (!scrollContainer) return;
-
     let animationFrameId: number;
 
     const scrollStep = () => {
@@ -73,7 +61,7 @@ function Home() {
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
-      const scrollAmount = 300;
+      const scrollAmount = 350;
       scrollRef.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
@@ -81,7 +69,6 @@ function Home() {
     }
   };
 
-  // Fetch events
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -99,10 +86,7 @@ function Home() {
     fetchEvents();
   }, []);
 
-
   const displayedEvents = showMore ? events.slice(0, 10) : events.slice(0, 3);
-  // Limit events for guests
-
 
   const handleViewEvent = (event: EventItem) => {
     if (!token) {
@@ -114,11 +98,9 @@ function Home() {
       alert("Only users can view event details");
       return;
     } else {
-
       navigate(`/event/${event.id}`);
     }
   };
-  
 
   const handleViewAll = () => {
     if (!token) {
@@ -131,14 +113,11 @@ function Home() {
       return;
     }
     if (!showMore) {
-      setShowMore(true); // show 15 events
+      setShowMore(true);
     } else {
-      navigate("/Events"); // go to full events page
+      navigate("/Events");
     }
   };
-
-
-
 
   const handleViewCity = (cityItem: CityItem) => {
     if (!token) {
@@ -154,64 +133,73 @@ function Home() {
     }
   };
 
-
   return (
     <div className="w-full flex flex-col items-center justify-center overflow-x-hidden">
       {/* Hero Section */}
-      <div className="relative w-full bg-accent">
-        <div className="absolute inset-0 bg-[url(/src/assets/images/hero.png)] bg-cover brightness-40" />
-        <div className="relative w-full h-screen flex flex-col items-center justify-center text-center px-4">
-          <h1 className="text-[7vw] font-bold text-white max-md:text-[10vw]">
-            <span className="text-primary">Connect</span> through Unforgettable{" "}
-            <span className="text-secondary">Events</span>
+      <div className="relative w-full h-screen bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-600 overflow-hidden">
+        <div className="absolute inset-0 bg-[url(/src/assets/images/hero.png)] bg-cover bg-center brightness-50 animate-fadeIn" />
+        <div className="relative w-full h-full flex flex-col items-center justify-center text-center px-4">
+          <h1 className="text-[7vw] max-md:text-[10vw] font-extrabold text-white animate-slideInDown">
+            <span className="text-yellow-400">Connect</span> through
+            Unforgettable <span className="text-yellow-400">Events</span>
           </h1>
-          <p className="text-[1.5vw] max-md:text-[3vw] text-white pb-4">
-            Discover, create, and attend events that matter to you. Join
-            thousands of people connecting through shared experiences.
+          <p className="text-[1.5vw] max-md:text-[3vw] text-white font-light mt-4 animate-slideInUp">
+            Discover, create, and attend events that matter to you.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 max-sm:items-center text-center p-4">
+          <div className="flex flex-col sm:flex-row gap-4 max-sm:items-center text-center mt-6 animate-fadeInDelay">
             <Link to="/Events">
-              <Button title="Explore Events" icon={<HiArrowRight />} />
+              <Button
+                title="Explore Events"
+                icon={<HiArrowRight />}
+                className="hover:scale-105 transform transition-all duration-500"
+              />
             </Link>
 
-            {token && (role === "organiser" || role === "admin") && (
-              <Button icon={<FaPlus />} title="Create Event" onClick={() => navigate("/CreateEvent")} />
+            {token && role !== "organiser" && (
+              <Button
+                icon={<FaPlus />}
+                title="Create Event"
+                onClick={() => navigate("/CreateEvent")}
+                className="hover:scale-110 transform transition-all duration-500"
+              />
             )}
           </div>
         </div>
       </div>
 
       {/* Highlight Events */}
-      <div className="w-full flex flex-col items-center justify-center p-6 max-md:p-4">
-        <h1 className="text-[3.5vw] font-bold max-md:text-xl text-center">
+      <div className="w-full flex flex-col items-center justify-center p-6 max-md:p-4 mt-12">
+        <h1 className="text-[3.5vw] font-bold max-md:text-xl text-center animate-slideInLeft">
           Don't Miss These Amazing Events
         </h1>
-        <p className="text-xl text-center font-light">
+        <p className="text-xl text-center font-light mt-2 animate-slideInRight">
           Handpicked events trending and highly rated by our community.
         </p>
       </div>
 
-      {/* Events */}
-      <div className="flex flex-wrap justify-center gap-8 px-6">
+      {/* Events Grid */}
+      <div className="flex flex-wrap justify-center gap-8 px-6 mt-6">
         {isLoading ? (
-          <div>Loading events...</div>
+          <div className="text-xl font-semibold animate-pulse">
+            Loading events...
+          </div>
         ) : (
           displayedEvents.map((event) => (
             <div
               key={event.id}
-              className="relative w-full sm:w-[45%] lg:w-[400px] rounded-2xl overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-300"
+              className="relative w-full sm:w-[45%] lg:w-[400px] rounded-3xl overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-transform duration-500 hover:scale-105 group"
             >
               <div className="relative h-64">
                 <img
                   src={event.image_url || "/images/placeholder.jpg"}
                   alt={event.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute top-3 left-3 px-3 py-1 bg-primary/90 text-white rounded-lg text-xs font-semibold">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent animate-fadeIn" />
+                <div className="absolute top-3 left-3 px-3 py-1 bg-primary/90 text-white rounded-lg text-xs font-semibold animate-bounce">
                   {event.category}
                 </div>
-                <div className="absolute top-3 right-3 px-3 py-1 bg-secondary/90 text-white rounded-lg text-xs font-semibold">
+                <div className="absolute top-3 right-3 px-3 py-1 bg-secondary/90 text-white rounded-lg text-xs font-semibold animate-bounceDelay">
                   {event.ticket_price === 0
                     ? "Free"
                     : `${event.ticket_price} FCFA`}
@@ -234,7 +222,7 @@ function Home() {
                   <Button
                     title="View Details"
                     onClick={() => handleViewEvent(event)}
-                    className="bg-primary cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-secondary transition"
+                    className="bg-primary cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-secondary transition-all duration-500 hover:scale-105"
                   />
                   <span className="text-gray-500 text-xs">
                     {event.capacity_max} Seats
@@ -247,7 +235,7 @@ function Home() {
       </div>
 
       {!token && (
-        <p className="flex hover:underline p-4 text-red-500 font-semibold">
+        <p className="flex hover:underline p-4 text-red-500 font-semibold animate-pulse">
           Login to see all events and access full features.
         </p>
       )}
@@ -255,7 +243,7 @@ function Home() {
       <p className="flex hover:underline p-4">
         <button
           onClick={handleViewAll}
-          className="text-secondary flex items-center justify-center text-2xl max-md:text-lg"
+          className="text-secondary flex items-center justify-center text-2xl max-md:text-lg animate-bounce"
         >
           {showMore ? "Go to all events" : "View all events"}
           <HiArrowRight className="text-2xl ml-2" />
@@ -265,10 +253,10 @@ function Home() {
       {/* Locations Carousel */}
       <div className="w-full flex flex-col items-center justify-center py-10">
         <div className="w-full flex flex-col items-center justify-center py-6 px-4">
-          <h1 className="font-bold text-2xl sm:text-3xl md:text-4xl text-center">
+          <h1 className="font-bold text-2xl sm:text-3xl md:text-4xl text-center animate-fadeInUp">
             Our Locations
           </h1>
-          <p className="font-light text-center mt-2 sm:mt-4 sm:text-lg">
+          <p className="font-light text-center mt-2 sm:mt-4 sm:text-lg animate-fadeInUpDelay">
             Explore events happening in these exciting cities
           </p>
         </div>
@@ -277,30 +265,30 @@ function Home() {
             ref={scrollRef}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className="flex gap-8 md:space-x-6 space-y-4 md:space-y-0 overflow-x-auto overflow-y-hidden scrollbar-hide px-2 py-6"
+            className="flex gap-8 md:space-x-6 space-y-4 md:space-y-0 overflow-x-auto overflow-y-hidden scrollbar-hide px-2 py-6 transition-transform duration-500"
           >
             {[...cities, ...cities].map((city) => (
               <div
                 key={city.id}
-                className="flex-shrink-0 w-[70vw] max-md:w-[40vw] lg:w-80 h-[40vh] md:h-72 lg:h-80 gap-8 rounded-2xl shadow-lg relative overflow-hidden transform transition-transform duration-300 hover:scale-105"
+                className="flex-shrink-0 w-[70vw] max-md:w-[40vw] lg:w-80 h-[40vh] md:h-72 lg:h-80 gap-8 rounded-2xl shadow-2xl relative overflow-hidden transform transition-transform duration-500 hover:scale-105 hover:rotate-1 hover:shadow-2xl"
               >
                 <img
                   src={city.image}
                   alt={city.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent animate-fadeIn" />
                 <div className="absolute bottom-0 left-0 p-4 sm:p-5 text-white">
-                  <h1 className="font-extrabold sm:text-xl md:text-2xl drop-shadow-md">
+                  <h1 className="font-extrabold sm:text-xl md:text-2xl drop-shadow-lg animate-slideInLeft">
                     {city.name}
                   </h1>
-                  <p className="text-xs sm:text-sm text-gray-200 mt-1">
+                  <p className="text-xs sm:text-sm text-gray-200 mt-1 animate-slideInRight">
                     {city.region}
                   </p>
                 </div>
                 <button
                   onClick={() => handleViewCity(city)}
-                  className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 flex items-center gap-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-primary/70 backdrop-blur-sm text-white text-sm font-semibold shadow-md hover:bg-secondary hover:scale-105 transition-all duration-300"
+                  className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 flex items-center gap-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-primary/70 backdrop-blur-sm text-white text-sm font-semibold shadow-md hover:bg-secondary hover:scale-110 transition-all duration-500"
                 >
                   Explore <FiChevronDown className="animate-bounce" size={18} />
                 </button>
@@ -311,13 +299,13 @@ function Home() {
             title=""
             onClick={() => scroll("left")}
             icon={<ChevronLeft size={24} />}
-            className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute top-1/2 left-2 -translate-y-1/2 bg-primary/75 rounded-full p-2 shadow"
+            className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute top-1/2 left-2 -translate-y-1/2 bg-primary/75 rounded-full p-2 shadow hover:scale-110"
           />
           <Button
             title=""
             onClick={() => scroll("right")}
             icon={<ChevronRight size={24} />}
-            className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute top-1/2 right-2 -translate-y-1/2 bg-primary/75 rounded-full p-2 shadow"
+            className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute top-1/2 right-2 -translate-y-1/2 bg-primary/75 rounded-full p-2 shadow hover:scale-110"
           />
         </div>
       </div>
@@ -340,42 +328,47 @@ function Home() {
         ].map((stat, i) => (
           <div
             key={i}
-            className="w-40 h-40 sm:w-48 sm:h-48 flex flex-col items-center justify-center rounded-2xl bg-gray-100 shadow-md text-center"
+            className="w-40 h-40 sm:w-48 sm:h-48 flex flex-col items-center justify-center rounded-2xl  bg-primary/95 shadow-xl text-center transform transition-transform duration-500 hover:scale-110"
           >
-            <div className="text-5xl text-primary">{stat.icon}</div>
-            <p className="text-xl font-bold text-primary mt-2">{stat.value}</p>
-            <p className="text-gray-600 text-sm">{stat.label}</p>
+            <div className="text-5xl text-white animate-bounce">
+              {stat.icon}
+            </div>
+            <p className="text-xl font-bold text-white mt-2">{stat.value}</p>
+            <p className="text-gray-100 text-sm">{stat.label}</p>
           </div>
         ))}
       </div>
 
       {/* CTA Section */}
-      <div className="w-full flex flex-col items-center justify-center p-8 text-center">
-        <h1 className="text-[3vw] max-md:text-2xl font-bold">
+      <div className="w-full flex flex-col items-center justify-center p-8 text-center  bg-primary/75 text-white rounded-3xl mt-12">
+        <h1 className="text-[3vw] max-md:text-2xl font-bold animate-slideInDown">
           Ready To Create An Event?
         </h1>
-        <p className="text-clamp-2 p-2 w-full max-w-3xl">
+        <p className="text-clamp-2 p-2 w-full max-w-3xl animate-slideInUp">
           Discover, create and attend the event that matters to you. Join
           thousands of people connecting through shared experiences.
         </p>
-        <div className="w-full max-md:flex-col flex items-center justify-center p-8 gap-8">
-          <Link to="/Events">
+        <div className="w-full max-md:flex-col flex items-center justify-center p-8 gap-8 animate-fadeIn">
+          <Link to="/Event">
             <Button title="Explore Events" icon={<HiArrowRight />} />
           </Link>
-          {token && (role === "organizer" || role === "admin") && (
-            <Link to="/CreateEvents">
+          {token && role !== "organiser" && (
               <Button
-                title="Create Your Events"
-                icon={<HiArrowRight />}
-                className="bg-secondary hover:bg-primary"
+                onClick={() => navigate("/CreateEvents")}
+                title="Create Event"
+                icon={<FaPlus />}
+                className=" px-10"
               />
-            </Link>
           )}
+             
         </div>
       </div>
-      <div className="px-2">
-        <h1 className="text-center text-2xl mb-5 max-md:text-xl">Recommended for you</h1>
-          <Recommender userId={1} topN={5} />
+
+      <div className="px-2 mt-10">
+        <h1 className="text-center text-2xl mb-5 max-md:text-xl animate-slideInLeft">
+          Recommended for you
+        </h1>
+        <Recommender userId={1} topN={5} />
       </div>
     </div>
   );
