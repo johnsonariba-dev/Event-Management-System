@@ -16,6 +16,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 
 from endpoints import event, like, paypal, review, ticket, user, mtn 
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from endpoints import event, like, paypal, review, ticket, user, mtn , dashboard, activityUser
 from database import Base, engine
 from seed import generate_fake_event  # your Faker generator
 
@@ -39,8 +43,7 @@ Base.metadata.create_all(bind=engine)
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:5175"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -74,4 +77,9 @@ app.include_router(review.router, tags=["review"])
 @app.get("/")
 def root():
     return {"message": "Welcome to the Event Management System API!"}
+
+app.include_router(dashboard.router, tags=["dashboard"]) 
+app.include_router(activityUser.router, tags=["activityUser"]) 
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
 

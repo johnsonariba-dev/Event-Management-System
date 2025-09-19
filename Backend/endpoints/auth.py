@@ -1,4 +1,3 @@
-# endpoints/auth.py
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -11,19 +10,18 @@ from sqlalchemy.orm import Session
 import models
 from database import get_db
 
-# ------------------ JWT CONFIG ------------------
+#  JWT CONFIG 
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
-# ------------------ PASSWORD CONTEXT ------------------
+#  PASSWORD CONTEXT 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# ------------------ OAUTH2 SCHEME ------------------
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+#  OAUTH2 SCHEME 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-
-# ------------------ PASSWORD HELPERS ------------------
+#  PASSWORD HELPERS 
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
@@ -76,6 +74,11 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     if role:
         user.role = role
 
+    # attach id from token
+    id = payload.get("id")
+    if id:
+        user.id = id
+
     return user
 
 
@@ -92,3 +95,27 @@ def require_role(*roles: str):
 
 get_current_organizer = require_role("organizer", "admin")
 get_current_admin = require_role("admin")
+#  ROLE CHECKS 
+def get_current_organizer(current_user: models.User = Depends(get_current_user)) -> models.User:
+    if current_user.role not in ["organizer", "admin", "organiser"]:  # allow both spellings
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access reserved for organizers"
+        )
+    return current_user
+
+async def get_current_admin(current_user: models.User = Depends(get_current_user)) -> models.User:
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access reserved for admins"
+        )
+    return current_user
+
+# checks status
+def get_user_id_from_token(token: str) -> int:
+    try:
+        payload = jwt.decode(token, ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM)
+        return int (payload.get(["sub"]["id"]))
+    except:
+        raise HTTPException(status_code=401, detail="Token invalid")

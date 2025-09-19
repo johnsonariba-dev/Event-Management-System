@@ -60,5 +60,9 @@ pip install python-dotenv  (for backend)
 python -m endpoints.faker_events [pour run]
 
 
+# for charts
+npm install chart.js react-chartjs-2
+
+
 # run app
 uvicorn main:app --reload

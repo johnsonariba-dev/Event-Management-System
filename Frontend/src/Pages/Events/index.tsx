@@ -173,7 +173,13 @@ const Events: React.FC = () => {
             className="bg-white shadow-lg rounded-xl overflow-hidden hover:scale-105 transition-transform"
           >
             <img
-              src={event.image_url}
+              src={
+                event.image_url
+                  ? event.image_url.startsWith("http")
+                    ? event.image_url // full external URL (faker)
+                    : `http://127.0.0.1:8000${event.image_url}` // local uploads
+                  : "/placeholder.png"
+              }
               alt={event.title}
               className="h-40 w-full object-cover"
             />

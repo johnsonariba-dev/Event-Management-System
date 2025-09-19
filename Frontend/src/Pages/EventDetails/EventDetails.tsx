@@ -169,6 +169,11 @@ const EventDetails = () => {
       console.error(error);
     }
   };
+  const getEventImageUrl = (url?: string) => {
+    if (!url) return "/placeholder.png";
+    if (url.startsWith("http")) return url;
+    return `http://127.0.0.1:8000${encodeURI(url)}`;
+  };
 
   if (loading)
     return (
@@ -189,8 +194,11 @@ const EventDetails = () => {
       {/* Event Header */}
       <div className="w-full relative h-[80vh] bg-accent flex mt-4 flex-col items-center justify-center">
         <div
-          className="absolute w-[95vw] h-[60vh] bg-center bg-cover flex items-center justify-center brightness-70 rounded-2xl"
-          style={{ backgroundImage: `url(${event.image_url})` }}
+          className="absolute w-[95vw] h-[60vh]  bg-center
+           bg-cover  flex items-center justify-center brightness-70 rounded-2xl"
+          style={{
+            backgroundImage: `url(${getEventImageUrl(event.image_url)})`,
+          }}
         ></div>
         <div className="relative w-full h-[80vh] flex items-center justify-end">
           <h1 className="absolute bottom-30 left-10 text-white text-[3vw] font-bold">

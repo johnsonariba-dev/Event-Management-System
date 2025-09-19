@@ -20,6 +20,13 @@ import Profile from "./Pages/Profile";
 
 
 import Attendees from "./components/reviews";
+import { EventApproval } from "./components/EventApproval";
+import { HomeDashboard } from "./components/HomeDashboard";
+import AdminDashboard from "./Pages/AdminDashboard";
+import { ReportsAnalytics } from "./components/ReportsAnalytics";
+import OrganizerManagement from "./components/OrganizerManagement";
+import UserManagement from "./components/UserManagement";
+
 
 import type { JSX } from "react/jsx-dev-runtime";
 import { AuthProvider } from "./Pages/Context/AuthProvider";
@@ -82,6 +89,14 @@ function App() {
           <Route path="/Event/:id" element={<EventDetails />} />
           <Route path="/cities/:id" element={<CityDetails />} />
           <Route path="/profile" element={<Profile />} />
+
+        <Route path="/admindashboard" element={<AdminDashboard />}>
+          <Route index element={<HomeDashboard />} />
+          <Route path="event-approval" element={<EventApproval />} />
+          <Route path="users" element={<UserManagement />} />
+          <Route path="organizers" element={<OrganizerManagement />} />
+          <Route path="reports" element={<ReportsAnalytics/>} />
+        </Route>
           {/* Protected Routes */}
           <Route
             path="/CreateEvent"
@@ -147,7 +162,7 @@ function App() {
         {showfooter && <Footer />}
       </div>
     </AuthProvider>
-  );
+  )
 }
 
 export default App;

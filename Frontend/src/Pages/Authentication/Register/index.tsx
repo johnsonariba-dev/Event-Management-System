@@ -15,7 +15,7 @@ const Register: React.FC = () => {
   const [role, setRole] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [success, setSuccess] = useState(false); // Added success state
+  const [success, setSuccess] = useState(false); 
 
   const handlePassword = () => {
     setShowPassword(!showPassword);
@@ -112,7 +112,8 @@ const Register: React.FC = () => {
               >
                 <option value="">Select Role</option>
                 <option value="user">User</option>
-                <option value="organiser">Organiser</option>
+                <option value="organizer">Organizer</option>
+
               </select>
               <div className="flex items-center">
                 <input id="remember" type="checkbox" className="mr-2" />

@@ -6,16 +6,30 @@ import { BsThreeDots } from "react-icons/bs";
 import { FaLocationDot } from "react-icons/fa6";
 import Button from "./button";
 
+interface Organizer {
+  id: number;
+  username: string;
+  email: string;
+}
+
 interface Event {
   id: number;
   title: string;
   description: string;
-  category: string;
-  venue: string;
-  ticket_price: number;
   date: string;
-  status: "Pending" | "Approved" | "Cancelled";
-  image_url: string;
+  venue: string;
+  category: string;
+  ticket_price: number;
+  capacity_max: number;
+  status: string;
+  image_url?: string;
+  organizer: Organizer;
+}
+
+interface User {
+  id: number;
+  username: string;
+  email: string;
 }
 
 const Dashboard: React.FC = () => {
@@ -24,30 +38,35 @@ const Dashboard: React.FC = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
+  const [user, setUser] = useState<User | null>(null);
   const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [deletingEvent, setDeletingEvent] = useState<Event | null>(null);
-  const [userName, setUserName] = useState("");
 
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
 
-  // Fetch events and user
   useEffect(() => {
     if (!token) return;
     axios
       .get("http://localhost:8000/events/my", {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then((res) => setEvents(res.data))
-      .catch((err) => console.error("Error fetching events:", err));
-
-    axios
-      .get("http://localhost:8000/user/me", {
-        headers: { Authorization: `Bearer ${token}` },
+      .then((res) => {
+        console.log("Events from backend:", res.data);
+        setEvents(res.data);
       })
-      .then((res) => setUserName(res.data.name))
-      .catch((err) => console.error("Error fetching username:", err));
+      .catch((err) => console.error("Error fetching events:", err));
+  }, [token]);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/user/me", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => setUser(data));
   }, [token]);
 
   // Filter events
@@ -133,7 +152,7 @@ const Dashboard: React.FC = () => {
       <h1 className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 py-6 text-3xl sm:text-4xl md:text-5xl font-bold">
         Welcome
         <span className="text-secondary font-light text-xl sm:text-2xl md:text-3xl">
-          {userName || "Organizer"}
+          {user?.username || "Organizer"}
         </span>
       </h1>
 
@@ -192,7 +211,11 @@ const Dashboard: React.FC = () => {
             className="group bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition transform hover:-translate-y-0.5 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4"
           >
             <img
-              src={event.image_url}
+              src={
+                event.image_url
+                  ? `http://127.0.0.1:8000${event.image_url}`
+                  : "/placeholder.png"
+              }
               alt={event.title}
               className="w-full sm:w-36 h-40 sm:h-20 rounded-md object-cover max-w-full"
             />
@@ -251,7 +274,7 @@ const Dashboard: React.FC = () => {
               </div>
               <span
                 className={`px-3 py-1 rounded-xl text-xs font-semibold ${
-                  event.status === "Cancelled"
+                  event.status === "Rejected"
                     ? "bg-red-100 text-red-800"
                     : event.status === "Pending"
                     ? "bg-yellow-100 text-yellow-800"
