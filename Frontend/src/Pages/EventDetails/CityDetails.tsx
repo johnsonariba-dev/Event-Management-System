@@ -30,15 +30,17 @@ function CityDetails() {
 
   const fetchEvents = async (venue: string) => {
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/events/?venue=${venue}`
-      );
+      const response = await fetch("http://127.0.0.1:8000/event_fake/events"); 
+      // adjust API path to your router
       if (!response.ok) {
         console.error("Failed to fetch events");
         return;
       }
       const data = await response.json();
-      setEvents(data);
+
+      // Filter events locally by venue (if backend doesn’t support query)
+      const filtered = data.filter((ev: Event) => ev.venue === venue);
+      setEvents(filtered);
     } catch (err) {
       console.error("Error fetching events:", err);
     }

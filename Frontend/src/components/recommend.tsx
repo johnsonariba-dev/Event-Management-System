@@ -87,7 +87,7 @@ export default function Recommender({ userId, topN = 5 }: RecommenderProps) {
               {new Date(event.date).toLocaleDateString()}
             </p>
 
-            <NavLink to={`/events/${event.id}`}>
+            <NavLink to={`/event/${event.id}`}>
               <Button className="w-full mt-3" title="View Event" />
             </NavLink>
           </div>
