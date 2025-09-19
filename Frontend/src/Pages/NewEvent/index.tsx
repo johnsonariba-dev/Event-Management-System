@@ -105,10 +105,12 @@ export default function NewEvent() {
         ticket_price: "",
       });
       setFlyer(null);
-    } catch (err: any) {
-      console.error("Error response:", err.response?.data || err);
-      alert("Failed to create event");
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : JSON.stringify(err);
+      console.error(errorMessage);
     }
+    
   };
 
   return (

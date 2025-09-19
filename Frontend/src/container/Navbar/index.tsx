@@ -4,6 +4,7 @@ import { FiMenu, FiX } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa6";
 import Button from "../../components/button";
 import images from "../../types/images";
+import { useAuth } from "../../Pages/Context/UseAuth"; // ✅ Import Auth context
 
 interface NavBarProps {
   items: NavBarItems[];
@@ -16,22 +17,18 @@ interface NavBarItems {
 
 const NavBar: React.FC<NavBarProps> = ({ items }) => {
   const [isOpen, setisOpen] = useState(false);
+  const { token, role, logout } = useAuth(); // ✅ added logout
 
-  const toggleMenu = () => {
-    setisOpen(!isOpen);
-  };
-
-  const toggleCllick = () => {
-    setisOpen(false);
-  }
+  const toggleMenu = () => setisOpen(!isOpen);
+  const toggleCllick = () => setisOpen(false);
 
   return (
     <div className="relative z-4">
       <div className="flex justify-between items-center fixed bg-white w-full px-6">
-        <NavLink to={"/"}
-        className="w-20 object-cover">
+        <NavLink to={"/"} className="w-20 object-cover">
           <img src={images.logo} alt="" className="w-full" />
         </NavLink>
+
         {/* Desktop Nav */}
         <div className="flex gap-10 items-center max-lg:hidden">
           <ul className="flex gap-8 text-xl max-xl:gap-4">
@@ -50,15 +47,26 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
               </li>
             ))}
           </ul>
-          <NavLink to="/CreateEvent">
-            <Button icon={<FaPlus />} title="Create Event" />
-          </NavLink>
-          <NavLink to="/Register">
-            <Button title="Register" />
-          </NavLink>
-          <NavLink to="/Login">
-            <Button title="Login" />
-          </NavLink>
+
+          {/* Role-based buttons */}
+          {token && role !== "organiser" && (
+            <NavLink to="/CreateEvent">
+              <Button icon={<FaPlus />} title="Create Event" />
+            </NavLink>
+          )}
+
+          {!token ? (
+            <>
+              <NavLink to="/Register">
+                <Button title="Register" />
+              </NavLink>
+              <NavLink to="/Login">
+                <Button title="Login" />
+              </NavLink>
+            </>
+          ) : (
+            <Button title="Logout" onClick={logout} />
+          )}
         </div>
       </div>
 
@@ -68,11 +76,15 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
           onClick={toggleMenu}
           className="hidden max-lg:block absolute top-8 right-12 cursor-pointer  z-1 "
         >
-          {isOpen ? <FiX size={24} className="fixed"/> : <FiMenu size={24} className="fixed"/>}
+          {isOpen ? (
+            <FiX size={24} className="fixed" />
+          ) : (
+            <FiMenu size={24} className="fixed" />
+          )}
         </div>
 
         {isOpen && (
-          <div className="hidden max-lg:block flex-col gap-2 items-center bg-purple-50 transparent p-5 fixed absolute w-full right-0 rounded-lg shadow-lg">
+          <div className="max-lg:flex flex-col gap-2 items-center bg-purple-50 p-5 fixed w-full right-0 rounded-lg shadow-lg">
             <ul className="flex flex-col gap-2 text-xl items-center pt-10">
               {items.map((item) => (
                 <li key={item.path}>
@@ -90,21 +102,47 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
                 </li>
               ))}
             </ul>
+
             <div className="flex flex-col items-center justify-center">
-              <NavLink to="/CreateEvent">
+              {/* Role-based buttons */}
+              {token && role !== "organiser" && (
+                <NavLink to="/CreateEvent">
+                  <Button
+                    onClick={toggleCllick}
+                    title="Create Event"
+                    icon={<FaPlus />}
+                    className="mt-6 px-10"
+                  />
+                </NavLink>
+              )}
+
+              {!token ? (
+                <>
+                  <NavLink to="/Login">
+                    <Button
+                      title="Login"
+                      className="my-3 px-20"
+                      onClick={toggleCllick}
+                    />
+                  </NavLink>
+                  <NavLink to="/Register">
+                    <Button
+                      title="Register"
+                      className="px-18"
+                      onClick={toggleCllick}
+                    />
+                  </NavLink>
+                </>
+              ) : (
                 <Button
-                  onClick={toggleCllick}
-                  title="Create Event"
-                  icon={<FaPlus />}
-                  className="mt-6 px-10"
+                  title="Logout"
+                  className="mt-6 px-20"
+                  onClick={() => {
+                    logout();
+                    toggleCllick();
+                  }}
                 />
-              </NavLink>
-              <NavLink to="/Login">
-                <Button title="Login" className="my-3 px-20" onClick={toggleCllick} />
-              </NavLink>
-              <NavLink to="/Register">
-                <Button title="Register" className="px-18" onClick={toggleCllick} />
-              </NavLink>
+              )}
             </div>
           </div>
         )}

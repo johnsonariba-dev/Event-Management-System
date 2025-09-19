@@ -1,16 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from sqlalchemy.orm import Session
-from database import get_db
 
 import models
+from database import get_db
 from schemas.review import ReviewBase, ReviewCreate, Review
-from endpoints.auth import get_current_organizer, get_current_user
+from endpoints.auth import get_current_user, get_current_organizer
 
 router = APIRouter()
 
 
-@router.post("/review/{event_id}", response_model=Review)
+# -------------------------
+# Create review
+# -------------------------
+@router.post("/review/{event_id}", response_model=Review, status_code=status.HTTP_201_CREATED)
 def create_review(
     event_id: int,
     review: ReviewCreate,
@@ -31,58 +34,21 @@ def create_review(
     db.commit()
     db.refresh(new_review)
 
-    return Review(
-        id=new_review.id,
-        event_id=new_review.event_id,
-        username=new_review.user.username,
-        comment=new_review.comment,
-        rating=new_review.rating,
-    )
+    return Review.from_orm(new_review)
 
 
+# -------------------------
+# Get reviews for event
+# -------------------------
 @router.get("/events/{event_id}/reviews", response_model=List[Review])
 def get_event_reviews(event_id: int, db: Session = Depends(get_db)):
-    reviews = db.query(models.Review).filter(
-        models.Review.event_id == event_id).all()
-    if not reviews:
-        return []  # no reviews yet for this event
-
-    result = [
-        Review(
-            id=r.id,
-            username=r.user.username if r.user else "Unknown",
-            event_id=r.event_id,
-            comment=r.comment,
-            rating=r.rating,
-        )
-        for r in reviews
-    ]
-    return result
+    reviews = db.query(models.Review).filter(models.Review.event_id == event_id).all()
+    return [Review.from_orm(r) for r in reviews]
 
 
-@router.delete("/review/{review_id}", status_code=204)
-def delete_review(
-    review_id: int,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
-):
-    review = db.query(models.Review).filter(
-        models.Review.id == review_id).first()
-    if not review:
-        raise HTTPException(status_code=404, detail="Review not found")
-
-    # Only the author can delete
-    if review.user_id != current_user.id:
-        raise HTTPException(
-            status_code=403, detail="Not authorized to delete this review"
-        )
-
-    db.delete(review)
-    db.commit()
-    return None
 # -------------------------
-
-
+# Update review
+# -------------------------
 @router.put("/review/{review_id}", response_model=Review)
 def update_review(
     review_id: int,
@@ -90,17 +56,13 @@ def update_review(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    review = db.query(models.Review).filter(
-        models.Review.id == review_id).first()
+    review = db.query(models.Review).filter(models.Review.id == review_id).first()
     if not review:
         raise HTTPException(status_code=404, detail="Review not found")
 
-    # Only the review author can update
     if review.user_id != current_user.id:
-        raise HTTPException(
-            status_code=403, detail="Not authorized to update this review")
+        raise HTTPException(status_code=403, detail="Not authorized to update this review")
 
-    # Update only provided fields
     if review_data.comment is not None:
         review.comment = review_data.comment
     if review_data.rating is not None:
@@ -108,79 +70,84 @@ def update_review(
 
     db.commit()
     db.refresh(review)
-
-    return Review(
-        id=review.id,
-        event_id=review.event_id,
-        event_title=review.event_title,
-        username=review.user.username,
-        comment=review.comment,
-        rating=review.rating,
-        reply=review.reply,
-
-    )
+    return Review.from_orm(review)
 
 
+# -------------------------
+# Delete review (by author)
+# -------------------------
+@router.delete("/review/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_review(
+    review_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    review = db.query(models.Review).filter(models.Review.id == review_id).first()
+    if not review:
+        raise HTTPException(status_code=404, detail="Review not found")
+
+    if review.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this review")
+
+    db.delete(review)
+    db.commit()
+    return None
+
+
+# -------------------------
+# Organizer: Get all reviews for their events
+# -------------------------
 @router.get("/organizer/reviews", response_model=List[Review])
 def get_organizer_reviews(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_organizer),
 ):
-    # Fetch reviews for events owned by this organizer
     reviews = (
         db.query(models.Review)
         .join(models.Event)
         .filter(models.Event.organizer_id == current_user.id)
         .all()
     )
-
-    return [
-        Review(
-            id=r.id,
-            username=r.user.username if r.user else "Unknown",
-            event_id=r.event_id,
-            comment=r.comment,
-            rating=r.rating,
-            reply=r.reply,
-        )
-        for r in reviews
-    ]
+    return [Review.from_orm(r) for r in reviews]
 
 
-@router.put("/reviews/{review_id}/reply", response_model=Review)
+# -------------------------
+# Organizer reply to a review
+# -------------------------
+@router.put("/review/{review_id}/reply", response_model=Review)
 def reply_to_review(
     review_id: int,
-    reply: dict,   # expects {"reply": "..."} in JSON
+    reply: dict,   # expects {"reply": "..."}
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(get_current_organizer),
 ):
-    review = db.query(models.Review).filter(
-        models.Review.id == review_id).first()
+    review = db.query(models.Review).filter(models.Review.id == review_id).first()
     if not review:
         raise HTTPException(status_code=404, detail="Review not found")
 
-    # Check ownership: only organizer of that event can reply
+    # Only organizer of the event can reply
     if review.event.organizer_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
     review.reply = reply.get("reply")
     db.commit()
     db.refresh(review)
-    return review
+    return Review.from_orm(review)
 
 
+# -------------------------
+# Organizer delete a review
+# -------------------------
 @router.delete("/reviews/{review_id}")
-def delete_review(
+def delete_review_as_organizer(
     review_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(get_current_organizer),
 ):
-    review = db.query(models.Review).filter(
-        models.Review.id == review_id).first()
+    review = db.query(models.Review).filter(models.Review.id == review_id).first()
     if not review:
         raise HTTPException(status_code=404, detail="Review not found")
 
-    # Ownership check
     if review.event.organizer_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 

@@ -22,8 +22,7 @@ class UserResponse(BaseModel):
     # password: str
 
     class Config:
-        From_attributes = True
-
+        from_attributes = True
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
@@ -38,7 +37,7 @@ class UserOut(BaseModel):
     username: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class Token(BaseModel):

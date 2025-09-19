@@ -1,3 +1,4 @@
+# endpoints/event.py
 from fastapi import (
     APIRouter, Depends, HTTPException, status,
     UploadFile, File, Form
@@ -10,15 +11,11 @@ import os
 import shutil
 from uuid import uuid4
 
-from schemas.events import EventOut
 import models
 from database import get_db
-from pydantic import BaseModel
-
-from .auth import get_current_user  # adjust import path
-# Import recommender function
+from .auth import get_current_user
 from recommender import recommend_events
-
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -60,7 +57,7 @@ class EventResponse(EventBase):
     image_url: Optional[str]
 
     class Config:
-        orm_mode = True
+        from_attributes = True  # Pydantic v2
 
 
 class EventForm(EventBase):
@@ -87,16 +84,8 @@ class EventForm(EventBase):
 
 
 # ---------------- ROUTES ----------------
-
-@router.get("/events/my", response_model=List[EventOut])
-def get_my_events(current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
-    events = db.query(models.Event).filter(
-        models.Event.organizer_id == current_user.id).all()
-    return events
-
-
 @router.get("/events", response_model=List[EventResponse])
-async def read_events(db: Session = Depends(get_db)):
+def read_events(db: Session = Depends(get_db)):
     return db.query(models.Event).all()
 
 
@@ -134,35 +123,29 @@ def share_event(event_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/events", response_model=EventResponse)
-async def create_event(
+def create_event(
     form_data: EventForm = Depends(EventForm.as_form),
     image: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),   # ✅ add this
+    current_user: models.User = Depends(get_current_user),
 ):
-    # Check for duplicates
-    existing_event = db.query(models.Event).filter(
-        models.Event.title == form_data.title).first()
-    if existing_event:
+    # Validate duplicates
+    if db.query(models.Event).filter(models.Event.title == form_data.title).first():
         raise HTTPException(status_code=400, detail="Event already exists")
 
     if form_data.ticket_price < 0:
-        raise HTTPException(
-            status_code=400, detail="Ticket price must be positive")
+        raise HTTPException(status_code=400, detail="Ticket price must be positive")
 
     if form_data.capacity_max is not None and form_data.capacity_max < 0:
-        raise HTTPException(
-            status_code=400, detail="Capacity must be positive")
+        raise HTTPException(status_code=400, detail="Capacity must be positive")
 
     image_url = upload_file(image, folder="events") if image else ""
 
-    # ✅ attach organizer_id from logged-in user
     db_event = models.Event(
-        **form_data.dict(),
+        **form_data.model_dump(),
         image_url=image_url,
         organizer_id=current_user.id
     )
-
     db.add(db_event)
     db.commit()
     db.refresh(db_event)
@@ -171,21 +154,20 @@ async def create_event(
 
 
 @router.put("/events/{event_id}", response_model=EventResponse)
-async def update_event(
+def update_event(
     event_id: int,
     form_data: EventForm = Depends(EventForm.as_form),
     image: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
 ):
-    db_event = db.query(models.Event).filter(
-        models.Event.id == event_id).first()
+    db_event = db.query(models.Event).filter(models.Event.id == event_id).first()
     if not db_event:
         raise HTTPException(status_code=404, detail="Event not found")
 
     if image:
         db_event.image_url = upload_file(image, folder="events")
 
-    for key, value in form_data.dict(exclude_unset=True).items():
+    for key, value in form_data.model_dump(exclude_unset=True).items():
         setattr(db_event, key, value)
 
     db.commit()
@@ -194,42 +176,32 @@ async def update_event(
 
 
 @router.delete("/events/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_event(event_id: int, db: Session = Depends(get_db)):
-    db_event = db.query(models.Event).filter(
-        models.Event.id == event_id).first()
+def delete_event(event_id: int, db: Session = Depends(get_db)):
+    db_event = db.query(models.Event).filter(models.Event.id == event_id).first()
     if not db_event:
         raise HTTPException(status_code=404, detail="Event not found")
 
     db.delete(db_event)
     db.commit()
 
+
 # ---------------- RECOMMENDATIONS ----------------
-
-# ------------------- RECOMMENDER BASED ON REVIEWS -------------------
-
-
 @router.get("/recommend/{user_id}")
 def recommend_for_user(user_id: int, top_n: int = 5, db: Session = Depends(get_db)):
     """
-    Recommend events for a given user based on their reviews & ratings.
+    Recommend events for a user based on their liked events (rating >=4)
     """
+    liked_reviews = (
+        db.query(models.Review)
+        .filter(models.Review.user_id == user_id, models.Review.rating >= 4)
+        .all()
+    )
 
-    # 1. Get all reviews by this user
-    user_reviews = db.query(models.Review).filter(
-        models.Review.user_id == user_id).all()
-    if not user_reviews:
-        raise HTTPException(
-            status_code=404, detail="No reviews found for this user")
+    if not liked_reviews:
+        raise HTTPException(status_code=404, detail="No liked events to base recommendations on")
 
-    # 2. Take positively-rated events (rating >= 4)
-    liked_events = [
-        r.event for r in user_reviews if r.rating and r.rating >= 4]
+    liked_events = [r.event for r in liked_reviews]
 
-    if not liked_events:
-        raise HTTPException(
-            status_code=404, detail="No liked events to base recommendations on")
-
-    # 3. Extract user interests from those events
     user_interests = []
     for ev in liked_events:
         user_interests.append(ev.title)
@@ -237,7 +209,6 @@ def recommend_for_user(user_id: int, top_n: int = 5, db: Session = Depends(get_d
         if ev.description:
             user_interests.append(ev.description)
 
-    # 4. Call the recommender
     recommended = recommend_events(user_interests, top_n=top_n)
 
     return {"user_id": user_id, "recommended": recommended}

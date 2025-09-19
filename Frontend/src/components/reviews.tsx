@@ -1,46 +1,69 @@
 import { useEffect, useState } from "react";
 
+interface Review {
+  id: number;
+  event_title: string;
+  username: string;
+  comment: string;
+  rating: number;
+  reply?: string;
+}
+
 const OrganizerReviews = () => {
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
 
   const token = localStorage.getItem("token");
   console.log("JWT Token:", token);
 
   useEffect(() => {
     const fetchReviews = async () => {
-      const res = await fetch("http://127.0.0.1:8000/organizer/reviews", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setReviews(data);
+      try {
+        const res = await fetch("http://127.0.0.1:8000/organizer/reviews", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data: Review[] = await res.json();
+          setReviews(data);
+        }
+      } catch (err: unknown) {
+        console.error(err instanceof Error ? err.message : JSON.stringify(err));
       }
     };
     fetchReviews();
-  }, []);
+  }, [token]);
 
   const handleReply = async (id: number, reply: string) => {
     if (!reply) return;
     const token = localStorage.getItem("token");
-    await fetch(`http://127.0.0.1:8000/reviews/${id}/reply`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ reply }),
-    });
+    try {
+      await fetch(`http://127.0.0.1:8000/reviews/${id}/reply`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ reply }),
+      });
 
-    setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, reply } : r)));
+      setReviews((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, reply } : r))
+      );
+    } catch (err: unknown) {
+      console.error(err instanceof Error ? err.message : JSON.stringify(err));
+    }
   };
 
   const handleDelete = async (id: number) => {
     const token = localStorage.getItem("token");
-    await fetch(`http://127.0.0.1:8000/reviews/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setReviews(reviews.filter((r) => r.id !== id));
+    try {
+      await fetch(`http://127.0.0.1:8000/reviews/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setReviews((prev) => prev.filter((r) => r.id !== id));
+    } catch (err: unknown) {
+      console.error(err instanceof Error ? err.message : JSON.stringify(err));
+    }
   };
 
   return (

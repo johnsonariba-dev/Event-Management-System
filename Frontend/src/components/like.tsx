@@ -10,7 +10,7 @@ interface LikeResponse {
   liked_by_user: boolean;
 }
 
-const LikePage: React.FC = () => {
+const LikePage: React.FC<LikeResponse> = () => {
   const [like, setLike] = useState(false);
   const [totalLike, setTotalLike] = useState(0);
 

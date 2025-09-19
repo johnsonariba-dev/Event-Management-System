@@ -2,12 +2,13 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import Button from "../../components/button";
 import { FaLocationDot } from "react-icons/fa6";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../Context/UseAuth"; // ✅ role from context
 
 interface Review {
   user: string;
   comment: string;
-  rating?: number; 
+  rating?: number;
 }
 
 interface EventProps {
@@ -19,6 +20,7 @@ interface EventProps {
   ticket_price: number;
   date: string;
   image_url: string;
+  organizer_id?: number;
   review?: Review[];
 }
 
@@ -29,26 +31,29 @@ const Events: React.FC = () => {
   const [price, setPrice] = useState("");
   const [popularity, setPopularity] = useState("");
   const [loader, setLoader] = useState(true);
-  const [visibleCount, setVisibleCount] = useState(30);
+  const [visibleCount, setVisibleCount] = useState(12);
+  const [message, setMessage] = useState("");
+
+  const navigate = useNavigate();
+  const { token, role } = useAuth();
 
   useEffect(() => {
-    setTimeout(() => {
-      setLoader(false);
-    }, 2000);
+    const fetchEvents = async () => {
+      try {
+        const res = await axios.get("http://127.0.0.1:8000/events");
+        setEvents(res.data);
+      } catch (err) {
+        console.error("Error fetching events:", err);
+      } finally {
+        setLoader(false);
+      }
+    };
+    fetchEvents();
   }, []);
 
-  useEffect(() => {
-    axios
-      .get("http://127.0.0.1:8000/events")
-      .then((res) => setEvents(res.data))
-      .catch((err) => console.error("Error fetching events:", err));
-  }, []);
-
-  // Apply search, filter, and sort
+  // Apply filters and sorting
   const filteredEvents = events
-    .filter((event) =>
-      event.title.toLowerCase().includes(search.toLowerCase())
-    )
+    .filter((event) => event.title.toLowerCase().includes(search.toLowerCase()))
     .filter((event) =>
       category ? event.category.toLowerCase() === category.toLowerCase() : true
     )
@@ -65,8 +70,31 @@ const Events: React.FC = () => {
       return 0;
     });
 
-  // Events currently visible
   const visibleEvents = filteredEvents.slice(0, visibleCount);
+
+  const handleDelete = async (id: number) => {
+    if (!token) return;
+    if (!window.confirm("Are you sure you want to delete this event?")) return;
+
+    try {
+      await axios.delete(`http://127.0.0.1:8000/events/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setEvents((prev) => prev.filter((e) => e.id !== id));
+      setMessage("Event deleted successfully!");
+    } catch (err) {
+      console.error(err);
+      setMessage("Error deleting event");
+    }
+  };
+
+  const handleViewEvent = (event: EventProps) => {
+    if (!token) {
+      navigate("/login");
+    } else {
+      navigate(`/event/${event.id}`);
+    }
+  };
 
   if (loader) {
     return (
@@ -102,7 +130,6 @@ const Events: React.FC = () => {
             onChange={(e) => setSearch(e.target.value)}
             className="bg-purple-100 p-3 rounded-lg flex-1"
           />
-
           <select
             className="bg-purple-100 p-3 rounded-lg"
             onChange={(e) => setCategory(e.target.value)}
@@ -114,7 +141,6 @@ const Events: React.FC = () => {
             <option value="business">Business</option>
             <option value="sports">Sports</option>
           </select>
-
           <select
             className="bg-purple-100 p-3 rounded-lg"
             onChange={(e) => setPrice(e.target.value)}
@@ -123,7 +149,6 @@ const Events: React.FC = () => {
             <option value="free">Free</option>
             <option value="paid">Paid</option>
           </select>
-
           <select
             className="bg-purple-100 p-3 rounded-lg"
             onChange={(e) => setPopularity(e.target.value)}
@@ -135,8 +160,13 @@ const Events: React.FC = () => {
         </div>
       </div>
 
+      {/* Toast message */}
+      {message && (
+        <div className="text-center text-green-600 mb-4">{message}</div>
+      )}
+
       {/* Event Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-6 pb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-6 pb-20">
         {visibleEvents.map((event) => (
           <div
             key={event.id}
@@ -156,15 +186,37 @@ const Events: React.FC = () => {
                 <FaLocationDot color="purple" /> {event.venue}
               </p>
               <p className="text-gray-800 font-medium pb-2">
-                {event.ticket_price === 0 ? "Free" : event.ticket_price}
+                {event.ticket_price === 0
+                  ? "Free"
+                  : `${event.ticket_price} FCFA`}
               </p>
-              <div className="flex justify-end">
-                <NavLink to={`/event/${event.id}`}>
+
+              <div className="flex justify-between gap-2">
+                {/* View button */}
+                <NavLink to={token ? `/event/${event.id}` : "/login"}>
                   <Button
                     title="View Details"
+                    onClick={() => handleViewEvent(event)}
                     className="bg-secondary hover:bg-primary text-white px-4 py-2 rounded-lg"
                   />
                 </NavLink>
+
+                {/* Organizer/Admin Buttons */}
+                {(role === "organizer" || role === "admin") && (
+                  <div className="flex gap-2">
+                    <NavLink to={`/event/update/${event.id}`}>
+                      <Button
+                        title="Update"
+                        className="bg-yellow-500 text-white px-3 py-1 rounded"
+                      />
+                    </NavLink>
+                    <Button
+                      title="Delete"
+                      className="bg-red-600 text-white px-3 py-1 rounded"
+                      onClick={() => handleDelete(event.id)}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -177,7 +229,7 @@ const Events: React.FC = () => {
           <Button
             title="See More"
             className="text-white px-6 py-3 rounded-lg"
-            onClick={() => setVisibleCount((prev) => prev + 20)}
+            onClick={() => setVisibleCount((prev) => prev + 12)}
           />
         </div>
       )}

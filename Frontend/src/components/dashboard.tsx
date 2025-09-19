@@ -3,7 +3,6 @@ import axios from "axios";
 import { NavLink } from "react-router-dom";
 import { IoCreateOutline } from "react-icons/io5";
 import { BsThreeDots } from "react-icons/bs";
-import { HiOutlineCalendar } from "react-icons/hi";
 import { FaLocationDot } from "react-icons/fa6";
 import Button from "./button";
 
@@ -30,10 +29,12 @@ const Dashboard: React.FC = () => {
   const [deletingEvent, setDeletingEvent] = useState<Event | null>(null);
   const [userName, setUserName] = useState("");
 
+  const role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
 
   // Fetch events and user
   useEffect(() => {
+    if (!token) return;
     axios
       .get("http://localhost:8000/events/my", {
         headers: { Authorization: `Bearer ${token}` },
@@ -86,11 +87,11 @@ const Dashboard: React.FC = () => {
 
   // Edit Event Save
   const handleEditSave = async () => {
-    if (!editingEvent) return;
+    if (!editingEvent || !token) return;
     try {
       const payload = {
         ...editingEvent,
-        date: new Date(editingEvent.date).toISOString(), // full ISO for backend
+        date: new Date(editingEvent.date).toISOString(),
       };
       const res = await axios.put(
         `http://localhost:8000/events/${editingEvent.id}`,
@@ -101,14 +102,17 @@ const Dashboard: React.FC = () => {
         prev.map((ev) => (ev.id === editingEvent.id ? res.data : ev))
       );
       setEditingEvent(null);
-    } catch (err: any) {
-      console.error("Error updating event:", err.response?.data || err.message);
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : JSON.stringify(err);
+      console.error("Error updating event:", errorMessage);
     }
+    
   };
 
   // Delete Event
   const handleDeleteConfirm = async () => {
-    if (!deletingEvent) return;
+    if (!deletingEvent || !token) return;
     try {
       await axios.delete(`http://localhost:8000/events/${deletingEvent.id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -139,7 +143,7 @@ const Dashboard: React.FC = () => {
         <h2 className="font-bold text-xl sm:text-2xl pt-3">
           Create a new event
         </h2>
-        <p className="text-base sm:text-lg md:text-xl py-4 max-w-md">
+        <p className="text-base sm:text-lg md:text-xl py-4">
           Add all your event details, create new tickets, and set up recurring
           events.
         </p>
@@ -192,57 +196,56 @@ const Dashboard: React.FC = () => {
               alt={event.title}
               className="w-full sm:w-36 h-40 sm:h-20 rounded-md object-cover max-w-full"
             />
-            <div className="flex-1 min-w-0 w-full">
-              <div className="flex justify-between gap-3">
-                <div className="min-w-0">
-                  <h3 className="font-semibold text-lg truncate break-words">
-                    {event.title}
-                  </h3>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 mt-1">
-                    <span className="flex items-center text-sm text-gray-500 gap-1">
-                      <FaLocationDot className="text-blue-500" /> {event.venue}
-                    </span>
-                    <span className="flex items-center text-sm text-gray-400 gap-1">
-                      <HiOutlineCalendar /> {formatDate(event.date)}
-                    </span>
+
+            {/* Details */}
+            <div className="flex-1 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
+              <div className="flex flex-col">
+                <h3 className="font-bold text-lg">{event.title}</h3>
+                <p className="text-gray-500 text-sm flex items-center gap-1">
+                  <FaLocationDot color="blue" /> {event.venue}
+                </p>
+                <p className="text-gray-600 text-sm">
+                  {formatDate(event.date)}
+                </p>
+              </div>
+
+              {/* Menu icon */}
+              <div className="relative">
+                <BsThreeDots
+                  className="cursor-pointer text-xl"
+                  onClick={() =>
+                    setMenuOpenId(menuOpenId === event.id ? null : event.id)
+                  }
+                />
+                {menuOpenId === event.id && (
+                  <div className="absolute right-0 top-6 bg-white border rounded shadow-md z-10 flex flex-col max-w-[90vw]">
+                    <NavLink
+                      to={`/event/${event.id}`}
+                      className="px-4 py-2 text-left hover:bg-gray-100"
+                    >
+                      View
+                    </NavLink>
+                    {(role === "organizer" || role === "admin") && (
+                      <NavLink to={`/event/update/${event.id}`}>
+                        <Button
+                          title="Update"
+                          className="bg-yellow-500 text-white px-3 py-1 rounded"
+                        />
+                      </NavLink>
+                    )}
+                    <Button
+                      title="Delete"
+                      className="bg-red-600 text-white px-3 py-1 rounded"
+                      onClick={() => setDeletingEvent(event)}
+                    />
                   </div>
-                </div>
-                <div className="relative">
-                  <BsThreeDots
-                    className="cursor-pointer text-xl"
-                    onClick={() =>
-                      setMenuOpenId(menuOpenId === event.id ? null : event.id)
-                    }
-                  />
-                  {menuOpenId === event.id && (
-                    <div className="absolute right-0 top-6 bg-white border rounded shadow-md z-10 flex flex-col max-w-[90vw]">
-                      <button
-                        className="px-4 py-2 text-left hover:bg-gray-100"
-                        onClick={() => {
-                          setEditingEvent(event);
-                          setMenuOpenId(null);
-                        }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="px-4 py-2 text-left hover:bg-gray-100 text-red-600"
-                        onClick={() => {
-                          setDeletingEvent(event);
-                          setMenuOpenId(null);
-                        }}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  )}
-                </div>
+                )}
               </div>
               <p className="mt-2 text-sm text-gray-600 line-clamp-2 break-words">
                 {event.description}
               </p>
             </div>
-            <div className="w-full sm:w-auto flex flex-col sm:items-end items-start gap-8">
+            <div className="w-full sm:w-auto flex flex-col sm:items-end items-start gap-2">
               <div className="px-3 py-1 border rounded-md text-sm font-medium bg-gray-50">
                 {event.ticket_price} FCFA
               </div>

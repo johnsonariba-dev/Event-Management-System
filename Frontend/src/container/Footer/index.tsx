@@ -10,8 +10,13 @@ import { GoDotFill } from "react-icons/go";
 
 import Button from "../../components/button";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../../Pages/Context/UseAuth"; // ✅ Import Auth context
+
+
 
 const Footer: React.FC = () => {
+  const { role, token } = useAuth();
+
   return (
     <div className="bg-primary text-gray-300 font-light text-sm px-8 py-6 w-100% ">
       <div className="flex justify-between max-lg:flex-col">
@@ -52,12 +57,14 @@ const Footer: React.FC = () => {
               <GoDotFill />
               Login
             </li>
-            <NavLink to="/Dashboard">
-              <li className="mb-1 flex items-center gap-2 underline text-secondary">
-                <GoDotFill />
-                Admin Dashboard
-              </li>
-            </NavLink>
+            {!token && role !== "admin" && (
+              <NavLink to="/Dashboard">
+                <li className="mb-1 flex items-center gap-2 underline text-secondary">
+                  <GoDotFill />
+                  Admin Dashboard
+                </li>
+              </NavLink>
+            )}
           </ul>
         </div>
         <div className="mt-5">
@@ -74,13 +81,15 @@ const Footer: React.FC = () => {
             <FaPhoneAlt size={20} />
             <p> (+237) 652-173-171</p>
           </div>
-          <NavLink to={"/events"}>
-            <Button
-              title="Buy A Ticket"
-              className="bg-secondary mt-3"
-              type=""
-            />
-          </NavLink>
+          {!token && role !== "admin" && (role === "organiser" || role === "user") && (
+            <NavLink to={"/events"}>
+              <Button
+                title="Buy A Ticket"
+                className="bg-secondary mt-3"
+                type=""
+              />
+            </NavLink>
+          )}
         </div>
       </div>
       <hr className="mt-3" />

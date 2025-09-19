@@ -22,9 +22,17 @@ class EventOut(EventCreate):
     reviews: List[Review] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
+# Schema for returning event data
+# class EventResponse(CreateEvent):
+#    id: int
+#    title: str
+#    class Config:
+#         from_attributes = True
+
+# Schema for updating an event
 class EventUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None

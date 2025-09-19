@@ -3,14 +3,15 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "../../../components/button";
 import images from "../../../types/images";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
-import {jwtDecode} from "jwt-decode";
+import { useAuth } from "../../Context/UseAuth";
 
 const URL_API = "http://localhost:8000/user/login";
 
 function Login() {
   const navigate = useNavigate();
+  const { setEmail, setRole, setToken } = useAuth();
 
-  const [email, setEmail] = useState("");
+  const [emailInput, setEmailInput] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -25,8 +26,11 @@ function Login() {
     try {
       const response = await fetch(URL_API, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          username: emailInput,
+          password: password,
+        }),
       });
 
       if (!response.ok) {
@@ -35,20 +39,28 @@ function Login() {
 
       const data = await response.json();
       const token = data.access_token;
-      localStorage.setItem("token", token);
+      const role = data.role;
 
-      // decode token
-      const decoded = jwtDecode<{ sub: string }>(token);
-      localStorage.setItem("email", decoded.sub);
+      // Save in context and localStorage
+      setToken(token);
+      setRole(role);
+      setEmail(emailInput);
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
+      localStorage.setItem("email", emailInput);
 
       setSuccess(true);
 
-      // redirect after 1 second
+      // Redirect based on role
       setTimeout(() => {
-        navigate("/events");
+        if (role === "admin") navigate("/admin/dashboard");
+        else if (role === "organizer") navigate("/CreateEvent");
+        else navigate("/events"); // normal user
       }, 1000);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "An unknown error occurred");
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred"
+      );
     }
   };
 
@@ -83,8 +95,8 @@ function Login() {
               <input
                 type="email"
                 placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
                 className="w-full border-2 border-violet-500 rounded-md p-3 outline-none focus:ring-2 focus:ring-violet-400"
                 required
               />
