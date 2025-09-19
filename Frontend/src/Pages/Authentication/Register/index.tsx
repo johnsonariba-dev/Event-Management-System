@@ -113,7 +113,6 @@ const Register: React.FC = () => {
                 <option value="">Select Role</option>
                 <option value="user">User</option>
                 <option value="organizer">Organizer</option>
-                <option value="admin">Admin</option>
 
               </select>
               <div className="flex items-center">
