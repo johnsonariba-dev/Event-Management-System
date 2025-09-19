@@ -16,6 +16,7 @@ import yaounde from "../assets/images/yaounde.jpg"
 import douala from "../assets/images/douala.jpg"
 import bamenda from "../assets/images/Bamenda.jpg"
 import bafoussam from "../assets/images/Bafoussam.jpg"
+import profile from "../assets/images/profile.jpg"
 
 
 export default{
@@ -37,5 +38,5 @@ export default{
     douala,
     bamenda,
     bafoussam,
-
+    profile,
 }

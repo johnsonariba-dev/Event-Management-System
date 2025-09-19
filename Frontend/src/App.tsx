@@ -16,6 +16,9 @@ import BuyTicket from "./Pages/Ticket/BuyTicket";
 import TicketScan from "./Pages/Ticket/TicketScan";
 import ScrollToTop from "./components/ScrollTop";
 import UpdateEvent from "./Pages/Events/UpdateEvent";
+import Profile from "./Pages/Profile";
+
+
 import Attendees from "./components/reviews";
 
 import type { JSX } from "react/jsx-dev-runtime";
@@ -58,8 +61,9 @@ function App() {
     "/CreateEvent",
     "/NewEvent",
     "/payment/:id",
+    "/Profile"
   ];
-  const hideNavbar = ["/CreateEvent"];
+  const hideNavbar = ["/CreateEvent","/Profile"];
   const showfooter = !hidefooter.includes(location.pathname);
   const showNavbar = !hideNavbar.includes(location.pathname);
 
@@ -77,7 +81,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/Event/:id" element={<EventDetails />} />
           <Route path="/cities/:id" element={<CityDetails />} />
-
+          <Route path="/profile" element={<Profile />} />
           {/* Protected Routes */}
           <Route
             path="/CreateEvent"

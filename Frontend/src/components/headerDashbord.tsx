@@ -24,11 +24,12 @@ const HeaderDashboard: React.FC<Props> = ({ title }) => {
               className="w-full sm:w-auto"
             />
           </NavLink>
-          <Button
+          <NavLink to={"/Profile"}>
+            <Button
             title="User Profile"
             icon={<FaChevronDown />}
-            className="w-full sm:w-auto"
-          />
+            className="w-full sm:w-auto"/>
+          </NavLink>
         </div>
 
         {/* Mobile icons in a row with spacing */}
