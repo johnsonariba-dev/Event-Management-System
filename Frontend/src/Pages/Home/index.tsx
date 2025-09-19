@@ -340,7 +340,7 @@ function Home() {
       </div>
 
       {/* CTA Section */}
-      <div className="w-full flex flex-col items-center justify-center p-8 text-center  bg-primary/75 text-white rounded-3xl mt-12">
+      <div className="w-full flex flex-col items-center justify-center p-8 text-center   rounded-3xl mt-12">
         <h1 className="text-[3vw] max-md:text-2xl font-bold animate-slideInDown">
           Ready To Create An Event?
         </h1>
