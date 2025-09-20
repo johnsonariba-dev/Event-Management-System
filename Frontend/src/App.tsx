@@ -1,4 +1,4 @@
-import { Route, Routes, useLocation, Navigate } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import NavBar from "./container/Navbar";
 import Footer from "./container/Footer";
 import Home from "./Pages/Home";
@@ -28,9 +28,11 @@ import OrganizerManagement from "./components/OrganizerManagement";
 import UserManagement from "./components/UserManagement";
 
 
-import type { JSX } from "react/jsx-dev-runtime";
-import { AuthProvider } from "./Pages/Context/AuthProvider";
-import { useAuth } from "./Pages/Context/UseAuth";
+import Dashboard from "./components/dashboard";
+import { ProtectedRoute } from "./components/PotectedRoute";
+// import type { JSX } from "react/jsx-dev-runtime";
+import AuthProvider from "./Pages/Context/AuthProvider";
+// import { useAuth } from "./Pages/Context/UseAuth";
 
 const NavBarItems = [
   { title: "Home", path: "/" },
@@ -38,41 +40,43 @@ const NavBarItems = [
   { title: "Events", path: "/events" },
 ];
 
-// 🔹 ProtectedRoute component
-const ProtectedRoute = ({
-  children,
-  roles,
-}: {
-  children: JSX.Element;
-  roles?: string[];
-}) => {
-  const { token } = useAuth();
-  const role = localStorage.getItem("role") || "";
+// 🔹 ProtectedRoute component (fixed role check)
+// const ProtectedRoute = ({
+//   children,
+//   roles,
+// }: {
+//   children: JSX.Element;
+//   roles?: string[];
+// }) => {
+//   const { token } = useAuth();
+//   const role = (localStorage.getItem("role") || "").toLowerCase();
 
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
+//   if (!token) {
+//     return <Navigate to="/login" replace />;
+//   }
 
-  if (roles && !roles.includes(role)) {
-    return <Navigate to="/events" replace />;
-  }
+//   if (roles && !roles.map((r) => r.toLowerCase()).includes(role)) {
+//     return <Navigate to="/unauthorized" replace />;
+//   }
 
-  return children;
-};
+//   return children;
+// };
 
 function App() {
   const location = useLocation();
+
+  // Fix: Use regex for dynamic routes
   const hidefooter = [
-    "/login",
-    "/register",
-    "/CreateEvent",
-    "/NewEvent",
-    "/payment/:id",
-    "/Profile"
+    /^\/login$/,
+    /^\/register$/,
+    /^\/CreateEvent$/,
+    /^\/NewEvent$/,
+    /^\/payment\/.+$/,
   ];
-  const hideNavbar = ["/CreateEvent","/Profile"];
-  const showfooter = !hidefooter.includes(location.pathname);
-  const showNavbar = !hideNavbar.includes(location.pathname);
+  const hideNavbar = [/^\/CreateEvent$/];
+
+  const showfooter = !hidefooter.some((regex) => regex.test(location.pathname));
+  const showNavbar = !hideNavbar.some((regex) => regex.test(location.pathname));
 
   return (
     <AuthProvider>
@@ -99,6 +103,15 @@ function App() {
         </Route>
           {/* Protected Routes */}
           <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute roles={["organizer", "admin"]}>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/CreateEvent"
             element={
               <ProtectedRoute roles={["organizer", "admin"]}>
@@ -106,6 +119,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/NewEvent"
             element={
@@ -114,6 +128,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/event/update/:id"
             element={
@@ -122,6 +137,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/payment/:id"
             element={
@@ -130,6 +146,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/buy-ticket/:eventId"
             element={
@@ -138,6 +155,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/attendees/:id"
             element={
@@ -146,6 +164,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/scan"
             element={

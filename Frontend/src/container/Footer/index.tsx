@@ -10,23 +10,24 @@ import { GoDotFill } from "react-icons/go";
 
 import Button from "../../components/button";
 import { NavLink } from "react-router-dom";
-import { useAuth } from "../../Pages/Context/UseAuth"; // ✅ Import Auth context
-
-
+import { useAuth } from "../../Pages/Context/UseAuth";
 
 const Footer: React.FC = () => {
   const { role, token } = useAuth();
 
+  const userRole = role?.toLowerCase();
+
   return (
-    <div className="bg-primary text-gray-300 font-light text-sm px-8 py-6 w-100% ">
+    <div className="bg-primary text-gray-300 font-light text-sm px-8 py-6 w-100%">
       <div className="flex justify-between max-lg:flex-col">
+        {/* Branding */}
         <div className="w-100 mt-5 max-lg:w-full">
           <h1 className="font-bold mb-3">
-            Plan <span className="text-secondary">Vibes.</span>{" "}
+            Plan <span className="text-secondary">Vibes.</span>
           </h1>
           <p className="font-light text-sm">
             Join us for a transformative experience at our upcoming events.
-            Discover outing-edge insight, network with industry.
+            Discover cutting-edge insights, network with industry.
           </p>
           <div className="flex gap-3 py-4">
             <SiLinkedin size={20} />
@@ -38,8 +39,10 @@ const Footer: React.FC = () => {
             www.planvibes.com
           </NavLink>
         </div>
+
+        {/* Important Links */}
         <div className="mt-5">
-          <h1 className="font-bold mb-3 ">Important Links</h1>
+          <h1 className="font-bold mb-3">Important Links</h1>
           <ul>
             <li className="mb-1 flex items-center gap-2">
               <GoDotFill />
@@ -57,8 +60,10 @@ const Footer: React.FC = () => {
               <GoDotFill />
               Login
             </li>
-            {!token && role !== "admin" && (
-              <NavLink to="/Dashboard">
+
+            {/* Admin/Organizer Dashboard link */}
+            {token && (userRole === "admin" || userRole === "organizer") && (
+              <NavLink to="/dashboard">
                 <li className="mb-1 flex items-center gap-2 underline text-secondary">
                   <GoDotFill />
                   Admin Dashboard
@@ -67,11 +72,13 @@ const Footer: React.FC = () => {
             )}
           </ul>
         </div>
+
+        {/* Contact & Call to Action */}
         <div className="mt-5">
           <h1 className="font-bold mb-3">Get In Touch</h1>
           <div className="flex flex-row gap-2 items-center">
             <FaLocationDot size={20} />
-            <p> Douala - Cameroon</p>
+            <p>Douala - Cameroon</p>
           </div>
           <div className="flex flex-row gap-2 items-center py-2">
             <MdEmail size={20} />
@@ -79,10 +86,12 @@ const Footer: React.FC = () => {
           </div>
           <div className="flex flex-row gap-2 items-center">
             <FaPhoneAlt size={20} />
-            <p> (+237) 652-173-171</p>
+            <p>(+237) 652-173-171</p>
           </div>
-          {!token && role !== "admin" && (role === "organiser" || role === "user") && (
-            <NavLink to={"/events"}>
+
+          {/* Buy Ticket button for regular users */}
+          {token && (userRole === "user" || userRole === "organizer") && (
+            <NavLink to="/events">
               <Button
                 title="Buy A Ticket"
                 className="bg-secondary mt-3"
@@ -92,9 +101,11 @@ const Footer: React.FC = () => {
           )}
         </div>
       </div>
+
       <hr className="mt-3" />
+
       <div className="flex flex-col justify-center items-center mt-3">
-        <p>©Copyright 2025 | Plan Vibes - Events | All right reserved.</p>
+        <p>©Copyright 2025 | Plan Vibes - Events | All rights reserved.</p>
       </div>
     </div>
   );

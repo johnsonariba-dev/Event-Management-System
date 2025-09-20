@@ -25,6 +25,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -36,10 +37,12 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def create_access_token_for_user(user: models.User) -> str:
+
+def create_access_token_for_user(user: "models.User") -> str:
     """Generate token including role"""
     data = {"sub": user.email, "role": user.role}
     return create_access_token(data)
+
 
 def decode_token(token: str):
     try:
@@ -50,7 +53,7 @@ def decode_token(token: str):
 
 
 # ------------------ CURRENT USER ------------------
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> models.User:
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> "models.User":
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Token invalid or expired",
@@ -63,7 +66,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
     email = payload.get("sub")
     if not isinstance(email, str):
-       raise credentials_exception
+        raise credentials_exception
 
     user = db.query(models.User).filter(models.User.email == email).first()
     if user is None:
@@ -84,7 +87,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
 # ------------------ ROLE CHECKS ------------------
 def require_role(*roles: str):
-    def role_checker(current_user: models.User = Depends(get_current_user)):
+    def role_checker(current_user: "models.User" = Depends(get_current_user)):
         if current_user.role.lower() not in [r.lower() for r in roles]:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -92,6 +95,7 @@ def require_role(*roles: str):
             )
         return current_user
     return role_checker
+
 
 get_current_organizer = require_role("organizer", "admin")
 get_current_admin = require_role("admin")

@@ -102,6 +102,21 @@ function Home() {
     }
   };
 
+  const handleCreateEvent = () => {
+    if (!token) {
+      alert(
+        "You must be logged in as an organizer or admin to create an event"
+      );
+      navigate("/Login");
+      return;
+    }
+    if (role !== "admin" && role !== "organizer") {
+      alert("Only admins and organizers can create events");
+      return;
+    }
+    navigate("/CreateEvent");
+  };
+  
   const handleViewAll = () => {
     if (!token) {
       alert("You must be logged in to see more events");
@@ -155,14 +170,12 @@ function Home() {
               />
             </Link>
 
-            {token && role !== "organiser" && (
-              <Button
-                icon={<FaPlus />}
-                title="Create Event"
-                onClick={() => navigate("/CreateEvent")}
-                className="hover:scale-110 transform transition-all duration-500"
-              />
-            )}
+            <Button
+              icon={<FaPlus />}
+              title="Create Event"
+              onClick={handleCreateEvent}
+              className="hover:scale-110 transform transition-all duration-500"
+            />
           </div>
         </div>
       </div>
@@ -340,28 +353,18 @@ function Home() {
       </div>
 
       {/* CTA Section */}
-      <div className="w-full flex flex-col items-center justify-center p-8 text-center   rounded-3xl mt-12">
-        <h1 className="text-[3vw] max-md:text-2xl font-bold animate-slideInDown">
-          Ready To Create An Event?
-        </h1>
-        <p className="text-clamp-2 p-2 w-full max-w-3xl animate-slideInUp">
-          Discover, create and attend the event that matters to you. Join
-          thousands of people connecting through shared experiences.
-        </p>
-        <div className="w-full max-md:flex-col flex items-center justify-center p-8 gap-8 animate-fadeIn">
-          <Link to="/Event">
-            <Button title="Explore Events" icon={<HiArrowRight />} />
-          </Link>
-          {token && role !== "organiser" && (
-              <Button
-                onClick={() => navigate("/CreateEvents")}
-                title="Create Event"
-                icon={<FaPlus />}
-                className=" px-10"
-              />
-          )}
-             
-        </div>
+      <div className="w-full max-md:flex-col flex items-center justify-center p-8 gap-8 animate-fadeIn">
+        <Link to="/Events">
+          <Button title="Explore Events" icon={<HiArrowRight />} />
+        </Link>
+        {token && (role === "admin" || role !== "organizer") && (
+          <Button
+            onClick={handleCreateEvent}
+            title="Create Event"
+            icon={<FaPlus />}
+            className="px-10"
+          />
+        )}
       </div>
 
       <div className="px-2 mt-10">

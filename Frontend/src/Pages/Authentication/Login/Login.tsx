@@ -2,14 +2,14 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "../../../components/button";
 import images from "../../../types/images";
-import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import { useAuth } from "../../Context/UseAuth";
 
 const URL_API = "http://localhost:8000/user/login";
 
 function Login() {
   const navigate = useNavigate();
-  const { setEmail, setRole, setToken } = useAuth();
+  const { login } = useAuth();
 
   const [emailInput, setEmailInput] = useState("");
   const [password, setPassword] = useState("");
@@ -41,17 +41,11 @@ function Login() {
       const token = data.access_token;
       const role = data.role;
 
-      // Save in context and localStorage
-      setToken(token);
-      setRole(role);
-      setEmail(emailInput);
-      localStorage.setItem("token", token);
-      localStorage.setItem("role", role);
-      localStorage.setItem("email", emailInput);
+      // ✅ Use context login (handles localStorage internally)
+      login(token, role, emailInput);
 
       setSuccess(true);
 
-      // Redirect based on role
       setTimeout(() => {
         if (role === "admin") navigate("/admin/dashboard");
         else if (role === "organizer") navigate("/CreateEvent");
@@ -67,7 +61,7 @@ function Login() {
   return (
     <div className="h-screen flex items-center justify-center bg-gray-100 p-6 pt-20">
       <div className="flex w-full max-w-6xl rounded-2xl shadow-2xl bg-white max-md:flex-col">
-        <div className="max-md:hidden w-1/2 items-center justify-center overflow-hidden rounded-br-[50px] rounded-l-2xl">
+        <div className="max-md:hidden w-1/2 overflow-hidden rounded-br-[50px] rounded-l-2xl">
           <img
             src={images.register}
             alt="Register"
@@ -79,7 +73,7 @@ function Login() {
           <div className="p-10 flex flex-col justify-center bg-white h-full max-md:rounded-2xl rounded-r-2xl rounded-tl-[50px]">
             <form onSubmit={handleSubmit} className="flex flex-col space-y-5">
               <h1 className="text-3xl font-bold text-center pb-10">
-                Login In Account
+                Login to Your Account
               </h1>
 
               {success && (
@@ -127,7 +121,7 @@ function Login() {
                 <div></div>
                 <Link
                   to="/forgot-password"
-                  className="text-sm px-2 text-secondary transition-transform duration-300 hover:text-violet-500"
+                  className="text-sm px-2 text-secondary hover:text-violet-500"
                 >
                   Forgot Password?
                 </Link>
@@ -143,7 +137,7 @@ function Login() {
 
               <div className="text-center">
                 <p>
-                  Do not have an account?{" "}
+                  Don't have an account?{" "}
                   <Link
                     to="/register"
                     className="font-bold text-violet-500 hover:text-secondary hover:underline"
