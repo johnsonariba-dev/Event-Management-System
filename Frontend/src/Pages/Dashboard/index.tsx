@@ -1,5 +1,4 @@
 
-
 const Dashboard = () => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
@@ -8,9 +7,9 @@ const Dashboard = () => {
   if (role !== "admin") return <div>Only admins can view this page</div>;
   return (
     <div>
-   
+     
     </div>
   )
 }
 
-export default Dashboard
+export default Dashboard;

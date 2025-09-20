@@ -4,7 +4,7 @@ import { FiMenu, FiX } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa6";
 import Button from "../../components/button";
 import images from "../../types/images";
-import { useAuth } from "../../Pages/Context/UseAuth"; // ✅ Import Auth context
+import { useAuth } from "../../Pages/Context/UseAuth";
 
 interface NavBarProps {
   items: NavBarItems[];
@@ -16,11 +16,16 @@ interface NavBarItems {
 }
 
 const NavBar: React.FC<NavBarProps> = ({ items }) => {
-  const [isOpen, setisOpen] = useState(false);
-  const { token, role, logout } = useAuth(); // ✅ added logout
+  const [isOpen, setIsOpen] = useState(false);
+  const { token, role, logout } = useAuth();
 
-  const toggleMenu = () => setisOpen(!isOpen);
-  const toggleCllick = () => setisOpen(false);
+  const toggleMenu = () => setIsOpen(!isOpen);
+  const closeMenu = () => setIsOpen(false);
+
+  // Helper to check if the user is organizer/admin
+  const canCreateEvent =
+    token &&
+    (role?.toLowerCase() === "organizer" || role?.toLowerCase() === "admin");
 
   return (
     <div className="relative z-4">
@@ -49,7 +54,7 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
           </ul>
 
           {/* Role-based buttons */}
-          {token && role !== "organiser" && (
+          {canCreateEvent && (
             <NavLink to="/CreateEvent">
               <Button icon={<FaPlus />} title="Create Event" />
             </NavLink>
@@ -74,7 +79,7 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
       <div>
         <div
           onClick={toggleMenu}
-          className="hidden max-lg:block absolute top-8 right-12 cursor-pointer  z-1 "
+          className="hidden max-lg:block absolute top-8 right-12 cursor-pointer z-10"
         >
           {isOpen ? (
             <FiX size={24} className="fixed" />
@@ -90,7 +95,7 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
                 <li key={item.path}>
                   <NavLink
                     to={item.path}
-                    onClick={toggleCllick}
+                    onClick={closeMenu}
                     className={({ isActive }) =>
                       `hover:text-primary ${
                         isActive ? "text-primary font-semibold underline" : ""
@@ -105,10 +110,10 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
 
             <div className="flex flex-col items-center justify-center">
               {/* Role-based buttons */}
-              {token && role !== "organiser" && (
+              {canCreateEvent && (
                 <NavLink to="/CreateEvent">
                   <Button
-                    onClick={toggleCllick}
+                    onClick={closeMenu}
                     title="Create Event"
                     icon={<FaPlus />}
                     className="mt-6 px-10"
@@ -122,14 +127,14 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
                     <Button
                       title="Login"
                       className="my-3 px-20"
-                      onClick={toggleCllick}
+                      onClick={closeMenu}
                     />
                   </NavLink>
                   <NavLink to="/Register">
                     <Button
                       title="Register"
                       className="px-18"
-                      onClick={toggleCllick}
+                      onClick={closeMenu}
                     />
                   </NavLink>
                 </>
@@ -139,7 +144,7 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
                   className="mt-6 px-20"
                   onClick={() => {
                     logout();
-                    toggleCllick();
+                    closeMenu();
                   }}
                 />
               )}

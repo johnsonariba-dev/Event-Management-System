@@ -7,7 +7,9 @@ export type AuthContextType = {
   setEmail: (email: string | null) => void;
   setRole: (role: string | null) => void;
   setToken: (token: string | null) => void;
+  login: (email: string, token: string, role: string) => void;
   logout: () => void;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
