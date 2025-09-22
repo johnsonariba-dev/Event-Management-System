@@ -7,7 +7,7 @@ import { useAuth } from "../../Context/UseAuth";
 
 const URL_API = "http://localhost:8000/user/login";
 
-function Login() {
+function AdminLogin() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -136,18 +136,20 @@ function Login() {
               </div>
 
               <div className="flex justify-center pt-4">
+                <Link to="/admindashboard">
                 <Button
                   type="submit"
                   title="Login"
                   className="px-8 py-3 text-white rounded-md transition"
                 />
+                </Link>
               </div>
 
               <div className="text-center">
                 <p>
                   Don't have an account?{" "}
                   <Link
-                    to="/register"
+                    to="/adminSign"
                     className="font-bold text-violet-500 hover:text-secondary hover:underline"
                   >
                     Register
@@ -162,4 +164,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default AdminLogin;

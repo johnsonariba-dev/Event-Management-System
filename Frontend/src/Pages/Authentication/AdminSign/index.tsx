@@ -5,14 +5,16 @@ import images from "../../../types/images";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import { useAuth } from "../../Context/UseAuth";
 
-const URL_API = "http://localhost:8000/user/login";
+const URL_API = "http://localhost:8000/user/register";
 
-function Login() {
+const AdminSign: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login } = useAuth(); // ✅ use context to login after registration
 
-  const [emailInput, setEmailInput] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -23,9 +25,8 @@ function Login() {
     e.preventDefault();
     setError(null);
 
-    const email = emailInput?.trim();
-    if (!email) {
-      setError("Email is required");
+    if (!role) {
+      setError("Please select a role");
       return;
     }
 
@@ -33,23 +34,18 @@ function Login() {
       const response = await fetch(URL_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
+        body: JSON.stringify({ username, email, password, role }),
       });
 
       if (!response.ok) {
-        throw new Error("Email or password incorrect");
+        const errData = await response.json();
+        throw new Error(errData.message || "Registration failed");
       }
 
       const data = await response.json();
-      const token = data.access_token;
-      const role = data.role || "user";
+      const token = data.access_token; // assume backend returns token after registration
 
-      if (!token) throw new Error("Token missing from response");
-
-      // store token & role safely, avoid .toLowerCase() on undefined
+      // ✅ Automatically login after registration
       login(token, role, email);
 
       setSuccess(true);
@@ -57,8 +53,8 @@ function Login() {
       setTimeout(() => {
         if (role === "admin") navigate("/admin/dashboard");
         else if (role === "organizer") navigate("/CreateEvent");
-        else navigate("/events");
-      }, 1000);
+        else navigate("/events"); // normal user
+      }, 1500);
     } catch (err: unknown) {
       setError(
         err instanceof Error ? err.message : "An unknown error occurred"
@@ -67,27 +63,19 @@ function Login() {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-100 p-6 pt-20">
+    <div className="h-screen flex items-center justify-center bg-gray-100 p-6 pt-20 max-md:pt-25">
       <div className="flex w-full max-w-6xl rounded-2xl shadow-2xl bg-white max-md:flex-col">
-        <div className="max-md:hidden w-1/2 overflow-hidden rounded-br-[50px] rounded-l-2xl">
-          <img
-            src={images.register}
-            alt="Register"
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        <div className="w-full md:w-1/2 flex flex-col justify-center bg-[url(/src/assets/images/sign.jpg)] max-md:rounded-2xl bg-rotate-90 bg-cover rounded-r-2xl">
-          <div className="p-10 flex flex-col justify-center bg-white h-full max-md:rounded-2xl rounded-r-2xl rounded-tl-[50px]">
+        <div className="w-full md:w-1/2 flex flex-col justify-center bg-[url(/src/assets/images/sign.jpg)] bg-rotate-90 bg-cover rounded-l-2xl max-md:rounded-2xl">
+          <div className="p-10 flex flex-col justify-center rounded-br-[50px] bg-white h-full rounded-l-2xl max-md:rounded-2xl">
             <form onSubmit={handleSubmit} className="flex flex-col space-y-5">
-              <h1 className="text-3xl font-bold text-center pb-10">
-                Login to Your Account
+              <h1 className="text-3xl font-bold text-center pb-5">
+                Create an account
               </h1>
 
               {success && (
-                <div className="bg-green-500 shadow-lg rounded-lg">
+                <div className="bg-green-500 rounded-lg">
                   <h1 className="text-center p-2 text-2xl text-white">
-                    Successful Login
+                    Registration Successful
                   </h1>
                 </div>
               )}
@@ -95,10 +83,19 @@ function Login() {
               {error && <p className="text-red-500 text-center">{error}</p>}
 
               <input
+                type="text"
+                placeholder="Name"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full border-2 border-violet-500 rounded-md p-3 outline-none focus:ring-2 focus:ring-violet-400"
+                required
+              />
+
+              <input
                 type="email"
                 placeholder="Email"
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full border-2 border-violet-500 rounded-md p-3 outline-none focus:ring-2 focus:ring-violet-400"
                 required
               />
@@ -125,41 +122,58 @@ function Login() {
                 </button>
               </div>
 
-              <div className="flex w-full items-center justify-between max-sm:flex-col">
-                <div></div>
-                <Link
-                  to="/forgot-password"
-                  className="text-sm px-2 text-secondary hover:text-violet-500"
-                >
-                  Forgot Password?
-                </Link>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full border-2 border-violet-500 rounded-md p-3 outline-none focus:ring-2 focus:ring-violet-400"
+                required
+              >
+                <option value="">Select Role</option>
+                <option value="admin">Admin</option>
+              </select>
+
+              <div className="flex items-center">
+                <input id="remember" type="checkbox" className="mr-2" />
+                <label htmlFor="remember" className="text-sm">
+                  Remember Me
+                </label>
               </div>
 
               <div className="flex justify-center pt-4">
+                <Link to="/adminLogin">
                 <Button
                   type="submit"
-                  title="Login"
+                  title="Register"
                   className="px-8 py-3 text-white rounded-md transition"
                 />
+                </Link>
               </div>
 
               <div className="text-center">
                 <p>
-                  Don't have an account?{" "}
+                  Already have an account?{" "}
                   <Link
-                    to="/register"
+                    to="/AdminLogin"
                     className="font-bold text-violet-500 hover:text-secondary hover:underline"
                   >
-                    Register
+                    Login
                   </Link>
                 </p>
               </div>
             </form>
           </div>
         </div>
+
+        <div className="max-md:hidden w-1/2 items-center justify-center overflow-hidden rounded-r-2xl rounded-tl-[50px]">
+          <img
+            src={images.register}
+            alt="Register"
+            className="w-full h-full object-cover"
+          />
+        </div>
       </div>
     </div>
   );
-}
+};
 
-export default Login;
+export default AdminSign;

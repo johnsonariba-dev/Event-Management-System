@@ -191,13 +191,13 @@ const Events: React.FC = () => {
               <p className="mt-3 text-sm flex gap-2 items-center pb-3">
                 <FaLocationDot color="purple" /> {event.venue}
               </p>
-              <p className="text-gray-800 font-medium pb-2">
+              <p className="text-gray-800 font-medium pb-2"><span className="font-bold">Price: </span>
                 {event.ticket_price === 0
                   ? "Free"
                   : `${event.ticket_price} FCFA`}
               </p>
 
-              <div className="flex justify-between gap-2">
+              <div className="flex justify-end gap-2">
                 {/* View button */}
                 <NavLink to={token ? `/event/${event.id}` : "/login"}>
                   <Button
@@ -206,23 +206,6 @@ const Events: React.FC = () => {
                     className="bg-secondary hover:bg-primary text-white px-4 py-2 rounded-lg"
                   />
                 </NavLink>
-
-                {/* Organizer/Admin Buttons */}
-                {(role === "organizer" || role === "admin") && (
-                  <div className="flex gap-2">
-                    <NavLink to={`/event/update/${event.id}`}>
-                      <Button
-                        title="Update"
-                        className="bg-yellow-500 text-white px-3 py-1 rounded"
-                      />
-                    </NavLink>
-                    <Button
-                      title="Delete"
-                      className="bg-red-600 text-white px-3 py-1 rounded"
-                      onClick={() => handleDelete(event.id)}
-                    />
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -231,12 +214,8 @@ const Events: React.FC = () => {
 
       {/* See More Button */}
       {visibleCount < filteredEvents.length && (
-        <div className="flex justify-center pb-20">
-          <Button
-            title="See More"
-            className="text-white px-6 py-3 rounded-lg"
-            onClick={() => setVisibleCount((prev) => prev + 12)}
-          />
+        <div className="flex justify-end pb-10 pr-10 underline text-secondary cursor-pointer text-xl font-bold">
+          <p onClick={() => setVisibleCount((prev) => prev + 12)}>See more ...</p>
         </div>
       )}
     </div>

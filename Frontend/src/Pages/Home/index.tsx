@@ -37,7 +37,7 @@ function Home() {
   const [isHovered, setIsHovered] = useState(false);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { token, role} = useAuth();
+  const { token, role } = useAuth();
   const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
@@ -116,7 +116,7 @@ function Home() {
     }
     navigate("/CreateEvent");
   };
-  
+
   const handleViewAll = () => {
     if (!token) {
       alert("You must be logged in to see more events");
@@ -155,8 +155,8 @@ function Home() {
         <div className="absolute inset-0 bg-[url(/src/assets/images/hero.png)] bg-cover bg-center brightness-50 animate-fadeIn" />
         <div className="relative w-full h-full flex flex-col items-center justify-center text-center px-4">
           <h1 className="text-[7vw] max-md:text-[10vw] font-extrabold text-white animate-slideInDown">
-            <span className="text-yellow-400">Connect</span> through
-            Unforgettable <span className="text-yellow-400">Events</span>
+            <span className="text-secondary">Connect</span> through
+            Unforgettable <span className="text-secondary">Events</span>
           </h1>
           <p className="text-[1.5vw] max-md:text-[3vw] text-white font-light mt-4 animate-slideInUp">
             Discover, create, and attend events that matter to you.
@@ -278,12 +278,12 @@ function Home() {
             ref={scrollRef}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className="flex gap-8 md:space-x-6 space-y-4 md:space-y-0 overflow-x-auto overflow-y-hidden scrollbar-hide px-2 py-6 transition-transform duration-500"
+            className="flex gap-8 md:space-x-6 space-y-4 md:space-y-0 overflow-x-auto overflow-y-hidden scrollbar-hide px-2 py-6 "
           >
             {[...cities, ...cities].map((city) => (
               <div
                 key={city.id}
-                className="flex-shrink-0 w-[70vw] max-md:w-[40vw] lg:w-80 h-[40vh] md:h-72 lg:h-80 gap-8 rounded-2xl shadow-2xl relative overflow-hidden transform transition-transform duration-500 hover:scale-105 hover:rotate-1 hover:shadow-2xl"
+                className="flex-shrink-0 w-[70vw] max-md:w-[40vw] lg:w-80 h-[40vh] md:h-72 lg:h-80 gap-8 rounded-2xl shadow-2xl relative overflow-hidden transform transition-transform duration-500 hover:scale-105"
               >
                 <img
                   src={city.image}
@@ -341,19 +341,22 @@ function Home() {
         ].map((stat, i) => (
           <div
             key={i}
-            className="w-40 h-40 sm:w-48 sm:h-48 flex flex-col items-center justify-center rounded-2xl  bg-primary/95 shadow-xl text-center transform transition-transform duration-500 hover:scale-110"
+            className="w-40 h-40 sm:w-48 sm:h-48 flex flex-col items-center justify-center rounded-2xl  bg-gray-100 shadow-xl text-center transform transition-transform duration-500 hover:scale-110"
           >
-            <div className="text-5xl text-white animate-bounce">
+            <div className="text-5xl text-primary animate-bounce">
               {stat.icon}
             </div>
-            <p className="text-xl font-bold text-white mt-2">{stat.value}</p>
-            <p className="text-gray-100 text-sm">{stat.label}</p>
+            <p className="text-xl font-bold text-primary mt-2">{stat.value}</p>
+            <p className="text-primary text-sm">{stat.label}</p>
           </div>
         ))}
       </div>
 
       {/* CTA Section */}
-      <div className="w-full max-md:flex-col flex items-center justify-center p-8 gap-8 animate-fadeIn">
+      <div className="w-full flex-col flex  items-center justify-center p-8 gap-8 text-center">
+        <h1 className="text-[3vw] max-md:text-2xl font-bold">Ready To Create An Event?</h1>
+        <p className="text-clamp-2 p-2 w-full max-w-3xl text-xl">Discover, create, and attend events that matter to you. Join thousands of people connecting through shared experiences.</p>
+        <div className="w-full max-md:flex-col flex items-center justify-center p-8 gap-8">
         <Link to="/Events">
           <Button title="Explore Events" icon={<HiArrowRight />} />
         </Link>
@@ -362,17 +365,18 @@ function Home() {
             onClick={handleCreateEvent}
             title="Create Event"
             icon={<FaPlus />}
-            className="px-10"
+            className="px-10 bg-secondary hover:bg-primary "
           />
         )}
+        </div>
       </div>
 
-      <div className="px-2 mt-10">
+      {/* <div className="px-2 mt-10">
         <h1 className="text-center text-2xl mb-5 max-md:text-xl animate-slideInLeft">
           Recommended for you
         </h1>
         <Recommender userId={1} topN={5} />
-      </div>
+      </div> */}
     </div>
   );
 }
