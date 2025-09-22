@@ -16,7 +16,7 @@ ALGORITHM = "HS256"
 def signup(
     username: str,
     email: str,
-    password: str,
+    password: str,  
     role: str = "user",   # 👈 default role
     db: Session = Depends(get_db)
 ):

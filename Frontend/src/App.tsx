@@ -32,6 +32,8 @@ import Dashboard from "./components/dashboard";
 import { ProtectedRoute } from "./components/PotectedRoute";
 // import type { JSX } from "react/jsx-dev-runtime";
 import AuthProvider from "./Pages/Context/AuthProvider";
+import AdminSign from "./Pages/Authentication/AdminSign";
+import AdminLogin from "./Pages/Authentication/AdminLogin";
 // import { useAuth } from "./Pages/Context/UseAuth";
 
 const NavBarItems = [
@@ -90,6 +92,8 @@ function App() {
           <Route path="/events" element={<Events />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/AdminSign" element={<AdminSign />} />
+          <Route path="/AdminLogin" element={<AdminLogin />} />
           <Route path="/Event/:id" element={<EventDetails />} />
           <Route path="/cities/:id" element={<CityDetails />} />
           <Route path="/profile" element={<Profile />} />

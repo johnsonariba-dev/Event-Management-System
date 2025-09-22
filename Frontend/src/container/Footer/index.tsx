@@ -62,14 +62,14 @@ const Footer: React.FC = () => {
             </li>
 
             {/* Admin/Organizer Dashboard link */}
-            {token && (userRole === "admin" || userRole === "organizer") && (
-              <NavLink to="/dashboard">
+         
+              <NavLink to="/AdminSign">
                 <li className="mb-1 flex items-center gap-2 underline text-secondary">
                   <GoDotFill />
                   Admin Dashboard
                 </li>
               </NavLink>
-            )}
+       
           </ul>
         </div>
 

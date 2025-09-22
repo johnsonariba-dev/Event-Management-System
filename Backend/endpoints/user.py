@@ -19,13 +19,16 @@ def read_current_user(current_user: models.User = Depends(get_current_user)):
 
 # ---------------- Login ----------------
 @router.post("/login", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == form_data.username).first()
-    if not user or not verify_password(form_data.password, user.hashed_password):
+def login(user_login: UserLogin, db: Session = Depends(get_db)):
+    # Look up user by email
+    user = db.query(models.User).filter(models.User.email == user_login.email).first()
+    
+    if not user or not verify_password(user_login.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     access_token = create_access_token({"sub": user.email, "role": user.role})
     return {"access_token": access_token, "token_type": "bearer", "role": user.role}
+
 
 
 # ---------------- Register ----------------
