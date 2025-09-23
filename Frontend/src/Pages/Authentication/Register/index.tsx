@@ -9,7 +9,7 @@ const URL_API = "http://localhost:8000/user/register";
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth(); // ✅ use context to login after registration
+  const { login } = useAuth();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -43,9 +43,9 @@ const Register: React.FC = () => {
       }
 
       const data = await response.json();
-      const token = data.access_token; // assume backend returns token after registration
+      const token = data.access_token;
 
-      // ✅ Automatically login after registration
+      // Automatically login after registration
       login(token, role, email);
 
       setSuccess(true);
@@ -53,20 +53,19 @@ const Register: React.FC = () => {
       setTimeout(() => {
         if (role === "admin") navigate("/admin/dashboard");
         else if (role === "organizer") navigate("/CreateEvent");
-        else navigate("/events"); // normal user
+        else navigate("/events");
       }, 1500);
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred"
-      );
+      setError(err instanceof Error ? err.message : "An unknown error occurred");
     }
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-100 p-6 pt-20 max-md:pt-25">
+    <div className="h-screen flex items-center justify-center bg-gray-100 p-6 pt-20">
       <div className="flex w-full max-w-6xl rounded-2xl shadow-2xl bg-white max-md:flex-col">
+        {/* Left Form */}
         <div className="w-full md:w-1/2 flex flex-col justify-center bg-[url(/src/assets/images/sign.jpg)] bg-rotate-90 bg-cover rounded-l-2xl max-md:rounded-2xl">
-          <div className="p-10 flex flex-col justify-center rounded-br-[50px] bg-white h-full rounded-l-2xl max-md:rounded-2xl">
+          <div className="p-10 flex flex-col justify-center bg-white h-full rounded-br-[50px] rounded-l-2xl max-md:rounded-2xl">
             <form onSubmit={handleSubmit} className="flex flex-col space-y-5">
               <h1 className="text-3xl font-bold text-center pb-5">
                 Create an account
@@ -114,11 +113,7 @@ const Register: React.FC = () => {
                   onClick={handlePassword}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-violet-500"
                 >
-                  {showPassword ? (
-                    <FaRegEye size={22} />
-                  ) : (
-                    <FaRegEyeSlash size={22} />
-                  )}
+                  {showPassword ? <FaRegEye size={22} /> : <FaRegEyeSlash size={22} />}
                 </button>
               </div>
 
@@ -163,7 +158,8 @@ const Register: React.FC = () => {
           </div>
         </div>
 
-        <div className="max-md:hidden w-1/2 items-center justify-center overflow-hidden rounded-r-2xl rounded-tl-[50px]">
+        {/* Right Image */}
+        <div className="max-md:hidden w-1/2 overflow-hidden rounded-r-2xl rounded-tl-[50px]">
           <img
             src={images.register}
             alt="Register"

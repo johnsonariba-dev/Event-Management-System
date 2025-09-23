@@ -23,13 +23,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="w-full md:w-auto">
       <input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder || "Search events..."}
-        className="border rounded-3xl h-8 p-2 text-xs w-70"
+        className="border rounded-3xl h-8 p-2 text-xs w-full md:w-64"
       />
     </form>
   );
@@ -79,7 +79,7 @@ export const EventApproval: React.FC = () => {
       setEvents((prev) =>
         prev.map((event) => (event.id === id ? { ...event, status } : event))
       );
-      fetchStats(); 
+      fetchStats();
     } catch (err) {
       console.error("Error updating status:", err);
     }
@@ -89,8 +89,9 @@ export const EventApproval: React.FC = () => {
     filter === "All" ? events : events.filter((e) => e.status === filter);
 
   return (
-    <div className="space-y-4">
-      <div>
+    <div className="space-y-4 p-2 md:p-4">
+      {/* Header */}
+      <div className="pl-2 md:pl-4">
         <h1 className="text-2xl font-bold">Event Management</h1>
         <p className="font-light text-sm">
           Review and approve events before they go live
@@ -98,36 +99,36 @@ export const EventApproval: React.FC = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-4 p-4">
-        <div className="border rounded-lg p-4">
-          <p>Pending</p>
-          <span className="font-bold text-2xl">{stats.pending}</span>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-2 md:p-4">
+        <div className="border rounded-lg p-4 flex flex-col">
+          <p className="text-sm">Pending</p>
+          <span className="font-bold text-xl md:text-2xl">{stats.pending}</span>
         </div>
-        <div className="border rounded-lg p-4">
-          <p>Approved</p>
-          <span className="font-bold text-2xl">{stats.approved}</span>
+        <div className="border rounded-lg p-4 flex flex-col ">
+          <p className="text-sm">Approved</p>
+          <span className="font-bold text-xl md:text-2xl">{stats.approved}</span>
         </div>
-        <div className="border rounded-lg p-4">
-          <p>Rejected</p>
-          <span className="font-bold text-2xl">{stats.rejected}</span>
+        <div className="border rounded-lg p-4 flex flex-col ">
+          <p className="text-sm">Rejected</p>
+          <span className="font-bold text-xl md:text-2xl">{stats.rejected}</span>
         </div>
-        <div className="border rounded-lg p-4">
-          <p>Total Events</p>
-          <span className="font-bold text-2xl">{stats.total}</span>
+        <div className="border rounded-lg p-4 flex flex-col">
+          <p className="text-sm">Total Events</p>
+          <span className="font-bold text-xl md:text-2xl">{stats.total}</span>
         </div>
       </div>
 
       {/* Event List Table */}
-      <div className="shadow bg-white rounded-lg p-6 space-y-4">
-        <div className="flex justify-between items-center">
+      <div className="shadow bg-white rounded-lg p-4 md:p-6 space-y-4 overflow-x-auto">
+        <div className="flex justify-between items-start md:items-center gap-2 md:gap-4">
           <div>
             <h2 className="font-bold text-xl">Events List</h2>
             <p className="text-xs font-light">Review and manage event approvals</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex  items-start sm:items-center gap-2">
             <SearchBar onSearch={(query) => console.log("Search:", query)} />
             <select
-              className="border rounded-3xl text-xs p-2"
+              className="border rounded-3xl text-xs p-2 w-full sm:w-auto"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
             >
@@ -139,9 +140,9 @@ export const EventApproval: React.FC = () => {
           </div>
         </div>
 
-        <table className="w-full border border-gray-400 rounded-lg">
-          <thead>
-            <tr className="text-sm font-medium">
+        <table className="w-full min-w-[700px] border border-gray-400 rounded-lg text-xs md:text-sm">
+          <thead className="bg-gray-100">
+            <tr className="text-left font-medium">
               <th className="px-4 py-2">Event details</th>
               <th className="px-4 py-2">Organizer</th>
               <th className="px-4 py-2">Date & Location</th>
@@ -153,31 +154,30 @@ export const EventApproval: React.FC = () => {
           </thead>
           <tbody>
             {filteredEvents.map((event) => (
-              <tr key={event.id} className="text-sm border border-gray-400">
-                <td className="px-6 py-2">
+              <tr key={event.id} className="border-t border-gray-300">
+                <td className="px-4 py-2">
                   {event.title} <br />
                   <div className="text-xs font-light">{event.category}</div>
                 </td>
-                <td className="px-6 py-2">{event.organizer.username}</td>
-                <td className="px-6 py-2">
+                <td className="px-4 py-2">{event.organizer.username}</td>
+                <td className="px-4 py-2">
                   {event.date} <br /> {event.venue}
                 </td>
-                <td className="px-6 py-2">{event.capacity_max}</td>
-                <td className="px-6 py-2">{event.ticket_price} FCFA</td>
-                <td className="px-6 py-2">{event.status}</td>
-                <td className="px-6 py-5 flex gap-5 ">
-          
+                <td className="px-4 py-2">{event.capacity_max}</td>
+                <td className="px-4 py-2">{event.ticket_price} FCFA</td>
+                <td className="px-4 py-2">{event.status}</td>
+                <td className="px-4 py-2 flex gap-2 md:gap-3">
                   <button
                     onClick={() => handleStatusUpdate(event.id, "Approved")}
-                    className="text-xs px-2 py-2 rounded-full bg-green-200"
+                    className="p-2 rounded-full bg-green-200 hover:bg-green-300 transition-colors"
                   >
-                    <FaCheck size={20}/>
+                    <FaCheck size={18} />
                   </button>
                   <button
                     onClick={() => handleStatusUpdate(event.id, "Rejected")}
-                    className="text-xs px-2 py-2 rounded-full bg-red-200"
+                    className="p-2 rounded-full bg-red-200 hover:bg-red-300 transition-colors"
                   >
-                    <ImCross size={18}/>
+                    <ImCross size={16} />
                   </button>
                 </td>
               </tr>

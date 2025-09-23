@@ -1,6 +1,5 @@
 import { useState } from "react";
 import Button from "./button";
-import { MdUpload, MdUploadFile } from "react-icons/md";
 import { FaUpload } from "react-icons/fa";
 
 interface User {

@@ -66,3 +66,7 @@ npm install chart.js react-chartjs-2
 
 # run app
 uvicorn main:app --reload
+
+
+pip install fpdf2
+pip install pyppeteer

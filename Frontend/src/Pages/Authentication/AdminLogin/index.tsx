@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Button from "../../../components/button";
 import images from "../../../types/images";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
@@ -7,11 +7,11 @@ import { useAuth } from "../../Context/UseAuth";
 
 const URL_API = "http://localhost:8000/user/login";
 
-function AdminLogin() {
+const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const [emailInput, setEmailInput] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -23,46 +23,31 @@ function AdminLogin() {
     e.preventDefault();
     setError(null);
 
-    const email = emailInput?.trim();
-    if (!email) {
-      setError("Email is required");
-      return;
-    }
-
     try {
-      const response = await fetch(URL_API, {
+      const res = await fetch(URL_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
+        body: JSON.stringify({ email, password }),
       });
 
-      if (!response.ok) {
-        throw new Error("Email or password incorrect");
-      }
+      if (!res.ok) throw new Error("Email or password incorrect");
 
-      const data = await response.json();
+      const data = await res.json();
       const token = data.access_token;
       const role = data.role || "user";
 
       if (!token) throw new Error("Token missing from response");
 
-      // store token & role safely, avoid .toLowerCase() on undefined
       login(token, role, email);
-
       setSuccess(true);
 
       setTimeout(() => {
-        if (role === "admin") navigate("/admin/dashboard");
+        if (role === "admin") navigate("/admindashboard");
         else if (role === "organizer") navigate("/CreateEvent");
-        else navigate("/events");
+        else navigate("/admindashboard");
       }, 1000);
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred"
-      );
+      setError(err instanceof Error ? err.message : "Unknown error occurred");
     }
   };
 
@@ -70,39 +55,23 @@ function AdminLogin() {
     <div className="h-screen flex items-center justify-center bg-gray-100 p-6 pt-20">
       <div className="flex w-full max-w-6xl rounded-2xl shadow-2xl bg-white max-md:flex-col">
         <div className="max-md:hidden w-1/2 overflow-hidden rounded-br-[50px] rounded-l-2xl">
-          <img
-            src={images.register}
-            alt="Register"
-            className="w-full h-full object-cover"
-          />
+          <img src={images.register} alt="Register" className="w-full h-full object-cover" />
         </div>
-
-        <div className="w-full md:w-1/2 flex flex-col justify-center bg-[url(/src/assets/images/sign.jpg)] max-md:rounded-2xl bg-rotate-90 bg-cover rounded-r-2xl">
+        <div className="w-full md:w-1/2 flex flex-col justify-center bg-[url(/src/assets/images/sign.jpg)] max-md:rounded-2xl bg-cover rounded-r-2xl">
           <div className="p-10 flex flex-col justify-center bg-white h-full max-md:rounded-2xl rounded-r-2xl rounded-tl-[50px]">
             <form onSubmit={handleSubmit} className="flex flex-col space-y-5">
-              <h1 className="text-3xl font-bold text-center pb-10">
-                Login to Your Account
-              </h1>
-
-              {success && (
-                <div className="bg-green-500 shadow-lg rounded-lg">
-                  <h1 className="text-center p-2 text-2xl text-white">
-                    Successful Login
-                  </h1>
-                </div>
-              )}
-
+              <h1 className="text-3xl font-bold text-center pb-10">Login to Your Account</h1>
+              {success && <div className="bg-green-500 rounded-lg text-center text-white p-2">Login Successful</div>}
               {error && <p className="text-red-500 text-center">{error}</p>}
 
               <input
                 type="email"
                 placeholder="Email"
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full border-2 border-violet-500 rounded-md p-3 outline-none focus:ring-2 focus:ring-violet-400"
                 required
               />
-
               <div className="relative w-full">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -117,43 +86,27 @@ function AdminLogin() {
                   onClick={handlePassword}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-violet-500"
                 >
-                  {showPassword ? (
-                    <FaRegEye size={22} />
-                  ) : (
-                    <FaRegEyeSlash size={22} />
-                  )}
+                  {showPassword ? <FaRegEye size={22} /> : <FaRegEyeSlash size={22} />}
                 </button>
               </div>
 
-              <div className="flex w-full items-center justify-between max-sm:flex-col">
+              <div className="flex justify-between items-center max-sm:flex-col">
                 <div></div>
-                <Link
-                  to="/forgot-password"
-                  className="text-sm px-2 text-secondary hover:text-violet-500"
-                >
+                <a href="/forgot-password" className="text-sm px-2 text-secondary hover:text-violet-500">
                   Forgot Password?
-                </Link>
+                </a>
               </div>
 
               <div className="flex justify-center pt-4">
-                <Link to="/admindashboard">
-                <Button
-                  type="submit"
-                  title="Login"
-                  className="px-8 py-3 text-white rounded-md transition"
-                />
-                </Link>
+                <Button type="submit" title="Login" className="px-8 py-3 text-white rounded-md transition" />
               </div>
 
               <div className="text-center">
                 <p>
                   Don't have an account?{" "}
-                  <Link
-                    to="/adminSign"
-                    className="font-bold text-violet-500 hover:text-secondary hover:underline"
-                  >
+                  <a href="/adminSign" className="font-bold text-violet-500 hover:text-secondary hover:underline">
                     Register
-                  </Link>
+                  </a>
                 </p>
               </div>
             </form>
@@ -162,6 +115,6 @@ function AdminLogin() {
       </div>
     </div>
   );
-}
+};
 
 export default AdminLogin;

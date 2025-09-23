@@ -145,7 +145,8 @@ const Dashboard: React.FC = () => {
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-hidden">
       {/* Welcome Header */}
-      <h1 className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 py-6 text-3xl sm:text-4xl md:text-5xl font-bold">
+
+      <h1 className="flex flex-row sm:flex-row items-start sm:items-center gap-2 sm:gap-4 py-6 text-3xl sm:text-4xl md:text-5xl font-bold">
         Welcome
         <span className="text-secondary font-light text-xl sm:text-2xl md:text-3xl">
           {user?.username || "Organizer"}

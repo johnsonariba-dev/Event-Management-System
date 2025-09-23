@@ -201,7 +201,7 @@ function Payment() {
 
   // ✅ Regular payment page
   return (
-    <div className="flex flex-col items-center justify-center bg-purple-50">
+    <div className="flex flex-col items-center justify-center bg-purple-50 pt-30">
       <div className="py-10 mb-10 flex flex-col px-6 w-full md:w-200 justify-center bg-white rounded-lg shadow-lg">
         {/* Header */}
         <div
