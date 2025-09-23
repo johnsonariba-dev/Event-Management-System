@@ -1,11 +1,6 @@
 import { motion } from "framer-motion";
 import { Home } from "lucide-react";
-import {
-  FaCheckCircle,
-  FaUsers,
-  FaUser,
-  FaProjectDiagram,
-} from "react-icons/fa";
+import { FaCheckCircle, FaUsers, FaUser, FaProjectDiagram } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import images from "../types/images";
 
@@ -15,78 +10,51 @@ type SidebarProps = {
   isMobile?: boolean;
 };
 
-export default function AdminSidebar({
-  isOpen,
-  toggle,
-  isMobile,
-}: SidebarProps) {
+export default function AdminSidebar({ isOpen, toggle, isMobile }: SidebarProps) {
   const linkClasses = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-2 p-2 rounded transition-colors ${
       isActive ? "bg-purple-400 text-white" : "hover:bg-purple-400/40"
     }`;
 
+  // Mobile drawer
   if (isMobile) {
-    // Drawer mobile
-
     return (
       <>
-        {isOpen && (
-          <div className="fixed inset-0 bg-black/40 z-30" onClick={toggle} />
-        )}
+        {isOpen && <div className="fixed inset-0 bg-black/40 z-30" onClick={toggle} />}
 
         <motion.aside
           initial={{ x: -250 }}
           animate={{ x: isOpen ? 0 : -250 }}
           transition={{ duration: 0.25 }}
-          className="fixed top-0 left-0 h-full w-60 bg-primary/40 text-white z-40 flex flex-col"
+          className="fixed top-0 left-0 h-full w-60 bg-primary text-white z-40 flex flex-col"
         >
           <div className="flex items-center justify-between h-16 border-b border-primary px-4">
-            <span className="text-xl font-bold"></span>
+            <span className="text-xl font-bold">Admin</span>
             <button onClick={toggle}>✕</button>
           </div>
 
           <nav className="flex flex-col gap-2 p-2">
-            <NavLink
-              onClick={toggle}
-              to="/admindashboard"
-              className={linkClasses}
-            >
+            <NavLink onClick={toggle} to="/admindashboard" className={linkClasses}>
               <Home size={20} />
               <span>Home</span>
             </NavLink>
 
-            <NavLink
-              onClick={toggle}
-              to="/admindashboard/event-approval"
-              className={linkClasses}
-            >
+            <NavLink onClick={toggle} to="/admindashboard/event-approval" className={linkClasses}>
               <FaCheckCircle size={20} />
               <span>Event Approval</span>
             </NavLink>
 
-            <NavLink
-              onClick={toggle}
-              to="/admindashboard/users"
-              className={linkClasses}
-            >
+            <NavLink onClick={toggle} to="/admindashboard/users" className={linkClasses}>
               <FaUsers size={20} />
               <span>User Management</span>
             </NavLink>
 
-            <NavLink
-              onClick={toggle}
-              to="/admindashboard/organizers"
-              className={linkClasses}
-            >
+            <NavLink onClick={toggle} to="/admindashboard/organizers" className={linkClasses}>
               <FaUser size={20} />
               <span>Organizer Management</span>
             </NavLink>
 
-            <NavLink
-              onClick={toggle}
-              to="/admindashboard/reports"
-              className={linkClasses}
-            >
+            <NavLink onClick={toggle} to="/admindashboard/reports" className={linkClasses}>
               <FaProjectDiagram size={20} />
               <span>Reports & Analytics</span>
             </NavLink>
@@ -96,8 +64,7 @@ export default function AdminSidebar({
     );
   }
 
-  // Sidebar desktop (toggle)
-
+  // Desktop sidebar
   return (
     <motion.aside
       initial={false}
@@ -105,15 +72,16 @@ export default function AdminSidebar({
       transition={{ duration: 0.25 }}
       className="h-screen bg-purple-100 text-black flex flex-col fixed top-0 left-0 z-20"
     >
-      <NavLink to={"/"}>
-        <div className="flex items-center justify-center h-16 border-b border-primary">
+      <NavLink to="/">
+        <div className="flex items-center justify-center h-16 border-b border-primary p-2">
           {isOpen ? (
-            <img src={images.logo} alt="" className="w-40 p-7" />
+            <img src={images.logo} alt="Logo" className="w-40 p-2" />
           ) : (
-            <img src={images.brand} alt="" className="p-3"/>
+            <img src={images.brand} alt="Brand" className="p-2" />
           )}
         </div>
       </NavLink>
+
       <nav className="flex flex-col gap-2 p-2">
         <NavLink to="/admindashboard" className={linkClasses}>
           <Home size={20} />

@@ -5,7 +5,7 @@ from fastapi import (
 )
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from sqlalchemy import func
+from sqlalchemy import extract, func
 from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 from datetime import datetime
@@ -14,7 +14,7 @@ import shutil
 from uuid import uuid4
 
 from schemas.users import UserOut
-from schemas.events import AdminEventOut, EventBase, EventOut, EventResponse
+from schemas.events import AdminEventOut, EventBase, EventOut, EventResponse, LineChartData, OrganizerOut
 import models
 from database import get_db
 from pydantic import BaseModel
@@ -91,6 +91,45 @@ def get_event_stats(db: Session = Depends(get_db)):
         "rejected": rejected
     }
 
+
+@router.get("/line-data", response_model=LineChartData)
+def get_line_data(db: Session = Depends(get_db)):
+    current_year = datetime.utcnow().year
+
+    counts = (
+        db.query(
+            extract("month", models.Event.date).label("month"),
+            func.count(models.Event.id)
+        )
+        .filter(extract("year", models.Event.date) == current_year)
+        .group_by("month")
+        .all()
+    )
+
+    # Initialize all months to 0
+    monthly_counts = [0] * 12
+    for month, count in counts:
+        monthly_counts[int(month)-1] = count
+
+    return LineChartData(
+        labels=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+        data=monthly_counts
+    )
+
+
+@router.get("/events/pending")
+def get_pending_events(db: Session = Depends(get_db)):
+    events = db.query(models.Event).filter(models.Event.status == "Pending").all()
+    result = []
+    for event in events:
+        # Assuming event.organizer is a relationship to the User model
+        result.append({
+            "title": event.title,
+            "status": event.status,
+           
+            "username": event.organizer.username  # fetch username from related User
+        })
+    return result
 @router.get("/user/me", response_model=UserOut)
 def get_current_user_info(current_user: models.User = Depends(get_current_user)):
     return current_user
@@ -113,10 +152,37 @@ async def read_events(db: Session = Depends(get_db)):
     return events
 
 # admin: see for everybody
+
 @router.get("/events/all", response_model=List[AdminEventOut])
 def get_all_events(db: Session = Depends(get_db)):
     events = db.query(models.Event).all()
-    return events
+    result = []
+
+    for event in events:
+        organizer_obj = db.query(models.User).filter(models.User.id == event.organizer_id).first()
+        organizer_data = OrganizerOut(
+            id=organizer_obj.id if organizer_obj else None,
+            username=organizer_obj.username if organizer_obj else "Unknown",
+            email=organizer_obj.email if organizer_obj else None
+        )
+
+        result.append(
+            AdminEventOut(
+                id=event.id,
+                title=event.title,
+                description=event.description,
+                date=event.date,
+                venue=event.venue,
+                ticket_price=event.ticket_price,
+                category=event.category,
+                capacity_max=event.capacity_max,
+                status=event.status,
+                image_url=event.image_url,
+                reviews=[],  # add reviews if needed
+                organizer=organizer_data
+            )
+        )
+    return result
 
 # Single event by ID
 @router.get("/events/{event_id}", response_model=EventResponse)

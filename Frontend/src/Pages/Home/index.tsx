@@ -11,7 +11,7 @@ import {
 import { FaChartLine, FaPlus } from "react-icons/fa6";
 import Button from "../../components/button";
 import { cities } from "../EventDetails/CityLilst";
-import Recommender from "../../components/recommend";
+
 import { useAuth } from "../Context/UseAuth";
 
 type EventItem = {

@@ -200,11 +200,11 @@ const EventDetails = () => {
             backgroundImage: `url(${getEventImageUrl(event.image_url)})`,
           }}
         ></div>
-        <div className="relative w-full h-[80vh] flex items-center justify-end">
-          <h1 className="absolute bottom-30 left-10 text-white text-[3vw] font-bold">
+        <div className="relative w-full h-[80vh] flex items-center justify-end max-md:h-[60vh]">
+          <h1 className="absolute bottom-40 left-15 text-white text-[3vw] font-bold max-md:text-xl">
             {event.title}
           </h1>
-          <p className="absolute bottom-20 left-10 text-white text-2xl">
+          <p className="absolute bottom-20 left-15 text-white text-3xl pb-10 max-md:text-sm">
             {event.category}
           </p>
         </div>
@@ -239,17 +239,10 @@ const EventDetails = () => {
             <p className="text-justify">{event.description}</p>
             <div className="w-full flex justify-between items-center max-sm:flex-col gap-4">
               <div className="flex flex-col gap-2">
-                <h1 className="text-lg font-semibold text-secondary">
+                <h1 className="text-lg font-semibold text-primary">
                   By {event.organizer}
                 </h1>
-                <div className="flex items-center gap-2 max-md:flex-col ">
-                  Rating 4.8k (124 reviews)
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <HiStar key={i} className="text-secondary" />
-                    ))}
-                  </div>
-                </div>
+              
               </div>
               <Button
                 icon={<FiMessageCircle size={24} />}
@@ -283,7 +276,7 @@ const EventDetails = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 w-full py-4">
-                  <HiLocationMarker size={24} className="text-secondary" />
+                  <HiLocationMarker size={24} className="text-primary" />
                   <div>
                     <h1 className="text-sm font-semibold">Location</h1>
                     <p className="text-sm">
@@ -294,7 +287,7 @@ const EventDetails = () => {
               </div>
               <div className="flex flex-col gap-4 w-full">
                 <div className="flex gap-2 w-full justify-end py-4 px-1">
-                  <HiUserCircle size={24} className="text-secondary" />
+                  <HiUserCircle size={24} className="text-primary" />
                   <div>
                     <h1 className="text-sm font-semibold">Organizer</h1>
                     <p className="text-sm">{event.organizer}</p>
@@ -337,7 +330,7 @@ const EventDetails = () => {
             />
           </Link>
           <p className="text-white p-4 flex items-center gap-2">
-            <FaCheck className="rounded-full bg-secondary text-white" />{" "}
+            <FaCheck className="rounded-full bg-primary p-1  text-white" size={23} />{" "}
             <span>Instant confirmation</span>
           </p>
         </div>
@@ -345,7 +338,7 @@ const EventDetails = () => {
 
       {/* Reviews Section */}
       <div className="w-full flex flex-col items-center justify-center p-8">
-        <div className="w-full flex flex-col p-2 rounded-2xl bg-gray-100 shadow-md">
+        <div className="w-full flex flex-col p-2 rounded-2xl bg-gray-400 shadow-md">
           <h1 className="font-bold text-xl">Review & Ratings</h1>
           <div className="w-full flex flex-col items-center justify-center p-4 gap-4">
             <h1 className="font-bold text-2xl">5.0</h1>
@@ -359,28 +352,6 @@ const EventDetails = () => {
             </p>
           </div>
         </div>
-      </div>
-
-      {/* See all reviews */}
-      <div className="w-full flex items-center justify-center p-10 mb-10">
-        <Link to="/reviews">
-          <button className="text-secondary bg-transparent border hover:bg-primary/20 py-2 shadow border-secondary transition rounded-md px-4 cursor-pointer">
-            See all reviews
-          </button>
-        </Link>
-      </div>
-
-      {/* Buy tickets bottom */}
-      <div className="w-[90vw] flex flex-col items-center justify-center p-8 gap-4 border bg-primary/70 border-secondary rounded-2xl mb-10">
-        <Link to={`/Payment/${event.id}`}>
-          <Button
-            title="Buy tickets"
-            icon={<FiBookmark />}
-            onClick={handleBuyTicket}
-            className="bg-secondary text-white hover:scale-105 transition-transform duration-200"
-          />
-        </Link>
-        <p>125 places left</p>
       </div>
 
       {/* Leave Review */}

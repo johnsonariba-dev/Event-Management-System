@@ -73,6 +73,7 @@ function App() {
     /^\/register$/,
     /^\/CreateEvent$/,
     /^\/NewEvent$/,
+    /^\/admindashboard$/,
     /^\/payment\/.+$/,
   ];
   const hideNavbar = [/^\/CreateEvent$/];

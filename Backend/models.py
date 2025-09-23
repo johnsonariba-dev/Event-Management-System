@@ -5,7 +5,6 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from database import Base
 
-
 # -------------------- USER --------------------
 class User(Base):
     __tablename__ = "users"
@@ -25,14 +24,6 @@ class User(Base):
     messages = relationship("MessageChat", back_populates="user", cascade="all, delete-orphan")
     preferences = relationship("UserPreference", back_populates="user", cascade="all, delete-orphan")
 
- # Relations
-    ticket = relationship("Ticket", back_populates="user")
-    review = relationship("Review", back_populates="user")
-    event = relationship("Event", back_populates="organizer")  
-    # notification = relationship("Notification", back_populates="user")
-    # message = relationship("MessageChat", back_populates="user")
-    # preference = relationship("UserPreference", back_populates="user")
-    like = relationship("Like", back_populates="user")
 
 # -------------------- EVENT -------------------
 class Event(Base):
@@ -48,6 +39,7 @@ class Event(Base):
     capacity_max: Mapped[int | None] = mapped_column(Integer, nullable=True)
     image_url: Mapped[str | None] = mapped_column(String, nullable=True)
     organizer_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+    status: Mapped[str] = mapped_column(String(20), default="Pending", nullable=False, index=True)
 
     # Relations
     organizer = relationship("User", back_populates="events")
@@ -56,44 +48,22 @@ class Event(Base):
     likes = relationship("Like", back_populates="event", cascade="all, delete-orphan")
     messages = relationship("MessageChat", back_populates="event", cascade="all, delete-orphan")
 
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(100), nullable=False, unique=True, index=True)
-    description = Column(Text, nullable=True)
-    date = Column(DateTime, nullable=False, index=True)
-    venue = Column(String(150), nullable=False, index=True)
-    ticket_price = Column(Float, default=0.0, nullable=False)
-    category = Column(String(50), nullable=False, index=True)
-    image_url = Column(String, nullable=True)
-    capacity_max = Column(Integer, nullable=True)
-    organizer_id = Column(Integer, ForeignKey(
-        "users.id"), nullable=True, index=True)
-    status = Column(String(20), default="Pending", nullable=False, index=True)
-
-
-    # Relations
-    review = relationship("Review", back_populates="event",
-                          cascade="all, delete-orphan")
-    like = relationship("Like", back_populates="event")
-    organizer = relationship("User", back_populates="event")
-    ticket = relationship("Ticket", back_populates="event")
-    # update = relationship("Update", back_populates="event")
-    # message = relationship("MessageChat", back_populates="event")
 
 # -------------------- TICKET --------------------
 class Ticket(Base):
     __tablename__ = "tickets"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
-    event_id: Mapped[int] = mapped_column(Integer, ForeignKey("events.id"), nullable=False)
+    event_id: Mapped[int] = mapped_column(Integer, ForeignKey("events.id"))
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+    quantity: Mapped[int] = mapped_column(Integer, default=1)
+    price: Mapped[float] = mapped_column(Float, default=0.0)
     purchase_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     # Relations
     user = relationship("User", back_populates="tickets")
     event = relationship("Event", back_populates="tickets")
 
-    event = relationship("Event", back_populates="ticket")
-    user = relationship("User", back_populates="ticket")
 
 # -------------------- REVIEW --------------------
 class Review(Base):

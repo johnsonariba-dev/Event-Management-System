@@ -12,7 +12,7 @@ class ReviewCreate(ReviewBase):
 class Review(ReviewBase):
     id: int
     event_id: int
-    username: str
+    username: Optional[str] = None
     reply: Optional[str] = None
     time: Optional[datetime] = None
 

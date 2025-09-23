@@ -34,22 +34,29 @@ class EventOut(EventCreate):
         orm_mode = True
 
 class OrganizerOut(BaseModel):
-    id: int
+    id: int | None = None
     username: str
-    email: str
+    email: str | None = None
 
     class Config:
         orm_mode = True
 
-class AdminEventOut(EventCreate):
+class AdminEventOut(BaseModel):
     id: int
-    organizer: OrganizerOut
+    title: str
+    description: str
+    date: datetime
+    venue: str
+    ticket_price: float
+    category: str
+    capacity_max: Optional[int] = 0
+    status: str
     image_url: Optional[str] = ""
     reviews: List[Review] = []
+    organizer: OrganizerOut  # <- we include the nested organizer object
 
     class Config:
-        from_attributes = True
-
+        orm_mode = True
 
 # Schema for returning event data
 # class EventResponse(CreateEvent):
@@ -89,3 +96,8 @@ class EventResponse(EventBase):
 
 class UserInterests(BaseModel):
     interests: List[str]
+
+
+class LineChartData(BaseModel):
+    labels: list[str]
+    data: list[int]

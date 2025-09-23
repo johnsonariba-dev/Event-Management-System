@@ -51,6 +51,9 @@ const Events: React.FC = () => {
     fetchEvents();
   }, []);
 
+  console.log(setMessage,role);
+  
+
   // Apply filters and sorting
   const filteredEvents = events
     .filter((event) => event.title.toLowerCase().includes(search.toLowerCase()))
@@ -72,21 +75,21 @@ const Events: React.FC = () => {
 
   const visibleEvents = filteredEvents.slice(0, visibleCount);
 
-  const handleDelete = async (id: number) => {
-    if (!token) return;
-    if (!window.confirm("Are you sure you want to delete this event?")) return;
+  // const handleDelete = async (id: number) => {
+  //   if (!token) return;
+  //   if (!window.confirm("Are you sure you want to delete this event?")) return;
 
-    try {
-      await axios.delete(`http://127.0.0.1:8000/events/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setEvents((prev) => prev.filter((e) => e.id !== id));
-      setMessage("Event deleted successfully!");
-    } catch (err) {
-      console.error(err);
-      setMessage("Error deleting event");
-    }
-  };
+  //   try {
+  //     await axios.delete(`http://127.0.0.1:8000/events/${id}`, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+  //     setEvents((prev) => prev.filter((e) => e.id !== id));
+  //     setMessage("Event deleted successfully!");
+  //   } catch (err) {
+  //     console.error(err);
+  //     setMessage("Error deleting event");
+  //   }
+  // };
 
   const handleViewEvent = (event: EventProps) => {
     if (!token) {
