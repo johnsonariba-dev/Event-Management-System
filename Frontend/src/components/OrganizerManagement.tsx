@@ -11,17 +11,18 @@ interface SearchBarProps {
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder }) => {
   const [query, setQuery] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch(query.trim());
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="w-full sm:w-auto">
+    <form
+      onSubmit={(e) => e.preventDefault()}
+      className="w-full sm:w-auto"
+    >
       <input
         type="text"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          onSearch(e.target.value);
+        }}
         placeholder={placeholder || "Search organizers..."}
         className="border rounded-3xl h-8 p-2 text-xs w-full sm:w-64"
       />
@@ -54,6 +55,8 @@ interface Totals {
 
 export default function OrganizerManagement() {
   const [organizers, setOrganizers] = useState<Organizer[]>([]);
+  const [searchQuery, setSearchQuery] = useState(""); // ✅ texte recherché
+  const [statusFilter, setStatusFilter] = useState("All"); // ✅ filtre
   const [totals, setTotals] = useState<Totals>({
     total_users: 0,
     active_count: 0,
@@ -69,7 +72,9 @@ export default function OrganizerManagement() {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const totalRes = await fetch("http://localhost:8000/organizer/connected_count");
+      const totalRes = await fetch(
+        "http://localhost:8000/organizer/connected_count"
+      );
       const totalData = await totalRes.json();
       setTotals(totalData);
 
@@ -79,20 +84,22 @@ export default function OrganizerManagement() {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+      if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
       const data: Organizer[] = await response.json();
 
-      const organizerWithStatus = await Promise.all(
+      const withStatus = await Promise.all(
         data.map(async (org) => {
-          const statusRes = await fetch(`http://localhost:8000/user/${org.id}/status`);
+          const statusRes = await fetch(
+            `http://localhost:8000/user/${org.id}/status`
+          );
           const statusData = await statusRes.json();
           return { ...org, is_active: statusData.active };
         })
       );
 
-      setOrganizers(organizerWithStatus);
+      setOrganizers(withStatus);
     } catch (err) {
-      setError("Erreur lors du chargement des organisateurs");
+      setError("Error while loading organizers");
       console.error(err);
     } finally {
       setLoading(false);
@@ -107,11 +114,31 @@ export default function OrganizerManagement() {
     setOrganizers((prev) =>
       prev.map((org) =>
         org.id === updatedUser.id
-          ? { ...org, username: updatedUser.username, email: updatedUser.email, role: updatedUser.role }
+          ? {
+              ...org,
+              username: updatedUser.username,
+              email: updatedUser.email,
+            }
           : org
       )
     );
   };
+
+  // ✅ Filtrage combiné (recherche + statut)
+  const filteredOrganizers = organizers.filter((org) => {
+    const matchesSearch =
+      org.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      org.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      String(org.id).includes(searchQuery);
+
+    const matchesStatus =
+      statusFilter === "All" ||
+      (statusFilter === "Active" && org.is_active) ||
+      (statusFilter === "Inactive" && !org.is_active) ||
+      (statusFilter === "Suspended" && org.is_active === undefined); // à adapter si vous avez un statut "Suspended"
+
+    return matchesSearch && matchesStatus;
+  });
 
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
@@ -125,30 +152,44 @@ export default function OrganizerManagement() {
         </p>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 rounded-lg shadow p-4">
-        <div className="border rounded-lg p-4 text-center">Active Organizers: {totals.active_count}</div>
-        <div className="border rounded-lg p-4 text-center">Inactive Organizers: {totals.inactive_count}</div>
-        <div className="border rounded-lg p-4 text-center">Total Organizers: {totals.total_users}</div>
+        <div className="border rounded-lg p-4 text-center">
+          Active Organizers: {totals.active_count}
+        </div>
+        <div className="border rounded-lg p-4 text-center">
+          Inactive Organizers: {totals.inactive_count}
+        </div>
+        <div className="border rounded-lg p-4 text-center">
+          Total Organizers: {totals.total_users}
+        </div>
       </div>
 
-      {/* Organizer Table */}
+      {/* Table */}
       <div className="shadow rounded-lg p-4 space-y-4 overflow-x-auto">
         <div className="flex justify-between items-start md:items-center gap-2">
           <div>
-            <h2 className="font-bold text-xl flex items-center gap-2"><FaUser /> Organizers List</h2>
+            <h2 className="font-bold text-xl flex items-center gap-2">
+              <FaUser /> Organizers List
+            </h2>
             <p className="text-xs font-light">
               Manage organizers accounts and verification status
             </p>
           </div>
 
           <div className="flex items-start sm:items-center gap-2">
-            <SearchBar onSearch={(query) => console.log("searching for:", query)} />
-            <select className="border rounded-3xl text-xs p-2 w-full sm:w-auto">
-              <option>All Status</option>
-              <option>Verified</option>
-              <option>Pending</option>
-              <option>Suspended</option>
+            {/* 🔍 Search */}
+            <SearchBar onSearch={setSearchQuery} />
+            {/* ✅ Filtre */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="border rounded-3xl text-xs p-2 w-full sm:w-auto"
+            >
+              <option value="All">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Suspended">Suspended</option>
             </select>
           </div>
         </div>
@@ -168,36 +209,64 @@ export default function OrganizerManagement() {
               </tr>
             </thead>
             <tbody>
-              {organizers.map((user) => (
-                <tr key={user.id} className="border-t border-gray-300">
-                  <td className="px-4 py-2">
-                    {user.username} <br />
-                    <div className="text-xs font-light">ID: {user.id}</div>
-                  </td>
-                  <td className="px-4 py-2">{user.email}</td>
-                  <td className="px-4 py-2">
-                    {user.events} events <br /> Last {user.date_event}
-                  </td>
-                  <td className="px-4 py-2">${user.revenu}</td>
-                  <td className="px-4 py-2">
-                    <span className={user.is_active ? "text-green-500" : "text-red-500"}>
-                      {user.is_active ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2 flex gap-2">
-                    <button
-                      onClick={() => setSelectedUser({ id: user.id, username: user.username, email: user.email, role: "organizer" })}
-                      className="text-xs px-2 py-1 rounded bg-yellow-200 hover:bg-yellow-300 transition-colors"
-                    >
-                      <FaEdit />
-                    </button>
-                    <DeleteUser
-                      user={{ id: user.id, username: user.username, email: user.email, role: "organizer" }}
-                      onDeleted={(id) => setOrganizers((prev) => prev.filter((u) => u.id !== id))}
-                    />
+              {filteredOrganizers.length > 0 ? (
+                filteredOrganizers.map((user) => (
+                  <tr key={user.id} className="border-t border-gray-300">
+                    <td className="px-4 py-2">
+                      {user.username}
+                      <div className="text-xs font-light">ID: {user.id}</div>
+                    </td>
+                    <td className="px-4 py-2">{user.email}</td>
+                    <td className="px-4 py-2">
+                      {user.events} events <br /> Last {user.date_event}
+                    </td>
+                    <td className="px-4 py-2">${user.revenu}</td>
+                    <td className="px-4 py-2">
+                      <span
+                        className={
+                          user.is_active ? "text-green-500" : "text-red-500"
+                        }
+                      >
+                        {user.is_active ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2 flex gap-2">
+                      <button
+                        onClick={() =>
+                          setSelectedUser({
+                            id: user.id,
+                            username: user.username,
+                            email: user.email,
+                            role: "organizer",
+                          })
+                        }
+                        className="text-xs px-2 py-1 rounded bg-yellow-200 hover:bg-yellow-300 transition-colors"
+                      >
+                        <FaEdit />
+                      </button>
+                      <DeleteUser
+                        user={{
+                          id: user.id,
+                          username: user.username,
+                          email: user.email,
+                          role: "organizer",
+                        }}
+                        onDeleted={(id) =>
+                          setOrganizers((prev) =>
+                            prev.filter((u) => u.id !== id)
+                          )
+                        }
+                      />
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="text-center py-4 text-gray-500">
+                    No organizers match your search.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         )}

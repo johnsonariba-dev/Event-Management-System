@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Button from "../../../components/button";
 import images from "../../../types/images";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import { useAuth } from "../../Context/UseAuth";
 
-const URL_API = "http://localhost:8000/user/login";
+const URL_API = "http://localhost:8000/admin/login";
 
 const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
@@ -54,9 +54,12 @@ const AdminLogin: React.FC = () => {
   return (
     <div className="h-screen flex items-center justify-center bg-gray-100 p-6 pt-20">
       <div className="flex w-full max-w-6xl rounded-2xl shadow-2xl bg-white max-md:flex-col">
+        {/* Left Image */}
         <div className="max-md:hidden w-1/2 overflow-hidden rounded-br-[50px] rounded-l-2xl">
           <img src={images.register} alt="Register" className="w-full h-full object-cover" />
         </div>
+
+        {/* Right Login Form */}
         <div className="w-full md:w-1/2 flex flex-col justify-center bg-[url(/src/assets/images/sign.jpg)] max-md:rounded-2xl bg-cover rounded-r-2xl">
           <div className="p-10 flex flex-col justify-center bg-white h-full max-md:rounded-2xl rounded-r-2xl rounded-tl-[50px]">
             <form onSubmit={handleSubmit} className="flex flex-col space-y-5">
@@ -64,6 +67,7 @@ const AdminLogin: React.FC = () => {
               {success && <div className="bg-green-500 rounded-lg text-center text-white p-2">Login Successful</div>}
               {error && <p className="text-red-500 text-center">{error}</p>}
 
+              {/* Email */}
               <input
                 type="email"
                 placeholder="Email"
@@ -72,6 +76,8 @@ const AdminLogin: React.FC = () => {
                 className="w-full border-2 border-violet-500 rounded-md p-3 outline-none focus:ring-2 focus:ring-violet-400"
                 required
               />
+
+              {/* Password */}
               <div className="relative w-full">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -90,6 +96,7 @@ const AdminLogin: React.FC = () => {
                 </button>
               </div>
 
+              {/* Forgot password */}
               <div className="flex justify-between items-center max-sm:flex-col">
                 <div></div>
                 <a href="/forgot-password" className="text-sm px-2 text-secondary hover:text-violet-500">
@@ -97,18 +104,11 @@ const AdminLogin: React.FC = () => {
                 </a>
               </div>
 
+              {/* Submit */}
+              <Link to="/admindashboard">
               <div className="flex justify-center pt-4">
                 <Button type="submit" title="Login" className="px-8 py-3 text-white rounded-md transition" />
-              </div>
-
-              <div className="text-center">
-                <p>
-                  Don't have an account?{" "}
-                  <a href="/adminSign" className="font-bold text-violet-500 hover:text-secondary hover:underline">
-                    Register
-                  </a>
-                </p>
-              </div>
+              </div></Link>
             </form>
           </div>
         </div>

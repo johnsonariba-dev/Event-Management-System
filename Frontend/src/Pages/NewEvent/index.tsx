@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaCalendar,
   FaClock,
@@ -42,7 +43,9 @@ export default function NewEvent() {
   });
 
   const [flyer, setFlyer] = useState<MediaFile | null>(null);
+  const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -68,6 +71,7 @@ export default function NewEvent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
     const token = localStorage.getItem("token");
 
@@ -81,17 +85,18 @@ export default function NewEvent() {
       data.append("ticket_price", formData.ticket_price);
       data.append("capacity_max", formData.capacity_max);
 
-      // The backend expects "image"
       if (flyer?.file) data.append("image", flyer.file);
 
       const response = await axios.post("http://127.0.0.1:8000/events", data, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // , "Content-Type": "form-data"
-      console.log("Backend response:", response.data);
-      alert("Event created successfully!");
 
-      // Reset form
+      console.log("Backend response:", response.data);
+
+      alert("Event created successfully!");
+      navigate("/CreateEvent");
+
+      // reset form
       setFormData({
         title: "",
         category: "",
@@ -105,12 +110,12 @@ export default function NewEvent() {
         ticket_price: "",
       });
       setFlyer(null);
-    } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : JSON.stringify(err);
-      console.error(errorMessage);
+    } catch (err: any) {
+      console.error("Error response:", err.response?.data || err);
+      alert("Failed to create event");
+    } finally {
+      setLoading(false);
     }
-    
   };
 
   return (
@@ -152,7 +157,7 @@ export default function NewEvent() {
         </h1>
 
         <div className="w-full max-w-4xl px-10 space-y-10">
-          {/* Flyer upload */}
+          {/* Flyer Upload */}
           <label
             htmlFor="flyer-upload"
             className="flex flex-col items-center justify-center border border-dashed border-purple-400 rounded-lg p-6 cursor-pointer bg-white hover:bg-purple-100 transition"
@@ -216,15 +221,16 @@ export default function NewEvent() {
                 required
               />
             </div>
-
-            {/* Category */}
+            {/* Category */}{" "}
             <div>
+              {" "}
               <label
                 htmlFor="category"
                 className="block text-sm font-medium text-purple-700"
               >
-                Category
-              </label>
+                {" "}
+                Category{" "}
+              </label>{" "}
               <select
                 id="category"
                 name="category"
@@ -232,41 +238,45 @@ export default function NewEvent() {
                 onChange={handleChange}
                 className="w-full p-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 bg-purple-200"
               >
-                <option value="">Select Category</option>
-                <option value="art">Art</option>
-                <option value="business">Business</option>
-                <option value="music">Music</option>
-                <option value="sport">Sport</option>
-                <option value="tech">Tech</option>
-              </select>
-            </div>
-
-            {/* Description */}
+                {" "}
+                <option value="">Select Category</option>{" "}
+                <option value="art">Art</option>{" "}
+                <option value="business">Business</option>{" "}
+                <option value="music">Music</option>{" "}
+                <option value="sport">Sport</option>{" "}
+                <option value="tech">Tech</option>{" "}
+              </select>{" "}
+            </div>{" "}
+            {/* Description */}{" "}
             <div>
+              {" "}
               <label
                 htmlFor="desc"
                 className="block text-sm font-medium text-purple-700"
               >
-                Description
-              </label>
+                {" "}
+                Description{" "}
+              </label>{" "}
               <textarea
                 id="desc"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
                 className="w-full p-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400"
-              />
-            </div>
-
-            {/* Date/Time */}
+              />{" "}
+            </div>{" "}
+            {/* Date/Time */}{" "}
             <div className="grid grid-cols-3 gap-4">
+              {" "}
               <div>
+                {" "}
                 <label
                   htmlFor="date"
                   className="block text-sm font-medium text-purple-700"
                 >
-                  Date
-                </label>
+                  {" "}
+                  Date{" "}
+                </label>{" "}
                 <input
                   id="date"
                   type="date"
@@ -275,15 +285,17 @@ export default function NewEvent() {
                   onChange={handleChange}
                   className="w-full p-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400"
                   required
-                />
-              </div>
+                />{" "}
+              </div>{" "}
               <div>
+                {" "}
                 <label
                   htmlFor="time"
                   className="block text-sm font-medium text-purple-700"
                 >
-                  From
-                </label>
+                  {" "}
+                  From{" "}
+                </label>{" "}
                 <input
                   id="time"
                   type="time"
@@ -292,15 +304,17 @@ export default function NewEvent() {
                   onChange={handleChange}
                   className="w-full p-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400"
                   required
-                />
-              </div>
+                />{" "}
+              </div>{" "}
               <div>
+                {" "}
                 <label
                   htmlFor="to"
                   className="block text-sm font-medium text-purple-700"
                 >
-                  To
-                </label>
+                  {" "}
+                  To{" "}
+                </label>{" "}
                 <input
                   id="to"
                   type="time"
@@ -309,36 +323,39 @@ export default function NewEvent() {
                   onChange={handleChange}
                   className="w-full p-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400"
                   required
-                />
-              </div>
-            </div>
-
-            {/* Venue */}
+                />{" "}
+              </div>{" "}
+            </div>{" "}
+            {/* Venue */}{" "}
             <div>
+              {" "}
               <label
                 htmlFor="venue"
                 className="block text-sm font-medium text-purple-700"
               >
-                Location
-              </label>
+                {" "}
+                Location{" "}
+              </label>{" "}
               <textarea
                 id="venue"
                 name="venue"
                 value={formData.venue}
                 onChange={handleChange}
                 className="w-full p-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400"
-              />
-            </div>
-
-            {/* Attendees / Ticket / Reminder */}
+              />{" "}
+            </div>{" "}
+            {/* Attendees / Ticket / Reminder */}{" "}
             <div className="grid grid-cols-3 gap-4">
+              {" "}
               <div>
+                {" "}
                 <label
                   htmlFor="capacity_max"
                   className="block text-sm font-medium text-primary"
                 >
-                  Number of Attendees
-                </label>
+                  {" "}
+                  Number of Attendees{" "}
+                </label>{" "}
                 <input
                   id="capacity_max"
                   type="number"
@@ -346,15 +363,17 @@ export default function NewEvent() {
                   value={formData.capacity_max}
                   onChange={handleChange}
                   className="w-full p-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400"
-                />
-              </div>
+                />{" "}
+              </div>{" "}
               <div>
+                {" "}
                 <label
                   htmlFor="ticket_price"
                   className="block text-sm font-medium text-primary"
                 >
-                  Ticket Price ($)
-                </label>
+                  {" "}
+                  Ticket Price ($){" "}
+                </label>{" "}
                 <input
                   id="ticket_price"
                   type="number"
@@ -362,15 +381,17 @@ export default function NewEvent() {
                   value={formData.ticket_price}
                   onChange={handleChange}
                   className="w-full p-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400"
-                />
-              </div>
+                />{" "}
+              </div>{" "}
               <div>
+                {" "}
                 <label
                   htmlFor="reminder"
                   className="block text-sm font-medium text-purple-700"
                 >
-                  Reminder
-                </label>
+                  {" "}
+                  Reminder{" "}
+                </label>{" "}
                 <select
                   id="reminder"
                   name="reminder"
@@ -378,20 +399,24 @@ export default function NewEvent() {
                   onChange={handleChange}
                   className="w-full p-2 border-2 border-purple-200 bg-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400"
                 >
-                  <option value="none">None</option>
-                  <option value="10m">10 minutes before</option>
-                  <option value="30m">30 minutes before</option>
-                  <option value="1h">1 hour before</option>
-                  <option value="1d">1 day before</option>
-                </select>
-              </div>
+                  {" "}
+                  <option value="none">None</option>{" "}
+                  <option value="10m">10 minutes before</option>{" "}
+                  <option value="30m">30 minutes before</option>{" "}
+                  <option value="1h">1 hour before</option>{" "}
+                  <option value="1d">1 day before</option>{" "}
+                </select>{" "}
+              </div>{" "}
             </div>
-
             <button
               type="submit"
-              className="bg-secondary text-white font-bold p-2 rounded-lg w-full hover:bg-orange-100 hover:text-secondary transition duration-300"
+              disabled={loading}
+              className="bg-secondary text-white font-bold p-2 rounded-lg w-full hover:bg-orange-100 hover:text-secondary transition duration-300 flex justify-center items-center"
             >
-              Create Event
+              {loading ? (
+                <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></span>
+              ) : null}
+              {loading ? "Creating..." : "Create Event"}
             </button>
           </form>
         </div>

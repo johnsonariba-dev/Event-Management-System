@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException, Query, APIRouter
+from typing import List
+from fastapi import Depends, FastAPI, HTTPException, Query, APIRouter
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 from fpdf import FPDF
@@ -6,6 +7,11 @@ import qrcode
 from datetime import datetime, timedelta
 from jose import jwt
 import random
+import models
+from sqlalchemy.orm import Session
+from database import get_db
+from endpoints.auth import get_current_user
+from schemas.ticket import TicketCreate, TicketOrganizerOut, TicketUserOut
 
 app = FastAPI()
 
@@ -110,4 +116,80 @@ def generate_ticket(
         pdf_output,
         media_type="application/pdf",
         headers={"Content-Disposition": f"attachment; filename=ticket_{ticket_id}.pdf"}
+    )
+
+
+@router.get("/me", response_model=List[TicketUserOut])
+def get_my_tickets(current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    tickets = db.query(models.Ticket).filter(models.Ticket.user_id == current_user.id).all()
+    return [
+        TicketUserOut(
+            id=t.id,
+            event_id=t.event_id,
+            event_title=t.event.title,
+            quantity=t.quantity,
+            price=t.price,
+            purchase_date=t.purchase_date
+        )
+        for t in tickets
+    ]
+
+
+@router.get("/attendees", response_model=List[TicketOrganizerOut])
+def get_organizer_tickets(current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """
+    Get all tickets for events organized by the current user
+    """
+    # Get all events organized by this user
+    events = db.query(models.Event).filter(models.Event.organizer_id == current_user.id).all()
+    if not events:
+        raise HTTPException(status_code=404, detail="No events found for this organizer")
+
+    # Collect tickets for all these events
+    tickets = []
+    for event in events:
+        event_tickets = db.query(models.Ticket).filter(models.Ticket.event_id == event.id).all()
+        tickets.extend(event_tickets)
+    return [
+        TicketOrganizerOut(
+            id=t.id,
+            user_id=t.user.id,
+            username=t.user.username,
+            event_id=t.event.id,
+            event_title=t.event.title,
+            quantity=t.quantity,
+            price=t.price,
+            purchase_date=t.purchase_date
+        )
+        for t in tickets
+    ]
+
+
+# ---------------- CREATE TICKET ----------------
+@router.post("/tickets", response_model=TicketUserOut)
+def create_ticket(ticket: TicketCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    event = db.query(models.Event).filter(models.Event.id == ticket.event_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    db_ticket = models.Ticket(
+        event_id=ticket.event_id,
+        user_id=current_user.id,
+        quantity=ticket.quantity,
+        price=ticket.price or event.ticket_price, 
+        purchase_date=datetime.utcnow(),
+    )
+    db.add(db_ticket)
+    db.commit()
+    db.refresh(db_ticket)
+
+    return TicketUserOut(
+        id=db_ticket.id,
+        event_id=event.id,
+        event_title=event.title,
+        quantity=db_ticket.quantity,
+        price=db_ticket.price,
+        purchase_date=db_ticket.purchase_date,
+        total=db_ticket.price * db_ticket.quantity,
+
     )

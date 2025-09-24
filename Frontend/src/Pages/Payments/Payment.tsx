@@ -20,12 +20,12 @@ interface Event {
   venue: string;
   date: string;
   time: string;
-  ticket_price: number; // in FCFA
+  ticket_price: number;
   organizer: string;
 }
 
 function Payment() {
-  const [method, setMethod] = useState<"paypal" | "mtn" | "orange">("paypal");
+  const [method, setMethod] = useState<string>("paypal");
   const [event, setEvent] = useState<Event | null>(null);
   const { id } = useParams<{ id: string }>();
   const [count, setCount] = useState(1);
@@ -33,7 +33,7 @@ function Payment() {
   const [ticketGenerated, setTicketGenerated] = useState(false);
   const [phone, setPhone] = useState("");
   const [currency, setCurrency] = useState<"XAF" | "USD">("XAF");
-  const [rate, setRate] = useState<number>(0.0); // XAF → USD
+  const [rate, setRate] = useState<number>(0);
   const ticketRef = useRef<HTMLDivElement>(null);
 
   // Fetch event
@@ -58,7 +58,8 @@ function Payment() {
       try {
         const res = await fetch("https://open.er-api.com/v6/latest/XAF");
         const data = await res.json();
-        setRate(data.rates.USD); // API returns USD rate
+        // Assuming USD is in data.rates.USD
+        setRate(data.rates.USD);
       } catch (err) {
         console.error("Failed to fetch conversion rate:", err);
         setRate(0.0017); // fallback
@@ -84,12 +85,34 @@ function Payment() {
     setCount(count + 1);
   };
 
-  // Free ticket
-  const handleFreeTicket = () => setTicketGenerated(true);
+  const createTicket = async (price: number) => {
+    const token = localStorage.getItem("token");
+    if (!event) return;
+    try {
+      const res = await fetch("http://127.0.0.1:8000/ticket/tickets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ event_id: event.id, quantity: count, price }),
+      });
+      if (!res.ok) throw new Error("Ticket creation failed");
+      return await res.json();
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-  // MTN/Orange payment
+  const handleFreeTicket = async () => {
+    if (!event) return;
+    await createTicket(0); 
+    setTicketGenerated(true);
+  };
+
   const handleMtnPayment = async () => {
     if (!phone) return alert("Enter phone number");
+
     if (!event) return alert("Event not loaded");
 
     const totalAmount = event.ticket_price * count;
@@ -99,8 +122,8 @@ function Payment() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          phone,
-          amount: totalAmount,
+          phone: phone, // user enters 9 digits
+          amount: totalAmount, // always integer in XAF
         }),
       });
 
@@ -114,10 +137,10 @@ function Payment() {
 
       if (data.id) {
         alert(
-          `Transaction initiated: ${data.id}. Please approve payment on your phone.`
+          `Transaction initiated: ${data.id}. Please approve on your phone.`
         );
       } else {
-        alert("Failed to initiate MTN/Orange payment");
+        alert("Failed to initiate MTN payment");
       }
     } catch (err) {
       console.error(err);
@@ -125,14 +148,13 @@ function Payment() {
     }
   };
 
-  // Download ticket as PDF
   const downloadTicket = async () => {
     if (!ticketRef.current) return;
     try {
       const dataUrl = await htmlToImage.toPng(ticketRef.current, {
         cacheBust: true,
         pixelRatio: 5,
-        style: { filter: "none", background: "white" },
+        style: { filter: "none", background: "gray" },
       });
 
       const pdf = new jsPDF("p", "pt", "a4");
@@ -163,9 +185,9 @@ function Payment() {
     setPhone("");
   };
 
-  // ✅ Show ticket after payment
+  // Ticket view after generation
   if (ticketGenerated && event) {
-    const ticketId = `ticket-${event.id}-${Date.now()}`;
+    const ticketId = `ticket-${event.id}-${Date.now()}`; // unique QR code
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-white p-6">
         <div className="w-full md:w-1/2 flex flex-col items-center gap-6">
@@ -199,11 +221,11 @@ function Payment() {
     );
   }
 
-  // ✅ Regular payment page
+  // Regular payment page
   return (
-    <div className="flex flex-col items-center justify-center bg-purple-50 pt-30">
-      <div className="py-10 mb-10 flex flex-col px-6 w-full md:w-200 justify-center bg-white rounded-lg shadow-lg">
-        {/* Header */}
+    <div className="flex flex-col items-center justify-center bg-purple-50">
+      <div className="py-10 mt-25 mb-10 flex flex-col px-6 w-full md:w-200 justify-center bg-white rounded-lg shadow-lg">
+        {/* Event header */}
         <div
           className="flex items-center font-semibold text-2xl gap-10 px-4 md:px-10 pb-10 cursor-pointer"
           onClick={() => window.history.back()}
@@ -215,9 +237,15 @@ function Payment() {
         {/* Event details */}
         <div className="border rounded-lg p-6">
           <img
-            src={event?.image_url}
-            alt="event"
-            className="w-full h-60 object-cover rounded-lg mb-4"
+            src={
+              event?.image_url
+                ? event.image_url.startsWith("http")
+                  ? event.image_url
+                  : `http://127.0.0.1:8000${event.image_url}`
+                : "/placeholder.png"
+            }
+            alt={event?.title}
+            className="w-full h-70 object-cover rounded-lg mb-4"
           />
           <h1 className="font-semibold text-xl">{event?.title}</h1>
           <div className="p-3 text-gray-500">
@@ -236,9 +264,9 @@ function Payment() {
           </div>
         </div>
 
-        {/* Payment section */}
+        {/* Payment Section */}
         <div className="flex flex-col md:flex-row justify-between border rounded-lg mt-10 p-5 gap-10">
-          {/* Tickets */}
+          {/* Ticket Selection */}
           <div className="flex-1">
             <h1 className="text-xl text-center pb-5 font-semibold">Tickets</h1>
             <div className="border rounded-lg p-2">
@@ -261,7 +289,7 @@ function Payment() {
               </div>
             </div>
 
-            {/* Currency switch */}
+            {/* Currency selector */}
             <div className="mt-5 flex justify-center gap-3">
               <button
                 className={`px-4 py-2 rounded ${
@@ -281,7 +309,7 @@ function Payment() {
               </button>
             </div>
 
-            {/* Summary */}
+            {/* Order Summary */}
             <div className="mt-10">
               <h1 className="text-xl text-center pb-5 font-semibold">
                 Order Summary
@@ -291,7 +319,7 @@ function Payment() {
                 <p>
                   {currency === "XAF"
                     ? event?.ticket_price ?? 0
-                    : ((event?.ticket_price ?? 0) * rate).toFixed(2)}
+                    : (event?.ticket_price ?? 0 * rate).toFixed(2)}
                 </p>
               </div>
               <div className="flex justify-between pb-3">
@@ -322,7 +350,7 @@ function Payment() {
             {/* Paid Ticket */}
             {(event?.ticket_price ?? 0) > 0 && (
               <>
-                {/* Method selection */}
+                {/* Payment methods */}
                 <div className="flex flex-wrap md:flex-nowrap gap-5 md:gap-10 pb-10">
                   <img
                     src={images.mtn}
@@ -420,7 +448,7 @@ function Payment() {
                   </div>
                 )}
 
-                {/* Force USD for PayPal */}
+                {/* Convert to USD automatically if PayPal selected */}
                 {method === "paypal" && currency === "XAF" && (
                   <Button
                     title="Switch to USD for PayPal"

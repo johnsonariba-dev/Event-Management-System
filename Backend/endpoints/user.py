@@ -118,3 +118,4 @@ def delete_account(
     db.delete(db_user)
     db.commit()
     return {"detail": "User deleted successfully"}
+

@@ -45,7 +45,7 @@ function Login() {
 
       const data = await response.json();
       const token = data.access_token;
-      const role = data.role || "user";
+      const role = data.role;
 
       if (!token) throw new Error("Token missing from response");
 
@@ -54,9 +54,8 @@ function Login() {
       setSuccess(true);
 
       setTimeout(() => {
-        if (role === "admin") navigate("/admin/dashboard");
-        else if (role === "organizer") navigate("/CreateEvent");
-        else navigate("/events");
+        if (role === "organizer") navigate("/CreateEvent");
+        else navigate("/event");
       }, 1000);
     } catch (err: unknown) {
       setError(
@@ -118,7 +117,11 @@ function Login() {
                   onClick={handlePassword}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-violet-500"
                 >
-                  {showPassword ? <FaRegEye size={22} /> : <FaRegEyeSlash size={22} />}
+                  {showPassword ? (
+                    <FaRegEye size={22} />
+                  ) : (
+                    <FaRegEyeSlash size={22} />
+                  )}
                 </button>
               </div>
 

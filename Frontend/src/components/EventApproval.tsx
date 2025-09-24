@@ -27,7 +27,10 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder }) => {
       <input
         type="text"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          onSearch(e.target.value); // 🔑 mise à jour en temps réel
+        }}
         placeholder={placeholder || "Search events..."}
         className="border rounded-3xl h-8 p-2 text-xs w-full md:w-64"
       />
@@ -38,6 +41,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder }) => {
 export const EventApproval: React.FC = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [filter, setFilter] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState<string>(""); // ✅ query pour la recherche
   const [stats, setStats] = useState<EventStats>({
     total: 0,
     pending: 0,
@@ -85,8 +89,16 @@ export const EventApproval: React.FC = () => {
     }
   };
 
-  const filteredEvents =
-    filter === "All" ? events : events.filter((e) => e.status === filter);
+ 
+  const filteredEvents = events.filter((e) => {
+    const matchStatus = filter === "All" || e.status === filter;
+    const matchQuery =
+      e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.organizer.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.venue.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchStatus && matchQuery;
+  });
 
   return (
     <div className="space-y-4 p-2 md:p-4">
@@ -126,7 +138,7 @@ export const EventApproval: React.FC = () => {
             <p className="text-xs font-light">Review and manage event approvals</p>
           </div>
           <div className="flex  items-start sm:items-center gap-2">
-            <SearchBar onSearch={(query) => console.log("Search:", query)} />
+            <SearchBar onSearch={setSearchQuery} /> {/* ✅ onSearch */}
             <select
               className="border rounded-3xl text-xs p-2 w-full sm:w-auto"
               value={filter}
@@ -182,6 +194,14 @@ export const EventApproval: React.FC = () => {
                 </td>
               </tr>
             ))}
+
+            {filteredEvents.length === 0 && (
+              <tr>
+                <td colSpan={7} className="text-center text-gray-500 py-4">
+                  No matching events found.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

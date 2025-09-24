@@ -51,9 +51,8 @@ const Register: React.FC = () => {
       setSuccess(true);
 
       setTimeout(() => {
-        if (role === "admin") navigate("/admin/dashboard");
-        else if (role === "organizer") navigate("/CreateEvent");
-        else navigate("/events");
+     if (role === "organizer") navigate("/Login");
+        else navigate("/Login");
       }, 1500);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");

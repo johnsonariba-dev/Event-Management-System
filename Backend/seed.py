@@ -25,20 +25,22 @@ CATEGORY_IMAGE_BASE = {
     "Religious": "https://picsum.photos/seed/religious{seed}/600/400",
 }
 
+
 def generate_fake_event(organizer_id=1):
     category = random.choice(CATEGORIES)
     city = random.choice(CAMEROON_CITIES)
-    
+
     # 20% chance the event is free
-    ticket_price = 0 if random.random() < 0.2 else round(random.uniform(1000, 20000), -2)
-    
+    ticket_price = 0 if random.random() < 0.2 else round(
+        random.uniform(1000, 20000), -2)
+
     # Longer description: 8–12 paragraphs
     description = " ".join(fake.paragraphs(nb=random.randint(8, 12)))
-    
+
     # Unique seed for image
     unique_seed = random.randint(1, 1000000)
     image_url = CATEGORY_IMAGE_BASE[category].format(seed=unique_seed)
-    
+
     return Event(
         title=fake.catch_phrase(),
         category=category,
@@ -48,9 +50,10 @@ def generate_fake_event(organizer_id=1):
         ticket_price=ticket_price,
         capacity_max=random.randint(50, 500),
         image_url=image_url,
-        status="Approved",         
-        organizer_id=organizer_id  
+        status="Approved",
+        organizer_id=organizer_id
     )
+
 
 def seed_db(n=20):
     db = SessionLocal()
@@ -58,10 +61,11 @@ def seed_db(n=20):
     Base.metadata.create_all(bind=engine)
     # Add fake events
     for _ in range(n):
-        db.add(generate_fake_event(organizer_id=1)) 
+        db.add(generate_fake_event(organizer_id=1))
     db.commit()
     db.close()
     print(f"Seeded {n} fake events to the database.")
+
 
 if __name__ == "__main__":
     seed_db()

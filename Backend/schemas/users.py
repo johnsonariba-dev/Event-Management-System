@@ -42,8 +42,9 @@ class UserOut(BaseModel):
 
 
 class Token(BaseModel):
-    access_token: str  # JWT(JSON Web Token) token pour l'authentification
-    token_type: str = "bearer"  # Type de token (bearer)
+    access_token: str
+    token_type: str = "bearer"
+    role: str 
 
 
 class OrganizerResponse(BaseModel):
@@ -53,3 +54,4 @@ class OrganizerResponse(BaseModel):
     date_event: Optional[datetime]
     events: int = 0
     revenue: float = 0.0
+
