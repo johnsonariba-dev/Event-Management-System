@@ -131,8 +131,6 @@ const Dashboard: React.FC = () => {
           },
         }
       );
-
-      // S'assurer que le status est conservé si backend ne le renvoie pas
       const updatedEvent = {
         ...res.data,
         status: res.data.status || editingEvent.status,

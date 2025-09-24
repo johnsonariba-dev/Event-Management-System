@@ -27,7 +27,7 @@ const UserTicket: React.FC = () => {
 
       try {
         const res = await axios.get<Ticket[]>(
-          "http://127.0.0.1:8000/user/tickets",
+          "http://127.0.0.1:8000/ticket/me",
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setTickets(res.data);

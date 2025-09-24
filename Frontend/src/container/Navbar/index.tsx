@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { FiMenu, FiX } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa6";
+import { IoMdContact } from "react-icons/io";
 import Button from "../../components/button";
 import images from "../../types/images";
 import { useAuth } from "../../Pages/Context/UseAuth";
@@ -70,7 +71,10 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
               </NavLink>
             </>
           ) : (
-            <Button title="Logout" onClick={logout} />
+            // <Button title="profile" onClick={logout} />
+            <Link to="/Profile">
+              <IoMdContact size={40} className="text-primary"/>
+            </Link>
           )}
         </div>
       </div>

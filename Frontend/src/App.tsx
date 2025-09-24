@@ -29,6 +29,7 @@ import { ProtectedRoute } from "./components/PotectedRoute";
 // import type { JSX } from "react/jsx-dev-runtime";
 import AdminLogin from "./Pages/Authentication/AdminLogin";
 import AuthProvider from "./Pages/Context/AuthProvider";
+import OrganizerProfile from "./Pages/OrganizerProfile";
 // import { useAuth } from "./Pages/Context/UseAuth";
 
 const NavBarItems = [
@@ -99,6 +100,7 @@ const hideFooter = [
           <Route path="/Event/:id" element={<EventDetails />} />
           <Route path="/cities/:id" element={<CityDetails />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/OrganizerProfile" element={<OrganizerProfile />} />
 
         <Route path="/admindashboard" element={<AdminDashboard />}>
           <Route index element={<HomeDashboard />} />

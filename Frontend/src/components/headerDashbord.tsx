@@ -1,7 +1,8 @@
-import { FaChevronDown, FaPlus } from "react-icons/fa6";
+import { FaPlus } from "react-icons/fa6";
 import { CgProfile } from "react-icons/cg";
 import Button from "./button";
 import { NavLink } from "react-router-dom";
+import { IoMdContact } from "react-icons/io";
 
 interface Props {
   title: string;
@@ -24,11 +25,8 @@ const HeaderDashboard: React.FC<Props> = ({ title }) => {
               className="w-full sm:w-auto"
             />
           </NavLink>
-          <NavLink to={"/Profile"}>
-            <Button
-            title="User Profile"
-            icon={<FaChevronDown />}
-            className="w-full sm:w-auto"/>
+          <NavLink to={"/OrganizerProfile"}>
+         <IoMdContact size={40} className="text-primary"/>
           </NavLink>
         </div>
 

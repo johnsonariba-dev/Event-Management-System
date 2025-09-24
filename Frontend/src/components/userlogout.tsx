@@ -8,7 +8,7 @@ const Logout: React.FC = () => {
 
   const handleLogout = () => {
     logout(); // clear token/session etc.
-    navigate("/login"); // redirect after logout
+    navigate("/"); // redirect after logout
   };
 
   const handleCancel = () => {

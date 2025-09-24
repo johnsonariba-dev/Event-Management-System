@@ -76,7 +76,7 @@ def generate_fake_event(organizer_id=1):
     )
 
 
-def seed_db(n=20):
+def seed_db(n=40):
     db = SessionLocal()
     # Create tables if not exist
     Base.metadata.create_all(bind=engine)
