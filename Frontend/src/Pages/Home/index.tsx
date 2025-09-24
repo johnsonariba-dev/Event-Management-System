@@ -11,6 +11,7 @@ import {
 import { FaChartLine, FaPlus } from "react-icons/fa6";
 import Button from "../../components/button";
 import { cities } from "../EventDetails/CityLilst";
+
 import { useAuth } from "../Context/UseAuth";
 
 type EventItem = {
@@ -38,6 +39,10 @@ function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const { token, role } = useAuth();
   const [showMore, setShowMore] = useState(false);
+  const [totalEvents, setTotalEvents] = useState<string>("0");
+  const [totalUsers, setTotalUsers] = useState<string>("No attendees");
+  const [totalorganizer, setTotalorganizer] = useState<string>("No organizations");
+  const [percentRating, setPercentRating] = useState<string>("0");
 
   useEffect(() => {
     const scrollContainer = scrollRef.current;
@@ -146,6 +151,69 @@ function Home() {
       navigate(`/Cities/${cityItem.id}`);
     }
   };
+
+  // Statistics
+
+  // total events
+  useEffect(() => {
+    const fetchTotalEvents = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/totalEvents");
+        if (!res.ok) throw new Error("Failed to fetch events");
+        const data = await res.json();
+
+        setTotalEvents(String(data));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchTotalEvents();
+  }, []);
+
+  // total users
+  useEffect(() => {
+    const fetchTotalUsers = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/totalUsers");
+        if (!res.ok) throw new Error("Failed to fetch users");
+        const data = await res.json();
+        setTotalUsers(String(data));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchTotalUsers();
+  }, []);
+
+  // total organizations
+  useEffect(() => {
+    const fetchTotalorganizations = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/totalorganizers");
+        if (!res.ok) throw new Error("Failed to fetch users");
+        const data = await res.json();
+        setTotalorganizer(String(data));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchTotalorganizations();
+  }, []);
+
+  // Percentage Rating
+  useEffect(() => {
+    const fetchPercentRating = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/rating");
+        if (!res.ok) throw new Error("Failed to fetch users");
+        const data = await res.json();
+        setPercentRating(String(data));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchPercentRating();
+  }, []);
 
   return (
     <div className="w-full flex flex-col items-center justify-center overflow-x-hidden">
@@ -325,16 +393,24 @@ function Home() {
       {/* Stats */}
       <div className="flex flex-wrap justify-center gap-8 py-16">
         {[
-          { icon: <HiCalendar />, value: "10,000+", label: "Events Created" },
+          {
+            icon: <HiCalendar />,
+            value: totalEvents,
+            label: "Events Created",
+          },
           {
             icon: <HiUserGroup />,
-            value: "250,000+",
+            value: totalUsers,
             label: "Happy Attendees",
           },
-          { icon: <FaChartLine />, value: "1,500+", label: "Organizations" },
+          {
+            icon: <FaChartLine />,
+            value:  totalorganizer ,
+            label: "Organizations",
+          },
           {
             icon: <HiOutlineStar />,
-            value: "98%",
+            value: percentRating + "%",
             label: "Event Satisfaction",
           },
         ].map((stat, i) => (
@@ -345,7 +421,9 @@ function Home() {
             <div className="text-5xl text-primary animate-bounce">
               {stat.icon}
             </div>
-            <p className="text-xl font-bold text-primary mt-2">{stat.value}</p>
+            <p className="text-xl font-bold text-primary mt-2">
+              {typeof stat.value === "string" ? stat.value : " "}
+            </p>
             <p className="text-primary text-sm">{stat.label}</p>
           </div>
         ))}
@@ -353,24 +431,37 @@ function Home() {
 
       {/* CTA Section */}
       <div className="w-full flex-col flex  items-center justify-center p-8 gap-8 text-center">
-        <h1 className="text-[3vw] max-md:text-2xl font-bold">Ready To Create An Event?</h1>
-        <p className="text-clamp-2 p-2 w-full max-w-3xl text-xl">Discover, create, and attend events that matter to you. Join thousands of people connecting through shared experiences.</p>
+        <h1 className="text-[3vw] max-md:text-2xl font-bold">
+          Ready To Create An Event?
+        </h1>
+        <p className="text-clamp-2 p-2 w-full max-w-3xl text-xl">
+          Discover, create, and attend events that matter to you. Join thousands
+          of people connecting through shared experiences.
+        </p>
         <div className="w-full max-md:flex-col flex items-center justify-center p-8 gap-8">
-        <Link to="/Events">
-          <Button title="Explore Events" icon={<HiArrowRight />} />
-        </Link>
-        {token && (role === "admin" || role !== "organizer") && (
-          <Button
-            onClick={handleCreateEvent}
-            title="Create Event"
-            icon={<FaPlus />}
-            className="px-10 bg-secondary hover:bg-primary "
-          />
-        )}
+          <Link to="/Events">
+            <Button title="Explore Events" icon={<HiArrowRight />} />
+          </Link>
+          {token && (role === "admin" || role !== "organizer") && (
+            <Button
+              onClick={handleCreateEvent}
+              title="Create Event"
+              icon={<FaPlus />}
+              className="px-10 bg-secondary hover:bg-primary "
+            />
+          )}
         </div>
       </div>
+
+      {/* <div className="px-2 mt-10">
+        <h1 className="text-center text-2xl mb-5 max-md:text-xl animate-slideInLeft">
+          Recommended for you
+        </h1>
+        <Recommender userId={1} topN={5} />
+      </div> */}
     </div>
   );
 }
 
 export default Home;
+
