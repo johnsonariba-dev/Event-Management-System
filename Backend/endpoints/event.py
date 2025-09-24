@@ -13,7 +13,7 @@ from base64 import b64encode
 import models
 from database import get_db
 from .auth import get_current_user
-from recommender import recommend_events
+import recommender 
 from schemas.users import UserOut
 from schemas.events import AdminEventOut, EventBase, EventResponse, LineChartData, OrganizerOut
 
@@ -261,36 +261,20 @@ def update_event_status(event_id: int, status: str, db: Session = Depends(get_db
 
 
 # ---------------- RECOMMENDATIONS ----------------
-@router.get("/recommend/{user_id}")
-def recommend_for_user(user_id: int, top_n: int = 5, db: Session = Depends(get_db)):
-    user_reviews = db.query(models.Review).filter(
-        models.Review.user_id == user_id).all()
-    if not user_reviews:
-        raise HTTPException(
-            status_code=404, detail="No reviews found for this user")
+@router.get("/recommend/me")
+def recommend_me(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """
+    Return personalized weighted recommendations for the logged-in user.
+    Call this endpoint with the user's Bearer token.
+    """
+    try:
+        recs = recommender.recommend_for_user(current_user.id, top_n=5, db=db, rating_weight=1.0)
+    except Exception as e:
+        # avoid leaking internal details; log and return empty list or error as you prefer
+        print("recommender error:", e)
+        recs = []
 
-    liked_events = [
-        r.event for r in user_reviews if r.rating and r.rating >= 4]
-    if not liked_events:
-        raise HTTPException(
-            status_code=404, detail="No liked events to base recommendations on")
-
-    user_interests = []
-    for ev in liked_events:
-        user_interests.extend([ev.title, ev.category])
-        if ev.description:
-            user_interests.append(ev.description)
-
-    recommended = recommend_events(user_interests, top_n=top_n)
-    return {"user_id": user_id, "recommended": recommended}
-
-# get organizer name
-@router.get("/events/{event_id}/organizer")
-def get_organizer_name(event_id: int, db: Session = Depends(get_db)):
-    event = db.query(models.Event).filter(models.Event.id == event_id).first()
-    if not event:
-        raise HTTPException(status_code=404, detail="Event not found")
-
-    username = event.organizer.username if event.organizer else "Unknown"
-
-    return { username}
+    return {"user_id": current_user.id, "recommended": recs}

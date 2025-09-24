@@ -17,7 +17,7 @@ import douala from "../assets/images/douala.jpg"
 import bamenda from "../assets/images/Bamenda.jpg"
 import bafoussam from "../assets/images/Bafoussam.jpg"
 import profile from "../assets/images/profile.jpg"
-
+import question from "../assets/images/question-mark.png"
 
 export default{
     logo,
@@ -39,4 +39,5 @@ export default{
     bamenda,
     bafoussam,
     profile,
+    question,
 }

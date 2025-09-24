@@ -8,17 +8,19 @@ interface Event {
   title: string;
   category: string;
   description: string;
-  location: string;
+  venue: string;      // ✅ matches backend
   date: string;
   image_url?: string;
+  similarity?: number;   // optional extras
+  avg_rating?: number;
+  final_score?: number;
 }
 
 interface RecommenderProps {
-  userId: number; // logged-in user ID
-  topN?: number;  // optional number of recommendations
+  topN?: number; // optional number of recommendations
 }
 
-export default function Recommender({ userId, topN = 5 }: RecommenderProps) {
+export default function Recommender({ topN = 5 }: RecommenderProps) {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +38,7 @@ export default function Recommender({ userId, topN = 5 }: RecommenderProps) {
       try {
         setLoading(true);
         const res = await fetch(
-          `http://127.0.0.1:8000/recommend/${userId}?top_n=${topN}`,
+          `http://127.0.0.1:8000/recommend/me?top_n=${topN}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -45,7 +47,7 @@ export default function Recommender({ userId, topN = 5 }: RecommenderProps) {
         if (!res.ok) throw new Error("Failed to fetch recommendations");
 
         const data = await res.json();
-        setEvents(data.recommended || []); // <-- extract recommended array
+        setEvents(data.recommended || []); // backend wraps results under "recommended"
       } catch (err) {
         setError((err as Error).message || "Failed to load recommendations");
       } finally {
@@ -54,7 +56,7 @@ export default function Recommender({ userId, topN = 5 }: RecommenderProps) {
     };
 
     fetchRecommendations();
-  }, [userId, topN, token]);
+  }, [topN, token]);
 
   if (loading) return <p>Loading recommendations...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
@@ -81,7 +83,7 @@ export default function Recommender({ userId, topN = 5 }: RecommenderProps) {
               {event.description}
             </p>
             <div className="flex items-center text-gray-500 text-sm">
-              <FaLocationDot className="mr-1" /> {event.location}
+              <FaLocationDot className="mr-1" /> {event.venue}
             </div>
             <p className="text-sm text-gray-500">
               {new Date(event.date).toLocaleDateString()}

@@ -3,6 +3,7 @@ import axios from "axios";
 import Button from "./button";
 import { FaUpload } from "react-icons/fa";
 import { useAuth } from "../Pages/Context/UseAuth";
+import question from "../assets/images/question-mark.png";
 
 interface User {
   id: number;
@@ -24,19 +25,24 @@ const Personal: React.FC = () => {
   // Fetch user data
   useEffect(() => {
     const fetchUser = async () => {
+      if (!token) return;
       try {
         const res = await axios.get("http://127.0.0.1:8000/user/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(res.data);
-        setProfilePic(res.data.profile_pic || "https://i.pravatar.cc/150");
+        // Default to question mark if no profile_pic
+        setProfilePic(
+          res.data.profile_pic ||
+           question // local asset for placeholder
+        );
       } catch (err) {
         console.error("Failed to fetch user:", err);
       } finally {
         setLoading(false);
       }
     };
-    if (token) fetchUser();
+    fetchUser();
   }, [token]);
 
   if (loading) return <p>Loading profile...</p>;
@@ -59,8 +65,13 @@ const Personal: React.FC = () => {
 
   const handleSaveProfile = async () => {
     if (!user) return;
+
+    if (!user.username || !user.email) {
+      alert("Username and email are required.");
+      return;
+    }
+
     try {
-      // ✅ only send fields UserUpdate expects
       const payload = {
         username: user.username,
         email: user.email,
@@ -86,11 +97,11 @@ const Personal: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-8">
         <div className="flex items-center gap-6">
-          <label className="relative group cursor-pointer">
+          <label className="relative group cursor-pointer w-28 h-28 sm:w-32 sm:h-32">
             <img
               src={profilePic}
               alt="Profile"
-              className="w-28 h-28 rounded-full border-4 border-primary-500 object-cover shadow-lg"
+              className="w-full h-full rounded-full border-4 border-primary-500 object-cover shadow-lg bg-gray-100 flex items-center justify-center"
             />
             {editMode && (
               <>
@@ -98,16 +109,16 @@ const Personal: React.FC = () => {
                   type="file"
                   accept="image/*"
                   onChange={handleProfilePicUpload}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  className="absolute inset-0 opacity-0 cursor-pointer rounded-full"
                 />
                 <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                  <FaUpload className="text-white text-xl" />
+                  <FaUpload className="text-white text-xl sm:text-2xl" />
                 </div>
               </>
             )}
           </label>
           <div>
-            <h1 className="text-3xl font-bold text-primary-700">
+            <h1 className="text-2xl sm:text-3xl font-bold text-primary-700">
               {user.username}
             </h1>
             <p className="text-secondary-600 capitalize">{user.role}</p>
@@ -122,7 +133,7 @@ const Personal: React.FC = () => {
 
       {/* Personal Info */}
       <section className="mb-12 bg-white shadow rounded-xl p-6">
-        <h2 className="text-lg font-semibold mb-6 text-primary-700">
+        <h2 className="text-lg sm:text-xl font-semibold mb-6 text-primary-700">
           Personal Info
         </h2>
         <div className="grid gap-6 sm:grid-cols-2">
