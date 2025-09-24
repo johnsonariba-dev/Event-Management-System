@@ -15,7 +15,7 @@ CAMEROON_CITIES = [
     "Garoua", "Maroua", "Ebolowa", "Nkongsamba"
 ]
 
-# Base image URLs per category (will add unique seed per event)
+# Base image URLs per category (unique seed per event later)
 CATEGORY_IMAGE_BASE = {
     "Music": "https://picsum.photos/seed/music{seed}/600/400",
     "Tech": "https://picsum.photos/seed/tech{seed}/600/400",
@@ -25,18 +25,39 @@ CATEGORY_IMAGE_BASE = {
     "Religious": "https://picsum.photos/seed/religious{seed}/600/400",
 }
 
+# Human-like templates per category
+CATEGORY_DESCRIPTIONS = {
+    "Music": "Join us for an unforgettable night of live performances, featuring {band} and other talented artists in {city}.",
+    "Tech": "A unique opportunity to connect with innovators, developers, and tech leaders at {venue} in {city}.",
+    "Sport": "Experience the thrill of competition at {venue}, bringing together athletes and fans from across Cameroon.",
+    "Art": "Discover breathtaking works of art and meet the creative minds shaping culture in {city}.",
+    "Business": "A professional gathering where leaders and entrepreneurs in {city} share ideas and opportunities.",
+    "Religious": "A time of worship, fellowship, and spiritual growth at {venue}, open to all.",
+}
+
+def generate_event_description(category, city, venue):
+    # Use template for realism
+    template = CATEGORY_DESCRIPTIONS.get(category, "An amazing event awaits you.")
+    base = template.format(
+        band=fake.company(),
+        city=city,
+        venue=venue
+    )
+    # Add extra filler paragraphs for detail
+    extra = " ".join(fake.paragraphs(nb=random.randint(2, 4)))
+    return f"{base}\n\n{extra}"
 
 def generate_fake_event(organizer_id=1):
     category = random.choice(CATEGORIES)
     city = random.choice(CAMEROON_CITIES)
-
+    venue = f"{fake.company()} Hall, {city}"
+    
     # 20% chance the event is free
-    ticket_price = 0 if random.random() < 0.2 else round(
-        random.uniform(1000, 20000), -2)
-
-    # Longer description: 8–12 paragraphs
-    description = " ".join(fake.paragraphs(nb=random.randint(8, 12)))
-
+    ticket_price = 0 if random.random() < 0.2 else round(random.uniform(1000, 20000), -2)
+    
+    # Generate description
+    description = generate_event_description(category, city, venue)
+    
     # Unique seed for image
     unique_seed = random.randint(1, 1000000)
     image_url = CATEGORY_IMAGE_BASE[category].format(seed=unique_seed)
@@ -45,7 +66,7 @@ def generate_fake_event(organizer_id=1):
         title=fake.catch_phrase(),
         category=category,
         description=description,
-        venue=f"{fake.company()} Hall, {city}",
+        venue=venue,
         date=fake.date_time_between(start_date="now", end_date="+90d"),
         ticket_price=ticket_price,
         capacity_max=random.randint(50, 500),

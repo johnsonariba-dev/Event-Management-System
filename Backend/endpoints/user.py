@@ -1,4 +1,3 @@
-# endpoints/users.py
 from typing import List
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
@@ -14,7 +13,16 @@ router = APIRouter()
 # ---------------- Current User ----------------
 @router.get("/me", response_model=UserOut)
 def read_current_user(current_user: models.User = Depends(get_current_user)):
-    return current_user
+    return {
+        "id": current_user.id,
+        "email": current_user.email,
+        "username": current_user.username,
+        "role": current_user.role,
+        "phone": current_user.phone,
+        "location": current_user.location,
+        "profile_pic": current_user.profile_pic,
+        "preferences": [p.preference for p in current_user.preferences],
+    }
 
 
 # ---------------- Login ----------------
@@ -43,14 +51,14 @@ def register(user: CreateUser, db: Session = Depends(get_db)):
         email=user.email,
         hashed_password=hashed_password,
         username=user.username,
-        role=user.role
+        role=user.role,
     )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
 
     access_token = create_access_token({"sub": user.email, "role": user.role})
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "role": db_user.role}
 
 
 # ---------------- Admin & Organizer Routes ----------------
@@ -75,15 +83,24 @@ def get_users(db: Session = Depends(get_db)):
     return db.query(models.User).all()
 
 
-@router.get("/{user_id}", response_model=UserResponse)
+@router.get("/{user_id}", response_model=UserOut)
 def get_user(user_id: int, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return {
+        "id": user.id,
+        "email": user.email,
+        "username": user.username,
+        "role": user.role,
+        "phone": user.phone,
+        "location": user.location,
+        "profile_pic": user.profile_pic,
+        "preferences": [p.preference for p in user.preferences],
+    }
 
 
-@router.put("/{user_id}", response_model=UserResponse)
+@router.put("/{user_id}", response_model=UserOut)
 def update_user(
     user_id: int,
     user_update: UserUpdate,
@@ -97,12 +114,22 @@ def update_user(
     if current_user.role != "admin" and current_user.id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    for key, value in user_update.model_dump(exclude_unset=True).items():
+    for key, value in user_update.dict(exclude_unset=True).items():
         setattr(user, key, value)
 
     db.commit()
     db.refresh(user)
-    return user
+
+    return {
+        "id": user.id,
+        "email": user.email,
+        "username": user.username,
+        "role": user.role,
+        "phone": user.phone,
+        "location": user.location,
+        "profile_pic": user.profile_pic,
+        "preferences": [p.preference for p in user.preferences],
+    }
 
 
 @router.delete("/{user_id}")
