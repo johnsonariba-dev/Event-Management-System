@@ -1,6 +1,6 @@
 from typing import Optional, List
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from .review import Review
 
 
@@ -30,8 +30,22 @@ class EventOut(EventCreate):
     image_url: Optional[str] = ""
     reviews: List[Review] = []
 
+   
+    @validator("image_url", pre=True, always=True)
+    def normalize_image_url(cls, v):
+            if not v or v.strip() == "":
+                return "https://via.placeholder.com/600x400?text=No+Image"
+            v = v.strip()
+            if v.startswith("http"):
+                return v
+            if v.startswith("/uploads/events/"):
+                return f"http://localhost:8000{v}"
+            return f"http://localhost:8000/uploads/events/{v.lstrip('/')}"
+
+
     class Config:
         orm_mode = True
+
 
 class OrganizerOut(BaseModel):
     id: int | None = None
@@ -40,6 +54,7 @@ class OrganizerOut(BaseModel):
 
     class Config:
         orm_mode = True
+
 
 class AdminEventOut(BaseModel):
     id: int
@@ -53,19 +68,22 @@ class AdminEventOut(BaseModel):
     status: str
     image_url: Optional[str] = ""
     reviews: List[Review] = []
-    organizer: OrganizerOut  # <- we include the nested organizer object
+    organizer: OrganizerOut
+
+    @validator("image_url", pre=True, always=True)
+    def normalize_image_url(cls, v):
+        if not v:
+            return "https://via.placeholder.com/600x400?text=No+Image"
+        if v.startswith("http"):
+            return v
+        if v.startswith("/uploads/events/"):
+            return f"http://localhost:8000{v}"
+        return f"http://localhost:8000/uploads/events/{v}"
 
     class Config:
         orm_mode = True
 
-# Schema for returning event data
-# class EventResponse(CreateEvent):
-#    id: int
-#    title: str
-#    class Config:
-#         from_attributes = True
 
-# Schema for updating an event
 class EventUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
@@ -77,6 +95,7 @@ class EventUpdate(BaseModel):
     capacity_max: Optional[int] = None
     status: Optional[str] = None
 
+
 class EventBase(BaseModel):
     title: str
     category: str
@@ -87,12 +106,14 @@ class EventBase(BaseModel):
     capacity_max: Optional[int]
     image_url: Optional[str] = None
 
+
 class EventResponse(EventBase):
     id: int
     image_url: Optional[str]
 
     class Config:
         orm_mode = True
+
 
 class UserInterests(BaseModel):
     interests: List[str]

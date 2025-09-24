@@ -21,7 +21,10 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder }) => {
       <input
         type="text"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          onSearch(e.target.value); // 🔥 Filtrage en temps réel
+        }}
         placeholder={placeholder || "Search users..."}
         className="border rounded-3xl h-8 p-2 text-xs w-full sm:w-64"
       />
@@ -53,6 +56,7 @@ interface Totals {
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>(""); // ✅ Ajout de l'état recherche
   const [totals, setTotals] = useState<Totals>({
     total_users: 0,
     active_count: 0,
@@ -108,11 +112,23 @@ export default function UserManagement() {
     setUsers((prev) =>
       prev.map((user) =>
         user.id === updatedUser.id
-          ? { ...user, username: updatedUser.username, email: updatedUser.email, role: updatedUser.role }
+          ? {
+              ...user,
+              username: updatedUser.username,
+              email: updatedUser.email,
+            }
           : user
       )
     );
   };
+
+  // ✅ Filtrage des utilisateurs selon la recherche
+  const filteredUsers = users.filter((user) =>
+    [user.username, user.email]
+      .join(" ")
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
 
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
@@ -126,21 +142,32 @@ export default function UserManagement() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 rounded-lg shadow p-4">
-        <div className="border rounded-lg p-4 text-center">Active Users: {totals.active_count}</div>
-        <div className="border rounded-lg p-4 text-center">Inactive Users: {totals.inactive_count}</div>
-        <div className="border rounded-lg p-4 text-center">Total Users: {totals.total_users}</div>
+        <div className="border rounded-lg p-4 text-center">
+          Active Users: {totals.active_count}
+        </div>
+        <div className="border rounded-lg p-4 text-center">
+          Inactive Users: {totals.inactive_count}
+        </div>
+        <div className="border rounded-lg p-4 text-center">
+          Total Users: {totals.total_users}
+        </div>
       </div>
 
       {/* User Table */}
       <div className="shadow rounded-lg p-4 space-y-4 overflow-x-auto">
         <div className="flex  justify-between items-start md:items-center gap-2">
           <div>
-            <h2 className="font-bold text-xl flex items-center gap-2"><FaUsers /> Users List</h2>
-            <p className="text-xs font-light">Manage users accounts and permissions</p>
+            <h2 className="font-bold text-xl flex items-center gap-2">
+              <FaUsers /> Users List
+            </h2>
+            <p className="text-xs font-light">
+              Manage users accounts and permissions
+            </p>
           </div>
 
-          <div className="flex  items-start sm:items-center gap-2">
-            <SearchBar onSearch={(query) => console.log("searching for:", query)} />
+          <div className="flex items-start sm:items-center gap-2">
+            {/* ✅ SearchBar mise à jour */}
+            <SearchBar onSearch={setSearchQuery} />
             <select className="border rounded-3xl text-xs p-2 w-full sm:w-auto">
               <option>All Status</option>
               <option>Active</option>
@@ -165,34 +192,60 @@ export default function UserManagement() {
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
-                <tr key={user.id} className="border-t border-gray-300">
-                  <td className="px-4 py-2">
-                    {user.username} <br />
-                    <div className="text-xs font-light">ID: {user.id}</div>
-                  </td>
-                  <td className="px-4 py-2">{user.email}</td>
-                  <td className="px-4 py-2">{user.Ticket_buy}</td>
-                  <td className="px-4 py-2">$ {user.ticket_price ?? 0}</td>
-                  <td className="px-4 py-2">
-                    <span className={user.is_active ? "text-green-500" : "text-red-500"}>
-                      {user.is_active ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2 flex gap-2">
-                    <button
-                      onClick={() => setSelectedUser({ id: user.id, username: user.username, email: user.email, role: "user" })}
-                      className="text-xs px-2 py-1 rounded bg-yellow-200 hover:bg-yellow-300 transition-colors"
-                    >
-                      <FaEdit />
-                    </button>
-                    <DeleteUser
-                      user={{ id: user.id, username: user.username, email: user.email, role: "organizer" }}
-                      onDeleted={(id) => setUsers((prev) => prev.filter((u) => u.id !== id))}
-                    />
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((user) => (
+                  <tr key={user.id} className="border-t border-gray-300">
+                    <td className="px-4 py-2">
+                      {user.username} <br />
+                      <div className="text-xs font-light">ID: {user.id}</div>
+                    </td>
+                    <td className="px-4 py-2">{user.email}</td>
+                    <td className="px-4 py-2">{user.Ticket_buy}</td>
+                    <td className="px-4 py-2">$ {user.ticket_price ?? 0}</td>
+                    <td className="px-4 py-2">
+                      <span
+                        className={
+                          user.is_active ? "text-green-500" : "text-red-500"
+                        }
+                      >
+                        {user.is_active ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2 flex gap-2">
+                      <button
+                        onClick={() =>
+                          setSelectedUser({
+                            id: user.id,
+                            username: user.username,
+                            email: user.email,
+                            role: "user",
+                          })
+                        }
+                        className="text-xs px-2 py-1 rounded bg-yellow-200 hover:bg-yellow-300 transition-colors"
+                      >
+                        <FaEdit />
+                      </button>
+                      <DeleteUser
+                        user={{
+                          id: user.id,
+                          username: user.username,
+                          email: user.email,
+                          role: "organizer",
+                        }}
+                        onDeleted={(id) =>
+                          setUsers((prev) => prev.filter((u) => u.id !== id))
+                        }
+                      />
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="text-center py-6 text-gray-500">
+                    No users found.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         )}

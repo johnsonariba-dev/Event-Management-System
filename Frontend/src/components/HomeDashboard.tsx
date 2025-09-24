@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  FaCalendar,
   FaCheckCircle,
   FaCalendarAlt,
   FaClock,

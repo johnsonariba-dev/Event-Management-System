@@ -106,32 +106,61 @@ const Dashboard: React.FC = () => {
   // Edit Event Save
   const handleEditSave = async () => {
     if (!editingEvent) return;
+
     try {
-      const payload = {
-        ...editingEvent,
-        date: new Date(editingEvent.date).toISOString(), // full ISO for backend
-      };
+
+      const formData = new FormData();
+      formData.append("title", editingEvent.title);
+      formData.append("category", editingEvent.category);
+      formData.append("status", editingEvent.status || "Pending");
+      formData.append("description", editingEvent.description || "");
+      formData.append("venue", editingEvent.venue);
+      formData.append("date", new Date(editingEvent.date).toISOString()); // ou format local si nécessaire
+      formData.append("ticket_price", editingEvent.ticket_price.toString());
+      if (editingEvent.capacity_max !== undefined) {
+        formData.append("capacity_max", String(editingEvent.capacity_max));
+      }
+
       const res = await axios.put(
         `http://localhost:8000/events/${editingEvent.id}`,
-        payload,
-        { headers: { Authorization: `Bearer ${token}` } }
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
+
+      // S'assurer que le status est conservé si backend ne le renvoie pas
+      const updatedEvent = {
+        ...res.data,
+        status: res.data.status || editingEvent.status,
+      };
+
+      console.log(res.data);
       setEvents((prev) =>
-        prev.map((ev) => (ev.id === editingEvent.id ? res.data : ev))
+        prev.map((ev) => (ev.id === editingEvent.id ? updatedEvent : ev))
       );
+      console.log(editingEvent.date);
       setEditingEvent(null);
     } catch (err: any) {
       console.error("Error updating event:", err.response?.data || err.message);
     }
   };
 
+
+
   // Delete Event
   const handleDeleteConfirm = async () => {
     if (!deletingEvent) return;
     try {
-      await axios.delete(`http://localhost:8000/events/${deletingEvent.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `http://localhost:8000/delete_events/${deletingEvent.id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setEvents((prev) => prev.filter((ev) => ev.id !== deletingEvent.id));
       setDeletingEvent(null);
     } catch (err) {
@@ -210,8 +239,10 @@ const Dashboard: React.FC = () => {
             <img
               src={
                 event.image_url
-                  ? `http://127.0.0.1:8000${event.image_url}`
-                  : "/placeholder.png"
+                  ? event.image_url.startsWith("http")
+                    ? event.image_url
+                    : `http://localhost:8000/uploads/events/${event.image_url}`
+                  : "/placeholder.png" // fallback image in case it's missing
               }
               alt={event.title}
               className="w-full sm:w-36 h-40 sm:h-20 rounded-md object-cover max-w-full"

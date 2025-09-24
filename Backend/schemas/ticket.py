@@ -34,3 +34,42 @@ class TicketUpdate(BaseModel):
 class TicketWithRelations(Ticket):
     utilisateur: Optional[CreateUser] = None
     evenement: Optional[EventCreate] = None
+
+
+
+# USER
+class TicketUserOut(BaseModel):
+    id: int
+    event_id: int
+    event_title: str
+    quantity: int
+    price: float
+    purchase_date: datetime
+
+    class Config:
+        orm_mode = True
+
+
+# ORGANIZER
+class TicketOrganizerOut(BaseModel):
+    id: int
+    user_id: int
+    username: str
+    event_id: int
+    event_title: str
+    quantity: int
+    price: float
+    purchase_date: datetime
+
+    class Config:
+        orm_mode = True
+
+
+# CREATE TICKET
+class TicketCreate(BaseModel):
+    event_id: int
+    quantity: int = 1
+    price: float = 0.0
+
+    class Config:
+        orm_mode = True

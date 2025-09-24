@@ -5,16 +5,12 @@ from pathlib import Path
 env_path = Path(__file__).parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
-from endpoints import event, user, ticket, like, paypal, review,exportPDF
+from endpoints import event, user, ticket, like, paypal, review,exportPDF,adminLogin
 from database import Base,engine
 from endpoints import user
-
-
 from fastapi import FastAPI, Depends
-
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
-
 from endpoints import event, like, paypal, review, ticket, user, mtn 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -80,7 +76,9 @@ def root():
     return {"message": "Welcome to the Event Management System API!"}
 
 app.include_router(dashboard.router, tags=["dashboard"]) 
+app.include_router(adminLogin.router, tags=["adminLogin"]) 
 app.include_router(activityUser.router, tags=["activityUser"]) 
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
 
 

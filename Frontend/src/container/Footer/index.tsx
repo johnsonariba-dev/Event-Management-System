@@ -63,7 +63,7 @@ const Footer: React.FC = () => {
 
             {/* Admin/Organizer Dashboard link */}
          
-              <NavLink to="/AdminSign">
+              <NavLink to="/AdminLogin">
                 <li className="mb-1 flex items-center gap-2 underline text-secondary">
                   <GoDotFill />
                   Admin Dashboard

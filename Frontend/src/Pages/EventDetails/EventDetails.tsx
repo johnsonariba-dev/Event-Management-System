@@ -45,10 +45,30 @@ const EventDetails = () => {
   const [editingComment, setEditingComment] = useState("");
   const [editingRating, setEditingRating] = useState(0);
   const [showAllReviews, setShowAllReviews] = useState(false);
+  const [userInfo, setUserInfo] = useState()
+
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
+
+// fetch organiser name
+useEffect(() => {
+    if (!id) return;
+    const fetchOrganizer = async () => {
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/events/${id}/organizer`);
+        if (!res.ok) throw new Error("Organizer not found");
+        const data = await res.json();
+        console.log(data);
+        setUserInfo(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchOrganizer();
+  }, [id]);
+
 
   // Fetch event data
   useEffect(() => {
@@ -240,7 +260,7 @@ const EventDetails = () => {
             <div className="w-full flex justify-between items-center max-sm:flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <h1 className="text-lg font-semibold text-primary">
-                  By {event.organizer}
+                  By {userInfo}
                 </h1>
               
               </div>
@@ -290,7 +310,7 @@ const EventDetails = () => {
                   <HiUserCircle size={24} className="text-primary" />
                   <div>
                     <h1 className="text-sm font-semibold">Organizer</h1>
-                    <p className="text-sm">{event.organizer}</p>
+                    <p className="text-sm">{userInfo}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 w-full justify-end py-4 px-1">

@@ -17,8 +17,6 @@ import TicketScan from "./Pages/Ticket/TicketScan";
 import ScrollToTop from "./components/ScrollTop";
 import UpdateEvent from "./Pages/Events/UpdateEvent";
 import Profile from "./Pages/Profile";
-
-
 import Attendees from "./components/reviews";
 import { EventApproval } from "./components/EventApproval";
 import { HomeDashboard } from "./components/HomeDashboard";
@@ -26,14 +24,11 @@ import AdminDashboard from "./Pages/AdminDashboard";
 import { ReportsAnalytics } from "./components/ReportsAnalytics";
 import OrganizerManagement from "./components/OrganizerManagement";
 import UserManagement from "./components/UserManagement";
-
-
 import Dashboard from "./components/dashboard";
 import { ProtectedRoute } from "./components/PotectedRoute";
 // import type { JSX } from "react/jsx-dev-runtime";
-import AuthProvider from "./Pages/Context/AuthProvider";
-import AdminSign from "./Pages/Authentication/AdminSign";
 import AdminLogin from "./Pages/Authentication/AdminLogin";
+import AuthProvider from "./Pages/Context/AuthProvider";
 // import { useAuth } from "./Pages/Context/UseAuth";
 
 const NavBarItems = [
@@ -68,18 +63,24 @@ function App() {
   const location = useLocation();
 
   // Fix: Use regex for dynamic routes
-  const hidefooter = [
-    /^\/login$/,
-    /^\/register$/,
-    /^\/CreateEvent$/,
-    /^\/NewEvent$/,
-    /^\/admindashboard$/,
-    /^\/payment\/.+$/,
-  ];
-  const hideNavbar = [/^\/CreateEvent$/];
+const hideFooter = [
+  "/login",
+  "/register",
+  "/CreateEvent",
+  "/NewEvent",
+  "/admindashboard",
+  "/admindashboard/reports",
+  "/admindashboard/event-approval",
+  "/admindashboard/users",
+  "/admindashboard/organizers",
 
-  const showfooter = !hidefooter.some((regex) => regex.test(location.pathname));
-  const showNavbar = !hideNavbar.some((regex) => regex.test(location.pathname));
+];
+  const hideNavbar = ["/CreateEvent"];
+  const currentPath = location.pathname;
+
+  const showfooter =
+  !hideFooter.includes(currentPath) && !currentPath.startsWith("/payment/");
+  const showNavbar = !hideNavbar.includes(currentPath);
 
   return (
     <AuthProvider>
@@ -93,7 +94,6 @@ function App() {
           <Route path="/events" element={<Events />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/AdminSign" element={<AdminSign />} />
           <Route path="/AdminLogin" element={<AdminLogin />} />
           <Route path="/Event/:id" element={<EventDetails />} />
           <Route path="/cities/:id" element={<CityDetails />} />

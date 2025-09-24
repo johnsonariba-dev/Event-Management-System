@@ -9,13 +9,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 NKWA_API_KEY = os.getenv("NKWA_API_KEY")
-NKWA_API_URL = os.getenv("NKWA_API_URL")  # e.g., https://api.pay.staging.mynkwa.com
+NKWA_API_URL = os.getenv("NKWA_API_URL")
 
 router = APIRouter()
 
 
 class MTNPayment(BaseModel):
-    phone: str   # e.g., "652173171"
+    phone: str
     amount: float
 
 
@@ -32,8 +32,8 @@ async def pay_mtn(payment: MTNPayment):
     }
 
     payload = {
-        "phoneNumber": f"237{payment.phone}",   # per Nkwa docs
-        "amount": int(payment.amount),           # integer amount in XAF
+        "phoneNumber": f"237{payment.phone}",
+        "amount": int(payment.amount),
         "callback_url": "https://abc123.ngrok.io/mtn-callback",
         "reference": f"txn_{uuid.uuid4().hex}"
     }
@@ -42,10 +42,12 @@ async def pay_mtn(payment: MTNPayment):
 
     try:
         response = requests.post(url, headers=headers, json=payload)
-        print(f"DEBUG STATUS: {response.status_code}, RESPONSE: {response.text}")
+        print(
+            f"DEBUG STATUS: {response.status_code}, RESPONSE: {response.text}")
 
         if response.status_code not in (200, 201):
-            raise HTTPException(status_code=response.status_code, detail=response.text)
+            raise HTTPException(
+                status_code=response.status_code, detail=response.text)
 
         return response.json()
     except requests.RequestException as e:
