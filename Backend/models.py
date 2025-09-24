@@ -15,14 +15,19 @@ class User(Base):
     role: Mapped[str] = mapped_column(String, default="user", nullable=False, index=True)
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
 
-    # Relations
+    # Extra profile fields
+    phone: Mapped[str | None] = mapped_column(String, nullable=True)
+    location: Mapped[str | None] = mapped_column(String, nullable=True)
+    profile_pic: Mapped[str | None] = mapped_column(String, nullable=True)
+
+    # ✅ Relationships (always plural for collections)
     events = relationship("Event", back_populates="organizer", cascade="all, delete-orphan")
     tickets = relationship("Ticket", back_populates="user", cascade="all, delete-orphan")
     reviews = relationship("Review", back_populates="user", cascade="all, delete-orphan")
     likes = relationship("Like", back_populates="user", cascade="all, delete-orphan")
     notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
-    messages = relationship("MessageChat", back_populates="user", cascade="all, delete-orphan")
     preferences = relationship("UserPreference", back_populates="user", cascade="all, delete-orphan")
+    messages = relationship("MessageChat", back_populates="user", cascade="all, delete-orphan")
 
 
 # -------------------- EVENT -------------------
@@ -38,13 +43,15 @@ class Event(Base):
     category: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
     capacity_max: Mapped[int | None] = mapped_column(Integer, nullable=True)
     image_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="Pending", nullable=False, index=True)
+
     organizer_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
     status: Mapped[str] = mapped_column(String(20), default="Pending", nullable=False, index=True)
 
-    # Relations
+    # ✅ Relationships
     organizer = relationship("User", back_populates="events")
-    reviews = relationship("Review", back_populates="event", cascade="all, delete-orphan")
     tickets = relationship("Ticket", back_populates="event", cascade="all, delete-orphan")
+    reviews = relationship("Review", back_populates="event", cascade="all, delete-orphan")
     likes = relationship("Like", back_populates="event", cascade="all, delete-orphan")
     messages = relationship("MessageChat", back_populates="event", cascade="all, delete-orphan")
 
@@ -60,7 +67,7 @@ class Ticket(Base):
     price: Mapped[float] = mapped_column(Float, default=0.0)
     purchase_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
-    # Relations
+    # ✅ Relationships
     user = relationship("User", back_populates="tickets")
     event = relationship("Event", back_populates="tickets")
 
@@ -73,10 +80,10 @@ class Review(Base):
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
     event_id: Mapped[int] = mapped_column(Integer, ForeignKey("events.id"))
     comment: Mapped[str] = mapped_column(Text)
-    rating: Mapped[int] = mapped_column(Integer, nullable=True)
+    rating: Mapped[int | None] = mapped_column(Integer, nullable=True)
     reply: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    # Relations
+    # ✅ Relationships
     user = relationship("User", back_populates="reviews")
     event = relationship("Event", back_populates="reviews")
 
@@ -91,7 +98,7 @@ class Like(Base):
 
     __table_args__ = (UniqueConstraint("user_id", "event_id", name="unique_like"),)
 
-    # Relations
+    # ✅ Relationships
     user = relationship("User", back_populates="likes")
     event = relationship("Event", back_populates="likes")
 
@@ -105,7 +112,7 @@ class Notification(Base):
     title: Mapped[str] = mapped_column(String, index=True)
     message: Mapped[str] = mapped_column(Text, index=True)
 
-    # Relations
+    # ✅ Relationship
     user = relationship("User", back_populates="notifications")
 
 
@@ -118,7 +125,7 @@ class UserPreference(Base):
     preference: Mapped[str] = mapped_column(String, index=True)
     last_activity: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
-    # Relations
+    # ✅ Relationship
     user = relationship("User", back_populates="preferences")
 
 
@@ -134,6 +141,6 @@ class MessageChat(Base):
     intent: Mapped[str | None] = mapped_column(String(50), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
-    # Relations
+    # ✅ Relationships
     user = relationship("User", back_populates="messages")
     event = relationship("Event", back_populates="messages")

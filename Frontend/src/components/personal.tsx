@@ -1,59 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import Button from "./button";
 import { FaUpload } from "react-icons/fa";
+import { useAuth } from "../Pages/Context/UseAuth";
+import question from "../assets/images/question-mark.png";
 
 interface User {
-  name: string;
+  id: number;
+  username: string;
   email: string;
-  phone: string;
-  location: string;
-  categories: string[];
-  purchasedTickets: number;
-  upcomingEvents: number;
-  activities: string[];
+  phone?: string;
+  location?: string;
+  profile_pic?: string;
+  role: string;
 }
 
 const Personal: React.FC = () => {
-  const [user, setUser] = useState<User>({
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "+237 600 000 000",
-    location: "Douala, Cameroon",
-    categories: ["Music", "Tech"],
-    purchasedTickets: 5,
-    upcomingEvents: 2,
-    activities: [
-      "Bought a ticket for Music Fest 2025",
-      "Reviewed Tech Expo 2024",
-      "Updated profile picture",
-    ],
-  });
-
+  const { token } = useAuth();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
-  const [newCategory, setNewCategory] = useState("");
-  const [profilePic, setProfilePic] = useState(
-    "https://i.pravatar.cc/150?img=5"
-  );
+  const [profilePic, setProfilePic] = useState("");
+
+  // Fetch user data
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (!token) return;
+      try {
+        const res = await axios.get("http://127.0.0.1:8000/user/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUser(res.data);
+        // Default to question mark if no profile_pic
+        setProfilePic(
+          res.data.profile_pic ||
+           question // local asset for placeholder
+        );
+      } catch (err) {
+        console.error("Failed to fetch user:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, [token]);
+
+  if (loading) return <p>Loading profile...</p>;
+  if (!user) return <p>User not found</p>;
 
   const handleChange = (field: keyof User, value: string) => {
-    setUser((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleCategoryAdd = () => {
-    if (newCategory.trim() && !user.categories.includes(newCategory)) {
-      setUser((prev) => ({
-        ...prev,
-        categories: [...prev.categories, newCategory],
-      }));
-      setNewCategory("");
-    }
-  };
-
-  const handleCategoryRemove = (cat: string) => {
-    setUser((prev) => ({
-      ...prev,
-      categories: prev.categories.filter((c) => c !== cat),
-    }));
+    setUser((prev) => prev && { ...prev, [field]: value });
   };
 
   const handleProfilePicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,16 +63,45 @@ const Personal: React.FC = () => {
     }
   };
 
+  const handleSaveProfile = async () => {
+    if (!user) return;
+
+    if (!user.username || !user.email) {
+      alert("Username and email are required.");
+      return;
+    }
+
+    try {
+      const payload = {
+        username: user.username,
+        email: user.email,
+        phone: user.phone,
+        location: user.location,
+        profile_pic: profilePic,
+      };
+
+      await axios.put(`http://127.0.0.1:8000/user/${user.id}`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setEditMode(false);
+      alert("Profile updated successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update profile.");
+    }
+  };
+
   return (
     <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div className="flex items-center gap-4">
-          <label className="relative group cursor-pointer">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-8">
+        <div className="flex items-center gap-6">
+          <label className="relative group cursor-pointer w-28 h-28 sm:w-32 sm:h-32">
             <img
               src={profilePic}
               alt="Profile"
-              className="w-24 h-24 rounded-full border-4 border-primary-500 object-cover shadow-md"
+              className="w-full h-full rounded-full border-4 border-primary-500 object-cover shadow-lg bg-gray-100 flex items-center justify-center"
             />
             {editMode && (
               <>
@@ -84,157 +109,85 @@ const Personal: React.FC = () => {
                   type="file"
                   accept="image/*"
                   onChange={handleProfilePicUpload}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  className="absolute inset-0 opacity-0 cursor-pointer rounded-full"
                 />
                 <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                 <FaUpload/>
+                  <FaUpload className="text-white text-xl sm:text-2xl" />
                 </div>
               </>
             )}
           </label>
           <div>
-            <h1 className="text-2xl font-bold text-primary-600">{user.name}</h1>
-            <p className="text-secondary-500">Attendee</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-primary-700">
+              {user.username}
+            </h1>
+            <p className="text-secondary-600 capitalize">{user.role}</p>
           </div>
         </div>
         <Button
           title={editMode ? "Save Profile" : "Edit Profile"}
-          className="bg-primary-600 text-white px-5 py-2 rounded-lg shadow hover:bg-primary-700 transition"
-          onClick={() => setEditMode(!editMode)}
+          className="bg-primary-600 text-white px-6 py-3 rounded-lg shadow hover:bg-primary-700 transition"
+          onClick={editMode ? handleSaveProfile : () => setEditMode(true)}
         />
       </div>
 
       {/* Personal Info */}
-      <section className="mb-10">
-        <h2 className="text-lg font-semibold mb-4 text-primary-700">
+      <section className="mb-12 bg-white shadow rounded-xl p-6">
+        <h2 className="text-lg sm:text-xl font-semibold mb-6 text-primary-700">
           Personal Info
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-6 sm:grid-cols-2">
           {editMode ? (
             <>
               <input
-                aria-label="Name"
+                value={user.username}
+                onChange={(e) => handleChange("username", e.target.value)}
+                placeholder="Username"
                 className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                value={user.name}
-                onChange={(e) => handleChange("name", e.target.value)}
               />
               <input
-                aria-label="Email"
-                className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 value={user.email}
                 onChange={(e) => handleChange("email", e.target.value)}
+                placeholder="Email"
+                className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
               <input
-                aria-label="Phone"
-                className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                value={user.phone}
+                value={user.phone || ""}
                 onChange={(e) => handleChange("phone", e.target.value)}
+                placeholder="Phone"
+                className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
               <input
-                aria-label="Location"
-                className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                value={user.location}
+                value={user.location || ""}
                 onChange={(e) => handleChange("location", e.target.value)}
+                placeholder="Location"
+                className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </>
           ) : (
             <>
               <div>
-                <p className="text-sm text-gray-500">Name</p>
-                <p className="font-medium">{user.name}</p>
+                <p className="text-sm text-gray-500">Username</p>
+                <p className="font-medium text-gray-800">{user.username}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Email</p>
-                <p className="font-medium">{user.email}</p>
+                <p className="font-medium text-gray-800">{user.email}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Phone</p>
-                <p className="font-medium">{user.phone}</p>
+                <p className="font-medium text-gray-800">
+                  {user.phone || "N/A"}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Location</p>
-                <p className="font-medium">{user.location}</p>
+                <p className="font-medium text-gray-800">
+                  {user.location || "N/A"}
+                </p>
               </div>
             </>
           )}
-        </div>
-      </section>
-
-      {/* Preferences */}
-      <section className="mb-10">
-        <h2 className="text-lg font-semibold mb-4 text-primary-700">
-          Preferences
-        </h2>
-        <div className="flex flex-wrap gap-2 mb-3">
-          {user.categories.map((cat, idx) => (
-            <span
-              key={idx}
-              className="px-3 py-1 bg-secondary-100 text-secondary-700 rounded-full flex items-center gap-2 shadow-sm"
-            >
-              {cat}
-              {editMode && (
-                <button
-                  onClick={() => handleCategoryRemove(cat)}
-                  className="text-secondary-500 hover:text-secondary-700"
-                >
-                  ✕
-                </button>
-              )}
-            </span>
-          ))}
-        </div>
-        {editMode && (
-          <div className="flex gap-2">
-            <input
-              placeholder="Add preference"
-              className="p-2 border rounded-lg flex-1 focus:outline-none focus:ring-2 focus:ring-primary-500"
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-            />
-            <Button
-              title="Add"
-              className="bg-primary-600 text-white px-4 rounded-lg hover:bg-primary-700 shadow"
-              onClick={handleCategoryAdd}
-            />
-          </div>
-        )}
-      </section>
-
-      {/* Activity */}
-      <section>
-        <h2 className="text-lg font-semibold mb-4 text-primary-700">
-          Activity
-        </h2>
-        <div className="grid sm:grid-cols-2 gap-4 mb-6">
-          <div className="p-4 border rounded-lg shadow-sm bg-white">
-            <p className="text-sm text-gray-500">Purchased Tickets</p>
-            <p className="text-2xl font-bold text-primary-600">
-              {user.purchasedTickets}
-            </p>
-          </div>
-          <div className="p-4 border rounded-lg shadow-sm bg-white">
-            <p className="text-sm text-gray-500">Upcoming Events</p>
-            <p className="text-2xl font-bold text-primary-600">
-              {user.upcomingEvents}
-            </p>
-          </div>
-        </div>
-
-        {/* Recent Activities */}
-        <div>
-          <h3 className="text-md font-semibold mb-4 text-primary-700">
-            Recent Activities
-          </h3>
-          <ul className="space-y-3">
-            {user.activities.map((act, idx) => (
-              <li
-                key={idx}
-                className="bg-gray-50 rounded-lg p-4 shadow-sm hover:shadow-md transition"
-              >
-                <p className="text-gray-700 text-sm">{act}</p>
-              </li>
-            ))}
-          </ul>
         </div>
       </section>
     </div>

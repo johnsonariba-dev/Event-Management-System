@@ -11,7 +11,6 @@ import {
 import { FaChartLine, FaPlus } from "react-icons/fa6";
 import Button from "../../components/button";
 import { cities } from "../EventDetails/CityLilst";
-
 import { useAuth } from "../Context/UseAuth";
 
 type EventItem = {
@@ -370,13 +369,6 @@ function Home() {
         )}
         </div>
       </div>
-
-      {/* <div className="px-2 mt-10">
-        <h1 className="text-center text-2xl mb-5 max-md:text-xl animate-slideInLeft">
-          Recommended for you
-        </h1>
-        <Recommender userId={1} topN={5} />
-      </div> */}
     </div>
   );
 }

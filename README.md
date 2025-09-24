@@ -29,6 +29,9 @@ npm install jspdf
 npm install --save-dev @types/jspdf
 npm install qrcode.react
 
+# in case of rpoblems with running the frontend
+npm install @rollup/rollup-win32-x64-msvc --save-dev
+
 
 # Virtual environment
 python3 -m venv venv 

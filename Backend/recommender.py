@@ -1,70 +1,51 @@
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import linear_kernel
 import pandas as pd
-import pickle
-import os
+import numpy as np
 
-PICKLE_FILE = "events_precomputed.pkl"
-CSV_FILE = "events_for_recommender.csv"
-
-# ---------------- Load or Precompute ----------------
-if os.path.exists(PICKLE_FILE):
-    with open(PICKLE_FILE, "rb") as f:
-        data = pickle.load(f)
-        events_df = data["events_df"]
-        count_vec = data["count_vec"]
-        count_matrix = data["count_matrix"]
-    print("✅ Loaded precomputed data from Pickle.")
-else:
-    if os.path.exists(CSV_FILE):
-        # Load data
-        events_df = pd.read_csv(CSV_FILE)
-
-        # Ensure no NaN values
-        events_df = events_df.fillna("")
-
-        # Combine text fields for recommendation
-        events_df['combined'] = (
-            events_df['title'].astype(str).str.lower() + " " +
-            events_df['category'].astype(str).str.lower() + " " +
-            events_df['description'].astype(str).str.lower()
+class Recommender:
+    def __init__(self, events_df: pd.DataFrame):
+        """
+        events_df should have at least these columns:
+        - 'id': event ID
+        - 'title': event title
+        - 'description': event description
+        - 'category': event category
+        - 'popularity': numeric score (optional)
+        """
+        self.events_df = events_df.fillna("")
+        self.tfidf = TfidfVectorizer(stop_words='english')
+        self.tfidf_matrix = self.tfidf.fit_transform(
+            self.events_df['title'] + " " + self.events_df['description']
         )
+        self.cosine_sim = linear_kernel(self.tfidf_matrix, self.tfidf_matrix)
+        self.indices = pd.Series(self.events_df.index, index=self.events_df['id']).to_dict()
 
-        # Precompute vectorizer & matrix
-        count_vec = CountVectorizer(stop_words="english")
-        count_matrix = count_vec.fit_transform(events_df['combined'])
+    def recommend_similar(self, event_id: int, top_n: int = 5):
+        if event_id not in self.indices:
+            return []
+        idx = self.indices[event_id]
+        sim_scores = list(enumerate(self.cosine_sim[idx]))
+        sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+        sim_scores = [s for s in sim_scores if s[0] != idx]  # exclude itself
+        top_indices = [i[0] for i in sim_scores[:top_n]]
+        return self.events_df.iloc[top_indices].to_dict(orient='records')
 
-        # Save everything in pickle
-        with open(PICKLE_FILE, "wb") as f:
-            pickle.dump({
-                "events_df": events_df,
-                "count_vec": count_vec,
-                "count_matrix": count_matrix
-            }, f)
-        print("✅ Precomputed data saved to Pickle.")
-    else:
-        raise FileNotFoundError(
-            f"Neither Pickle nor CSV file found. Please generate '{CSV_FILE}' first."
-        )
+    def recommend_weighted(self, event_id: int, weight_column: str = 'popularity', top_n: int = 5):
+        """
+        Combine cosine similarity with a weight (popularity or rating)
+        """
+        if event_id not in self.indices or weight_column not in self.events_df.columns:
+            return []
+        idx = self.indices[event_id]
+        sim_scores = list(enumerate(self.cosine_sim[idx]))
+        sim_scores = [s for s in sim_scores if s[0] != idx]
 
-# ---------------- Recommendation Function ----------------
-def recommend_events(user_interests: list, top_n=5):
-    """
-    Recommend events based on user interests using precomputed data.
-    """
-    if not user_interests:
-        return []
-
-    user_text = " ".join(user_interests).lower()
-    user_vec = count_vec.transform([user_text])
-
-    similarity = cosine_similarity(user_vec, count_matrix).flatten()
-
-    # Create a copy with similarity scores
-    results = events_df.copy()
-    results['score'] = similarity
-
-    # Sort and return top N (excluding combined column)
-    recommended = results.sort_values('score', ascending=False).head(top_n)
-
-    return recommended.drop(columns=['combined', 'score']).to_dict(orient='records')
+        # Apply weighted score
+        weighted_scores = [
+            (i[0], i[1] * (1 + self.events_df.iloc[i[0]][weight_column]))
+            for i in sim_scores
+        ]
+        weighted_scores = sorted(weighted_scores, key=lambda x: x[1], reverse=True)
+        top_indices = [i[0] for i in weighted_scores[:top_n]]
+        return self.events_df.iloc[top_indices].to_dict(orient='records')

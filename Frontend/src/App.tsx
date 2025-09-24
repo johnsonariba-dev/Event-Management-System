@@ -73,9 +73,10 @@ const hideFooter = [
   "/admindashboard/event-approval",
   "/admindashboard/users",
   "/admindashboard/organizers",
+  "/Profile",
 
 ];
-  const hideNavbar = ["/CreateEvent"];
+  const hideNavbar = ["/CreateEvent","/Profile"];
   const currentPath = location.pathname;
 
   const showfooter =

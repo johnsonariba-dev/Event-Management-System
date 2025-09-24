@@ -1,21 +1,19 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Shield, Ticket, Settings, LogOut } from "lucide-react";
+import { User, Shield, Ticket, LogOut } from "lucide-react";
 
 import Personal from "./personal";
 import Security from "./security";
-import UserSettings from "./userSetting";
 import UserTicket from "./userTicket";
 import Logout from "./userlogout";
 import images from "../types/images";
 import { Link } from "react-router-dom";
 
 const routes = [
-  { id: "personal", label: "Personal Info", icon: <User size={18} /> },
-  { id: "security", label: "Security", icon: <Shield size={18} /> },
-  { id: "tickets", label: "Tickets", icon: <Ticket size={18} /> },
-  { id: "settings", label: "Settings", icon: <Settings size={18} /> },
-  { id: "logout", label: "Logout", icon: <LogOut size={18} /> },
+  { id: "personal", label: "Personal Info", icon: <User size={20} /> },
+  { id: "security", label: "Security", icon: <Shield size={20} /> },
+  { id: "tickets", label: "Tickets", icon: <Ticket size={20} /> },
+  { id: "logout", label: "Logout", icon: <LogOut size={20} /> },
 ];
 
 const Profile: React.FC = () => {
@@ -35,11 +33,9 @@ const Profile: React.FC = () => {
       case "security":
         return <Security />;
       case "tickets":
-        return <UserTicket/>;
-      case "settings":
-        return <UserSettings/>;
+        return <UserTicket />;
       case "logout":
-        return <Logout/>;
+        return <Logout />;
       default:
         return null;
     }
@@ -50,25 +46,29 @@ const Profile: React.FC = () => {
       {/* Desktop Sidebar */}
       {!isMobile && (
         <aside className="fixed top-0 left-0 h-full w-64 bg-primary text-white flex flex-col shadow-xl">
-          <div className="px-6 py-4 flex justify-center items-center border-b-2 border-secondary">
+          <div className="px-6 py-6 flex justify-center items-center border-b-2 border-secondary gap-3">
             <h1 className="text-xl font-bold">My Profile</h1>
-             <Link to="/" className="px-2 rounded-xl transform transition-transform duration-300 hover:scale-105">
-            <img src={images.brand} alt="Logo" className="w-10 h-10" />
-          </Link>
+            <Link
+              to="/"
+              className="px-2 rounded-xl transform transition-transform duration-300 hover:scale-105"
+            >
+              <img src={images.brand} alt="Logo" className="w-10 h-10" />
+            </Link>
           </div>
-          <nav className="flex flex-col mt-4 gap-1 px-2">
+
+          <nav className="flex flex-col mt-6 gap-3 px-3">
             {routes.map((route) => (
               <button
                 key={route.id}
                 onClick={() => setActive(route.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-left rounded-lg transition-all border-l-4 ${
+                className={`flex items-center gap-3 px-4 py-4 text-left rounded-lg transition-all border-l-4 ${
                   active === route.id
                     ? "bg-secondary text-white border-white shadow-md"
                     : "text-white/80 border-transparent hover:bg-white/10 hover:text-secondary hover:border-secondary"
                 }`}
               >
                 {route.icon}
-                <span>{route.label}</span>
+                <span className="text-base">{route.label}</span>
               </button>
             ))}
           </nav>
@@ -78,7 +78,7 @@ const Profile: React.FC = () => {
       {/* Main Content */}
       <main
         className={`flex-1 p-6 transition-all ${
-          !isMobile ? "md:ml-64" : "pb-24"
+          !isMobile ? "md:ml-64" : "pb-28"
         }`}
       >
         <AnimatePresence mode="wait">
@@ -102,13 +102,13 @@ const Profile: React.FC = () => {
             animate={{ y: 0 }}
             exit={{ y: 100 }}
             transition={{ type: "spring", stiffness: 120, damping: 15 }}
-            className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] bg-primary/95 text-white border border-secondary shadow-xl rounded-2xl px-3 py-3 flex justify-around"
+            className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] bg-primary/95 text-white border border-secondary shadow-xl rounded-2xl px-4 py-4 flex justify-around gap-3"
           >
             {routes.map((route) => (
               <button
                 key={route.id}
                 onClick={() => setActive(route.id)}
-                className={`flex flex-col items-center text-xs px-2 py-1 rounded-md transition ${
+                className={`flex flex-col items-center text-xs px-3 py-2 rounded-md transition ${
                   active === route.id
                     ? "text-secondary font-semibold bg-white/10"
                     : "text-white/80 hover:text-secondary hover:bg-white/10"
