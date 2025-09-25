@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy import (
-    Column, Integer, LargeBinary, String, Float, ForeignKey, Text, DateTime, UniqueConstraint
+    Column, Integer, LargeBinary, String, Float, ForeignKey, Text, DateTime, UniqueConstraint,func
 )
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from database import Base
@@ -47,6 +47,7 @@ class Event(Base):
 
     organizer_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
     status: Mapped[str] = mapped_column(String(20), default="Pending", nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # ✅ Relationships
     organizer = relationship("User", back_populates="events")

@@ -18,6 +18,8 @@ function CityDetails() {
   const { id } = useParams<{ id: string }>();
   const [city, setCity] = useState<(typeof cities)[0] | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(5);
 
   useEffect(() => {
     const foundCity = cities.find((c) => c.id === Number(id));
@@ -28,21 +30,24 @@ function CityDetails() {
     }
   }, [id]);
 
-  const fetchEvents = async (venue: string) => {
+  const fetchEvents = async (cityName: string) => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/event_fake/events"); 
-      // adjust API path to your router
+      setLoading(true);
+      const response = await fetch(
+        `http://127.0.0.1:8000/events/city/${encodeURIComponent(cityName)}`
+      );
       if (!response.ok) {
-        console.error("Failed to fetch events");
+        console.error("Failed to fetch city events");
+        setEvents([]);
         return;
       }
       const data = await response.json();
-
-      // Filter events locally by venue (if backend doesn’t support query)
-      const filtered = data.filter((ev: Event) => ev.venue === venue);
-      setEvents(filtered);
+      setEvents(data);
     } catch (err) {
       console.error("Error fetching events:", err);
+      setEvents([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,17 +57,17 @@ function CityDetails() {
     <div className="w-full flex flex-col items-center justify-center pb-10">
       {/* City Header */}
       <div
-        className="flex max-md:flex-col text-white md:gap-7 shadow-lg md:h-[85vh] p-5 mt-10 w-full bg-cover bg-center"
+        className="flex max-md:flex-col text-white md:gap-7 shadow-lg md:h-[85vh] max-md:h-screen p-5 mt-10 w-full bg-cover bg-center"
         style={{
           backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${city.image})`,
         }}
       >
         {/* City Intro */}
-        <div className="md:w-[50%] h-full flex flex-col gap-5 justify-center items-center py-20 md:pr-20">
-          <p className="md:text-7xl text-6xl font-bold pb-5">
-            {city.name}, <span>{city.region}</span>
+        <div className="md:w-[50%] h-full flex flex-col gap-5 justify-center items-center max-md:pt-27 md:py-20 md:pr-20 text-center md:text-left">
+          <p className="md:text-7xl text-4xl font-bold pb-5">
+            {city.name}, <span className="md:text-7xl text-4xl">{city.region}</span>
           </p>
-          <p className="text-lg">{city.desc}</p>
+          <p className="md:text-lg text-sm">{city.desc}</p>
         </div>
 
         {/* City Image */}
@@ -77,45 +82,61 @@ function CityDetails() {
 
       {/* Upcoming Events */}
       <div className="w-[95%] mt-10 p-8 bg-white rounded-lg shadow-lg">
-        <h2 className="text-2xl font-semibold">Upcoming Events</h2>
+        <h2 className="text-2xl md:text-3xl font-semibold">Upcoming Events</h2>
         <div className="mt-5 flex flex-wrap justify-evenly gap-8">
-          {events.length > 0 ? (
-            events.slice(0, 5).map((event) => (
-              <div
-                key={event.id}
-                className="bg-white shadow-lg rounded-xl overflow-hidden hover:scale-105 transition-transform sm:w-[48%] md:w-[30%] lg:w-[25%] max-md:w-full"
-              >
-                <img
-                  src={event.image_url}
-                  alt={event.title}
-                  className="h-40 w-full object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="font-bold text-lg">{event.title}</h3>
-                  <p className="text-gray-600 text-sm mt-1 line-clamp-2">
-                    {event.description}
-                  </p>
-                  <p className="mt-3 text-sm flex gap-2 items-center pb-3">
-                    <FaLocationDot color="purple" /> {event.venue}
-                  </p>
-                  <p className="text-gray-800 font-medium pb-2">
-                    {event.ticket_price === 0
-                      ? "Free"
-                      : `${event.ticket_price} FCFA`}
-                  </p>
-                  <div className="flex justify-end">
-                    <NavLink to={`/event/${event.id}`}>
-                      <Button
-                        title="View Details"
-                        className="bg-secondary hover:bg-primary text-white px-4 py-2 rounded-lg"
-                      />
-                    </NavLink>
+          {loading ? (
+            <p className="md:text-lg text-sm">Loading events...</p>
+          ) : events.length > 0 ? (
+            <>
+              {events.slice(0, visibleCount).map((event) => (
+                <div
+                  key={event.id}
+                  className="bg-white shadow-lg rounded-xl overflow-hidden hover:scale-105 transition-transform sm:w-[48%] md:w-[30%] lg:w-[25%] max-md:w-full"
+                >
+                  <img
+                    src={event.image_url}
+                    alt={event.title}
+                    className="h-40 w-full object-cover"
+                  />
+                  <div className="p-4">
+                    <h3 className="font-bold md:text-lg text-base">{event.title}</h3>
+                    <p className="text-gray-600 md:text-sm text-xs mt-1 line-clamp-2">
+                      {event.description}
+                    </p>
+                    <p className="mt-3 md:text-sm text-xs flex gap-2 items-center pb-3">
+                      <FaLocationDot color="purple" /> {event.venue}
+                    </p>
+                    <p className="text-gray-800 font-medium md:text-sm text-xs pb-2">
+                      {event.ticket_price === 0
+                        ? "Free"
+                        : `${event.ticket_price} FCFA`}
+                    </p>
+                    <div className="flex justify-end">
+                      <NavLink to={`/event/${event.id}`}>
+                        <Button
+                          title="View Details"
+                          className="bg-secondary hover:bg-primary text-white px-4 py-2 rounded-lg text-sm md:text-base"
+                        />
+                      </NavLink>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              ))}
+
+              {/* Show More button */}
+              {visibleCount < events.length && (
+                <div className="w-full flex justify-center mt-5">
+                  <button
+                    onClick={() => setVisibleCount((prev) => prev + 5)}
+                    className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-secondary transition-colors md:text-base text-sm"
+                  >
+                    Show More
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
-            <p>No events found for this city.</p>
+            <p className="md:text-base text-sm">No events found for this city.</p>
           )}
         </div>
       </div>
