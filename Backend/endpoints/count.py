@@ -32,26 +32,15 @@ async def rating(db: Session = Depends(get_db)):
 
     return percent
 
-# total tickets and reviews by event
+    
 @router.get("/eventStats/{event_id}")
 async def event_stats(event_id: int,db: Session = Depends(get_db)):
-    results = (
-        db.query(
-            func.count(models.Ticket.id).label("total_tickets"),
-            func.count(models.Review.id).label("total_reviews")
-        )
-        .outerjoin(models.Ticket, models.Ticket.event_id == models.Event.id)
-        .outerjoin(models.Review, models.Review.event_id == models.Event.id)
-        .filter(models.Event.id == event_id)
-        .group_by(models.Event.id)
-        .first()
-    )
-    if not results:
-        raise HTTPException(status_code=404, detail="statistics not found")
-
+    
+        # Get counts using separate queries (more reliable)
+    total_tickets = db.query(models.Ticket).filter(models.Ticket.event_id == event_id).count()
+    total_reviews = db.query(models.Review).filter(models.Review.event_id == event_id).count()
 
     return {
-            "total_tickets": r.total_tickets,
-            "total_reviews": r.total_reviews
-        }
-    
+        "total_tickets": total_tickets,
+        "total_reviews": total_reviews
+    }

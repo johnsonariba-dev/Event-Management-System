@@ -39,7 +39,8 @@ const Register: React.FC = () => {
 
       if (!response.ok) {
         const errData = await response.json();
-        throw new Error(errData.message || "Registration failed");
+        setError(typeof errData.detail === "string" ? errData.detail : "Registration failed");
+        return;
       }
 
       const data = await response.json();
@@ -125,6 +126,7 @@ const Register: React.FC = () => {
                 <option value="">Select Role</option>
                 <option value="user">User</option>
                 <option value="organizer">Organizer</option>
+                <option value="admin">admin</option>
               </select>
 
               <div className="flex items-center">

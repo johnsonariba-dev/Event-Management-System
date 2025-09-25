@@ -117,7 +117,9 @@ export const ReportsAnalytics = () => {
           },
         ]);
 
-        // Line chart
+        // // Line chart
+        // const lineRes = await fetch("http://127.0.0.1:8000/line-data");
+        // const lineDataJson = await lineRes.json();
         setLineData({
           labels: lineRes.data.labels,
           datasets: [
@@ -151,10 +153,7 @@ export const ReportsAnalytics = () => {
           ],
         });
 
-        // Popular events
         setPopularEvents(popularRes.data);
-
-        // Top organizers
         setTopOrganizers(topOrgRes.data);
       } catch (error) {
         console.error("Error fetching reports:", error);
@@ -163,45 +162,44 @@ export const ReportsAnalytics = () => {
 
     fetchReports();
   }, []);
-const downloadReport = () => {
-  const link = document.createElement("a");
-  link.href = "http://localhost:8000/export-pdf";
-  link.download = "report.pdf"; // filename (optional, since backend already sets it)
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
+  const downloadReport = () => {
+    const link = document.createElement("a");
+    link.href = "http://localhost:8000/export-pdf";
+    link.download = "report.pdf";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="space-y-5 p-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-  {/* Left */}
-  <div>
-    <h1 className="font-bold text-2xl">Reports & Analytics</h1>
-    <p className="font-light text-sm">
-      Comprehensive insights into platform performance
-    </p>
-  </div>
+        {/* Left */}
+        <div>
+          <h1 className="font-bold text-2xl">Reports & Analytics</h1>
+          <p className="font-light text-sm">
+            Comprehensive insights into platform performance
+          </p>
+        </div>
 
-  {/* Right */}
-  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
-    <select className="bg-transparent border border-secondary rounded-md h-8 px-2 w-full sm:w-auto">
-      <option>Last week</option>
-      <option>Last Month</option>
-      <option>Last Quarter</option>
-      <option>Last Year</option>
-    </select>
+        {/* Right */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
+          <select className="bg-transparent border border-secondary rounded-md h-8 px-2 w-full sm:w-auto">
+            <option>Last week</option>
+            <option>Last Month</option>
+            <option>Last Quarter</option>
+            <option>Last Year</option>
+          </select>
 
-    <button
-      onClick={downloadReport}
-      className="p-2 h-8 bg-secondary rounded-md text-xs font-light text-white flex items-center justify-center gap-2 w-full sm:w-auto"
-    >
-      <FaDownload size={12} /> Export Report
-    </button>
-  </div>
-</div>
-
+          <button
+            onClick={downloadReport}
+            className="p-2 h-8 bg-secondary rounded-md text-xs font-light text-white flex items-center justify-center gap-2 w-full sm:w-auto"
+          >
+            <FaDownload size={12} /> Export Report
+          </button>
+        </div>
+      </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4">

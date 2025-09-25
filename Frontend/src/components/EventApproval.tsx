@@ -89,7 +89,6 @@ export const EventApproval: React.FC = () => {
     }
   };
 
- 
   const filteredEvents = events.filter((e) => {
     const matchStatus = filter === "All" || e.status === filter;
     const matchQuery =
@@ -118,11 +117,15 @@ export const EventApproval: React.FC = () => {
         </div>
         <div className="border rounded-lg p-4 flex flex-col ">
           <p className="text-sm">Approved</p>
-          <span className="font-bold text-xl md:text-2xl">{stats.approved}</span>
+          <span className="font-bold text-xl md:text-2xl">
+            {stats.approved}
+          </span>
         </div>
         <div className="border rounded-lg p-4 flex flex-col ">
           <p className="text-sm">Rejected</p>
-          <span className="font-bold text-xl md:text-2xl">{stats.rejected}</span>
+          <span className="font-bold text-xl md:text-2xl">
+            {stats.rejected}
+          </span>
         </div>
         <div className="border rounded-lg p-4 flex flex-col">
           <p className="text-sm">Total Events</p>
@@ -135,7 +138,9 @@ export const EventApproval: React.FC = () => {
         <div className="flex justify-between items-start md:items-center gap-2 md:gap-4">
           <div>
             <h2 className="font-bold text-xl">Events List</h2>
-            <p className="text-xs font-light">Review and manage event approvals</p>
+            <p className="text-xs font-light">
+              Review and manage event approvals
+            </p>
           </div>
           <div className="flex  items-start sm:items-center gap-2">
             <SearchBar onSearch={setSearchQuery} /> {/* ✅ onSearch */}
@@ -177,7 +182,19 @@ export const EventApproval: React.FC = () => {
                 </td>
                 <td className="px-4 py-2">{event.capacity_max}</td>
                 <td className="px-4 py-2">{event.ticket_price} FCFA</td>
-                <td className="px-4 py-2">{event.status}</td>
+                <td className="px-4 py-2">
+                  <span
+                    className={`px-2 py-1 rounded-full font-medium ${
+                      event.status?.trim().toLowerCase() === "pending"
+                        ? "bg-yellow-200 "
+                        : event.status?.trim().toLowerCase() === "approved"
+                        ? "bg-green-200 "
+                        : "bg-red-200 "
+                    }`}
+                  >
+                    {event.status}
+                  </span>
+                </td>
                 <td className="px-4 py-2 flex gap-2 md:gap-3">
                   <button
                     onClick={() => handleStatusUpdate(event.id, "Approved")}

@@ -165,7 +165,7 @@ def get_organizer_tickets(current_user: models.User = Depends(get_current_user),
     ]
 
 
-# ---------------- CREATE TICKET ----------------
+#  CREATE TICKET 
 @router.post("/tickets", response_model=TicketUserOut)
 def create_ticket(ticket: TicketCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     event = db.query(models.Event).filter(models.Event.id == ticket.event_id).first()

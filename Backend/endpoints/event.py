@@ -299,3 +299,11 @@ def recommend_me(
         recs = []
 
     return {"user_id": current_user.id, "recommended": recs}
+
+# Organiser name
+@router.get("/events/{event_id}/organizer")
+def get_organizer_name(event_id: int, db: Session = Depends(get_db)):
+    event = db.query(models.Event).filter(models.Event.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    return  event.organizer.username

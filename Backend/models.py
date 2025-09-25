@@ -27,7 +27,6 @@ class User(Base):
     likes = relationship("Like", back_populates="user", cascade="all, delete-orphan")
     notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
     preferences = relationship("UserPreference", back_populates="user", cascade="all, delete-orphan")
-    messages = relationship("MessageChat", back_populates="user", cascade="all, delete-orphan")
 
 
 # -------------------- EVENT -------------------
@@ -44,7 +43,6 @@ class Event(Base):
     capacity_max: Mapped[int | None] = mapped_column(Integer, nullable=True)
     image_url: Mapped[str | None] = mapped_column(String, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="Pending", nullable=False, index=True)
-
     organizer_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
     status: Mapped[str] = mapped_column(String(20), default="Pending", nullable=False, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
@@ -54,7 +52,9 @@ class Event(Base):
     tickets = relationship("Ticket", back_populates="event", cascade="all, delete-orphan")
     reviews = relationship("Review", back_populates="event", cascade="all, delete-orphan")
     likes = relationship("Like", back_populates="event", cascade="all, delete-orphan")
-    messages = relationship("MessageChat", back_populates="event", cascade="all, delete-orphan")
+    notifications = relationship("Notification", back_populates="event", cascade="all, delete-orphan")
+
+
 
 
 # -------------------- TICKET --------------------
@@ -112,9 +112,14 @@ class Notification(Base):
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
     title: Mapped[str] = mapped_column(String, index=True)
     message: Mapped[str] = mapped_column(Text, index=True)
+    event_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("events.id"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
 
     # ✅ Relationship
     user = relationship("User", back_populates="notifications")
+    event = relationship("Event", back_populates="notifications")
+
 
 
 # -------------------- USER PREFERENCE --------------------
@@ -126,22 +131,6 @@ class UserPreference(Base):
     preference: Mapped[str] = mapped_column(String, index=True)
     last_activity: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
-    # ✅ Relationship
+    # Relations
     user = relationship("User", back_populates="preferences")
 
-
-# -------------------- MESSAGE CHAT --------------------
-class MessageChat(Base):
-    __tablename__ = "messages_chat"
-
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
-    event_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("events.id"), nullable=True)
-    message: Mapped[str] = mapped_column(Text, nullable=False)
-    type: Mapped[str | None] = mapped_column(String, nullable=True)
-    intent: Mapped[str | None] = mapped_column(String(50), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-
-    # ✅ Relationships
-    user = relationship("User", back_populates="messages")
-    event = relationship("Event", back_populates="messages")
