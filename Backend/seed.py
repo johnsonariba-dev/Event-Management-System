@@ -72,7 +72,8 @@ def generate_fake_event(organizer_id=1):
         capacity_max=random.randint(50, 500),
         image_url=image_url,
         status="Approved",
-        organizer_id=organizer_id
+        organizer_id=organizer_id,
+        created_at=fake.date_time_between(start_date="-60d", end_date="now")
     )
 
 

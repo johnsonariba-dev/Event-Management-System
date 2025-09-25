@@ -132,8 +132,29 @@ def get_my_events(
 
 @router.get("/events", response_model=List[EventResponse])
 async def read_events(db: Session = Depends(get_db)):
-    events = db.query(models.Event).filter(
-        models.Event.status == "Approved").all()
+    events = (
+        db.query(models.Event)
+        .filter(models.Event.status == "Approved")
+        .order_by(models.Event.created_at.desc())   # 👈 newest first
+        .all()
+    )
+    return events
+
+@router.get("/events/city/{city_name}", response_model=List[EventResponse])
+def get_events_by_city(city_name: str, db: Session = Depends(get_db)):
+    """
+    Fetch only Approved events in a given city (case-insensitive),
+    ordered by newest first.
+    """
+    events = (
+        db.query(models.Event)
+        .filter(
+            models.Event.status == "Approved",
+            models.Event.venue.ilike(f"%{city_name}%")   # case-insensitive
+        )
+        .order_by(models.Event.created_at.desc())       # newest first
+        .all()
+    )
     return events
 
 

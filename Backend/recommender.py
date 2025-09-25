@@ -12,7 +12,7 @@ from sqlalchemy import func
 PICKLE_FILE = "events_precomputed.pkl"
 CSV_FILE = "events_for_recommender.csv"
 
-# Load or Precompute
+# ---------------- Load or Precompute ----------------
 events_df = None
 count_vec = None
 count_matrix = None
@@ -57,7 +57,7 @@ else:
         print("⚠️ No pickle or CSV found. recommender functions will attempt to build from DB when called.")
 
 
-# Helpers
+# ---------------- Helpers ----------------
 def _ensure_precomputed_from_db(db: Session):
     """
     Build events_df/count_vec/count_matrix from DB (used when CSV/pickle not available).
@@ -96,7 +96,7 @@ def _get_avg_ratings_by_event(db: Session) -> Dict[int, float]:
     return avg_map
 
 
-# Recommendation Functions
+# ---------------- Recommendation Functions ----------------
 def recommend_events(user_interests: List[str], top_n: int = 5, db: Optional[Session] = None, rating_weight: float = 1.0):
     """
     Recommend events based on user interests using precomputed data (pickle/CSV) or DB-built vectors.
