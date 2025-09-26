@@ -44,6 +44,7 @@ class TicketUserOut(BaseModel):
     event_title: str
     quantity: int
     price: float
+    venue: str
     purchase_date: datetime
 
     class Config:

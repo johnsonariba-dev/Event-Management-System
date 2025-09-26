@@ -9,6 +9,7 @@ interface Review {
   comment: string;
   rating: number;
   reply?: string;
+  time?: string;
 }
 
 const OrganizerReviews = () => {
@@ -16,18 +17,21 @@ const OrganizerReviews = () => {
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [replyText, setReplyText] = useState<Record<number, string>>({});
   const [editingReply, setEditingReply] = useState<Record<number, boolean>>({});
+  const [loading, setLoading] = useState(false);
 
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
+        setLoading(true);
         const res = await fetch("http://127.0.0.1:8000/organizer/reviews", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
           const data: Review[] = await res.json();
           setReviews(data);
+          console.log(data);
 
           const initialReplies: Record<number, string> = {};
           data.forEach((r) => {
@@ -37,6 +41,8 @@ const OrganizerReviews = () => {
         }
       } catch (err: unknown) {
         console.error(err instanceof Error ? err.message : JSON.stringify(err));
+      } finally {
+        setLoading(false);
       }
     };
     fetchReviews();
@@ -81,6 +87,10 @@ const OrganizerReviews = () => {
     return <p className="p-5 text-gray-500">No reviews yet.</p>;
   }
 
+  {
+    loading && <p className="text-gray-500">Loading...</p>;
+  }
+
   return (
     <div className="p-5">
       {reviews.map((r) => (
@@ -112,7 +122,10 @@ const OrganizerReviews = () => {
                     />
                   </svg>
                 ))}
-                <p className="font-medium text-sm text-gray-500"> date</p>
+                <p className="font-medium text-sm text-gray-500">
+                  {" "}
+                  At {r.time}
+                </p>
               </div>
             </div>
 
@@ -151,8 +164,8 @@ const OrganizerReviews = () => {
           </div>
 
           <div className="leading-relaxed mt-2">
-            <p className="text-sm text-gray-400 font-medium">
-              Event: {r.event_title}
+            <p className="text-md text-gray-400 font-medium">
+              Event: <span className="text-gray-800">{r.event_title}</span>
             </p>
             <p className="">{r.comment}</p>
           </div>
@@ -195,3 +208,4 @@ const OrganizerReviews = () => {
 };
 
 export default OrganizerReviews;
+

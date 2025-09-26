@@ -83,6 +83,7 @@ class Review(Base):
     comment: Mapped[str] = mapped_column(Text)
     rating: Mapped[int | None] = mapped_column(Integer, nullable=True)
     reply: Mapped[str | None] = mapped_column(String, nullable=True)
+    time: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     # ✅ Relationships
     user = relationship("User", back_populates="reviews")

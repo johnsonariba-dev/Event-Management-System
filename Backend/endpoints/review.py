@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session,joinedload
 
 import models
 from database import get_db
@@ -102,11 +102,13 @@ def get_organizer_reviews(
 ):
     reviews = (
         db.query(models.Review)
+        .options(joinedload(models.Review.event), joinedload(models.Review.user))  # <-- charge event et user
         .join(models.Event)
         .filter(models.Event.organizer_id == current_user.id)
         .all()
     )
     return [Review.from_orm(r) for r in reviews]
+
 
 
 # -------------------------

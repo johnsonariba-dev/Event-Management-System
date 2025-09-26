@@ -6,9 +6,10 @@ import { useAuth } from "../Pages/Context/UseAuth";
 
 interface Ticket {
   id: string;
-  event: string;
-  date: string;
+  event_title: string;
+  purchase_date: string;
   venue: string;
+  quantity: number;
   status: "Active" | "Used" | "Cancelled";
 }
 
@@ -31,6 +32,7 @@ const UserTicket: React.FC = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setTickets(res.data);
+        console.log(res.data)
       } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
           console.error("Failed to fetch tickets:", err.response?.data || err.message);
@@ -77,10 +79,10 @@ const UserTicket: React.FC = () => {
             className="bg-white shadow-lg rounded-2xl p-6 border border-primary/10 hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
           >
             <div>
-              <h2 className="text-lg font-semibold text-primary mb-2">{ticket.event}</h2>
+              <h2 className="text-lg font-semibold text-primary mb-2">{ticket.event_title}</h2>
 
               <p className="text-sm text-gray-600 mb-1">
-                <span className="font-medium">Date:</span> {ticket.date}
+                <span className="font-medium">Date:</span> {ticket.purchase_date}
               </p>
               <p className="text-sm text-gray-600 mb-3">
                 <span className="font-medium">Venue:</span> {ticket.venue}
@@ -101,12 +103,14 @@ const UserTicket: React.FC = () => {
             </div>
 
             <div className="flex gap-3 mt-2 flex-wrap">
+
               <Button
                 title="View Details"
                 icon={<FaInfoCircle />}
                 className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition flex-1"
-                onClick={() => alert(`Viewing ${ticket.event}`)}
+                onClick={() => alert(`Viewing ${ticket.event_title}`)}
               />
+
               {ticket.status === "Active" && (
                 <Button
                   title="Download"
@@ -124,3 +128,4 @@ const UserTicket: React.FC = () => {
 };
 
 export default UserTicket;
+
