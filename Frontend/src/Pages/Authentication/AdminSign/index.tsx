@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Button from "../../../components/button";
 import images from "../../../types/images";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
@@ -7,14 +7,14 @@ import { useAuth } from "../../Context/UseAuth";
 
 const URL_API = "http://localhost:8000/user/register";
 
-const Register: React.FC = () => {
+const AdminSign: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");
+  const [role] = useState("admin"); // default admin
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -25,38 +25,37 @@ const Register: React.FC = () => {
     e.preventDefault();
     setError(null);
 
-    if (!role) {
-      setError("Please select a role");
+    if (!username || !email || !password) {
+      setError("All fields are required");
       return;
     }
 
     try {
-      const response = await fetch(URL_API, {
+      const res = await fetch(URL_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password, role }),
       });
 
-      if (!response.ok) {
-        const errData = await response.json();
-        setError(typeof errData.detail === "string" ? errData.detail : "Registration failed");
-        return;
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.message || "Registration failed");
       }
 
-      const data = await response.json();
+      const data = await res.json();
       const token = data.access_token;
+
+      if (!token) throw new Error("Token missing from response");
 
       // Automatically login after registration
       login(token, role, email);
-
       setSuccess(true);
 
       setTimeout(() => {
-     if (role === "organizer") navigate("/Login");
-        else navigate("/Login");
-      }, 1500);
+        navigate("/adminLogin");
+      }, 1000);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "An unknown error occurred");
+      setError(err instanceof Error ? err.message : "Unknown error occurred");
     }
   };
 
@@ -64,18 +63,16 @@ const Register: React.FC = () => {
     <div className="h-screen flex items-center justify-center bg-gray-100 p-6 pt-20">
       <div className="flex w-full max-w-6xl rounded-2xl shadow-2xl bg-white max-md:flex-col">
         {/* Left Form */}
-        <div className="w-full md:w-1/2 flex flex-col justify-center bg-[url(/src/assets/images/sign.jpg)] bg-rotate-90 bg-cover rounded-l-2xl max-md:rounded-2xl">
-          <div className="p-10 flex flex-col justify-center bg-white h-full rounded-br-[50px] rounded-l-2xl max-md:rounded-2xl">
+        <div className="w-full md:w-1/2 flex flex-col justify-center bg-[url(/src/assets/images/sign.jpg)] bg-cover rounded-l-2xl max-md:rounded-2xl">
+          <div className="p-10 flex flex-col justify-center bg-white h-full rounded-l-2xl max-md:rounded-2xl">
             <form onSubmit={handleSubmit} className="flex flex-col space-y-5">
               <h1 className="text-3xl font-bold text-center pb-5">
-                Create an account
+                Create Admin Account
               </h1>
 
               {success && (
-                <div className="bg-green-500 rounded-lg">
-                  <h1 className="text-center p-2 text-2xl text-white">
-                    Registration Successful
-                  </h1>
+                <div className="bg-green-500 rounded-lg text-center text-white p-2">
+                  Registration Successful
                 </div>
               )}
 
@@ -117,25 +114,6 @@ const Register: React.FC = () => {
                 </button>
               </div>
 
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full border-2 border-violet-500 rounded-md p-3 outline-none focus:ring-2 focus:ring-violet-400"
-                required
-              >
-                <option value="">Select Role</option>
-                <option value="user">User</option>
-                <option value="organizer">Organizer</option>
-                <option value="admin">admin</option>
-              </select>
-
-              <div className="flex items-center">
-                <input id="remember" type="checkbox" className="mr-2" />
-                <label htmlFor="remember" className="text-sm">
-                  Remember Me
-                </label>
-              </div>
-
               <div className="flex justify-center pt-4">
                 <Button
                   type="submit"
@@ -147,12 +125,12 @@ const Register: React.FC = () => {
               <div className="text-center">
                 <p>
                   Already have an account?{" "}
-                  <Link
-                    to="/Login"
+                  <a
+                    href="/adminLogin"
                     className="font-bold text-violet-500 hover:text-secondary hover:underline"
                   >
                     Login
-                  </Link>
+                  </a>
                 </p>
               </div>
             </form>
@@ -172,4 +150,4 @@ const Register: React.FC = () => {
   );
 };
 
-export default Register;
+export default AdminSign;

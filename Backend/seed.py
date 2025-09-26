@@ -7,12 +7,12 @@ from models import Event, Base
 fake = Faker("en_US")
 
 # Categories
-CATEGORIES = ["Music", "Tech", "Sport", "Art", "Business", "Religious"]
+CATEGORIES = ["Music", "Tech", "Sport", "Art", "Business"]
 
 # Major cities in Cameroon
 CAMEROON_CITIES = [
-    "Yaoundé", "Douala", "Bamenda", "Limbe", "Buea", "Kribi",
-    "Garoua", "Maroua", "Ebolowa", "Nkongsamba"
+    "Yaoundé", "Douala", "Bamenda", "Bertoua", "Buea", "Ngaoundere",
+    "Garoua", "Maroua", "Ebolowa", "Bafoussam"
 ]
 
 # Base image URLs per category (unique seed per event later)

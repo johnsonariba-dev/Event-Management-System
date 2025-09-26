@@ -15,6 +15,7 @@ interface Reviews {
   username: string;
   comment: string;
   rating: number;
+  reply?: string
 }
 
 interface Event {
@@ -33,6 +34,13 @@ interface Event {
   liked_by_user?: boolean;
 }
 
+
+interface EventStats{
+  total_tickets: number;
+  total_reviews: number;
+}
+
+
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<Event | null>(null);
@@ -46,11 +54,27 @@ const EventDetails = () => {
   const [editingRating, setEditingRating] = useState(0);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [userInfo, setUserInfo] = useState()
-
+  const [count, setCount] = useState<EventStats | null>(null)
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
+
+// total attendees and reviews
+useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/eventStats/${id}`);
+
+        if (!res.ok) throw new Error("Informations incompleted");
+
+        const data = await res.json();
+        console.log(data);
+        setCount(data);
+      } catch (error) {}
+    };
+    fetchCount();
+  }, [id]);
 
 // fetch organiser name
 useEffect(() => {
@@ -333,7 +357,7 @@ useEffect(() => {
             </h1>
             <HiTicket size={44} className="text-primary" />
           </div>
-          <p className="text-white p-4">847 people registered</p>
+          <p className="text-white p-4">{count?.total_tickets} people registered</p>
           <div className="w-full flex bg-primary h-3 rounded-2xl m-4">
             <div className="bg-secondary h-3 rounded-2xl w-[70%]"></div>
           </div>
@@ -368,7 +392,7 @@ useEffect(() => {
               ))}
             </div>
             <p>
-              <span className="text-primary">Based on 100 reviews</span>
+              <span className="text-primary">Based on {count?.total_reviews} reviews</span>
             </p>
           </div>
         </div>
@@ -453,7 +477,12 @@ useEffect(() => {
                 <div className="flex justify-between items-center">
                   <div>
                     <h1 className="text-gray-500">{rev.username}</h1>
-                    <p className="pt-5">{rev.comment}</p>
+                    <p className="pt-5 text-gray-800">{rev.comment}</p>
+                    {rev.reply && (
+                      <div className="ml-6 mt-2 p-2 border-l-2 border-gray-300 text-gray-600">
+                        <strong>Organizer reply:</strong> {rev.reply}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <div className="flex gap-1">
@@ -466,6 +495,7 @@ useEffect(() => {
                         />
                       ))}
                     </div>
+
                     <button
                       className="pl-20 pt-5"
                       onClick={() => startEditing(rev)}
@@ -486,6 +516,9 @@ useEffect(() => {
             </button>
           )}
         </div>
+
+      
+      
       </div>
     </div>
   );

@@ -2,20 +2,23 @@ import { useState } from "react";
 import { HiHome } from "react-icons/hi2";
 import { FaRegCalendarAlt, FaUsers } from "react-icons/fa";
 import { GrTicket } from "react-icons/gr";
-import { VscSettingsGear } from "react-icons/vsc";
 import { TbLogout } from "react-icons/tb";
 import { Link } from "react-router-dom";
+import { FaList } from "react-icons/fa6";
+import { MdNotificationsNone } from "react-icons/md";
 
 import Dashboard from "./dashboard";
-import Settings from "./settings";
 import Reviews from "./reviews";
 import Tickets from "./tickets";
 import images from "../types/images";
 import HeaderDashboard from "./headerDashbord";
 import CalendarComponent from "./myCalendar";
-import { FaList } from "react-icons/fa6";
+import  Notifications  from "./Notifications";
+import Logout from "./userlogout";
 
 const SideBar = () => {
+
+  const token = localStorage.getItem("token") || "";
   const [active, setActive] = useState("dashboard");
 
   const links = [
@@ -45,11 +48,22 @@ const SideBar = () => {
       label: "Reviews",
     },
     {
-      id: "settings",
-      icon: <VscSettingsGear size={28} className="max-md:w-5" />,
-      label: "Settings",
+      id: "Notifications",
+      icon: <MdNotificationsNone size={28} className="max-md:w-5" />,
+      label: "Notifications",
+    },
+    {
+      id:"Logout",
+      icon:<TbLogout size={28} className="max-md:w-7" />,
+      label: "LogOut"
     },
   ];
+
+  const excludedId = "Logout";
+  const filteredLinks = links.filter ((link) => link.id !== excludedId);
+
+  const excludedLink = links.find((link) => link.id === excludedId);
+
   const activeTitle = (active: string) => {
     switch (active) {
       case "dashboard":
@@ -60,8 +74,8 @@ const SideBar = () => {
         return "Tickets";
       case "reviews":
         return "Reviews";
-      case "settings":
-        return "Settings";
+      case "Notifications":
+        return "Notifications";
       default:
         return "";
     }
@@ -75,7 +89,7 @@ const SideBar = () => {
             <img src={images.brand} alt="Logo" className="w-10 h-10" />
           </Link>
 
-          {links.map(({ id, icon, label }) => (
+          {filteredLinks.map(({ id, icon, label }) => (
             <button
               key={id}
               onClick={() => setActive(id)}
@@ -94,13 +108,16 @@ const SideBar = () => {
           ))}
         </div>
 
-        <div className="flex items-center justify-center p-3 rounded-xl text-gray-600 hover:bg-purple-200 relative group cursor-pointer">
-          <TbLogout size={28} className="max-md:w-7" />
-          <span className="absolute left-16 opacity-0 group-hover:opacity-100 transition bg-gray-800 text-white text-sm rounded-md px-2 py-1 whitespace-nowrap">
-            Logout
-          </span>
-        </div>
+        {excludedLink && (
+          <button onClick={()=> setActive(excludedLink.id)} className={`relative group flex items-center justify-center p-3 rounded-xl transition-colors duration-200 ${ active === excludedLink.id ? "bg-purple-300 text-purple-900" : "text-gray-600 hover:bg-purple-200"}`}>
+            {excludedLink.icon}
+            <span className="absolute left-16 opacity-0 group-hover:opacity-100 transition bg-gray-800 text-white text-sm rounded-md px-2 py-1 whitespace-nowrap">
+              {excludedLink.label}
+            </span>
+          </button>
+        )}
       </div>
+      
 
       <div className="flex-1 bg-white pl-20 max-md:pl-14">
         <HeaderDashboard title={activeTitle(active)} />
@@ -108,7 +125,8 @@ const SideBar = () => {
         {active === "Calendar" && <CalendarComponent />}
         {active === "tickets" && <Tickets />}
         {active === "reviews" && <Reviews />}
-        {active === "settings" && <Settings />}
+        {active === "Notifications" && <Notifications token={token}/>}
+        {active === "Logout" && <Logout/>}
       </div>
     </div>
   );

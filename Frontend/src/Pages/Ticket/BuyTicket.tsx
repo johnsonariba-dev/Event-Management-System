@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Button from "../../components/button";
 
+
 interface EventType {
   id: string;
   title: string;

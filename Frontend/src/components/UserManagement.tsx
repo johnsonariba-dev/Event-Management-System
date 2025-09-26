@@ -23,7 +23,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder }) => {
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);
-          onSearch(e.target.value); // 🔥 Filtrage en temps réel
+          onSearch(e.target.value); 
         }}
         placeholder={placeholder || "Search users..."}
         className="border rounded-3xl h-8 p-2 text-xs w-full sm:w-64"
@@ -201,9 +201,10 @@ export default function UserManagement() {
                     </td>
                     <td className="px-4 py-2">{user.email}</td>
                     <td className="px-4 py-2">{user.Ticket_buy}</td>
-                    <td className="px-4 py-2">$ {user.ticket_price ?? 0}</td>
+                    <td className="px-4 py-2"> {user.ticket_price ?? 0} XAF</td>
                     <td className="px-4 py-2">
                       <span
+          
                         className={
                           user.is_active ? "text-green-500" : "text-red-500"
                         }

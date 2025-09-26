@@ -14,6 +14,12 @@ import orange from "../assets/images/orange.jpeg"
 import Paypal from "../assets/images/paypal.jpeg"
 import yaounde from "../assets/images/yaounde.jpg"
 import douala from "../assets/images/douala.jpg"
+import bertoua from "../assets/images/bertoua.jpg"
+import maroua from "../assets/images/maroua.jpg"
+import buea from "../assets/images/buea.jpg"
+import garoua from "../assets/images/garoua.jpg"
+import ebolowa from "../assets/images/ebolowa.jpg"
+import ngaoundere from "../assets/images/ngaoundere.jpg"
 import bamenda from "../assets/images/Bamenda.jpg"
 import bafoussam from "../assets/images/Bafoussam.jpg"
 import profile from "../assets/images/profile.jpg"
@@ -38,6 +44,12 @@ export default{
     douala,
     bamenda,
     bafoussam,
+    buea,
+    maroua, 
+    garoua,
+    ebolowa,
+    ngaoundere,
+    bertoua,
     profile,
     question,
 }
