@@ -4,8 +4,59 @@ import global from "../../assets/images/global.jpg";
 import { MdCall, MdEmail } from "react-icons/md";
 import { FaLocationDot, FaGlobe, FaEye } from "react-icons/fa6";
 import { FaRocket } from "react-icons/fa";
+import { useEffect, useState } from "react";
 
 const About = () => {
+  const [totalEvents, setTotalEvents] = useState<string>("0");
+  const [totalUsers, setTotalUsers] = useState<string>("No attendees");
+  const [percentRating, setPercentRating] = useState<string>("0");
+
+  // total events
+  useEffect(() => {
+    const fetchTotalEvents = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/totalEvents");
+        if (!res.ok) throw new Error("Failed to fetch events");
+        const data = await res.json();
+
+        setTotalEvents(String(data));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchTotalEvents();
+  }, []);
+
+  // total users
+  useEffect(() => {
+    const fetchTotalUsers = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/totalUsers");
+        if (!res.ok) throw new Error("Failed to fetch users");
+        const data = await res.json();
+        setTotalUsers(String(data));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchTotalUsers();
+  }, []);
+
+  // Percentage Rating
+  useEffect(() => {
+    const fetchPercentRating = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/rating");
+        if (!res.ok) throw new Error("Failed to fetch users");
+        const data = await res.json();
+        setPercentRating(String(data));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchPercentRating();
+  }, []);
+
   return (
     <div>
       {/* About Hero */}
@@ -115,10 +166,10 @@ const About = () => {
           </h3>
           <div className="flex items-center justify-center gap-20 pt-10 max-md:flex-col text-center">
             {[
-              { value: "10K+", label: "Events Created" },
-              { value: "50K+", label: "Happy Users" },
-              { value: "200+", label: "Cities Worldwide" },
-              { value: "95%", label: "Satisfaction Rate" },
+              { value: totalEvents, label: "Events Created" },
+              { value: totalUsers, label: "Happy Users" },
+              { value: "10", label: "Cities Worldwide" },
+              { value: percentRating, label: "Satisfaction Rate" },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -211,3 +262,4 @@ const About = () => {
 };
 
 export default About;
+

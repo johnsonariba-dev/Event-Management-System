@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Shield, Ticket, LogOut } from "lucide-react";
+import { User, Ticket, LogOut, Calendar } from "lucide-react";
 
 import Personal from "./personal";
 import Security from "./security";
@@ -8,10 +8,11 @@ import UserTicket from "./userTicket";
 import Logout from "./userlogout";
 import images from "../types/images";
 import { Link } from "react-router-dom";
+import UserCalendar from "./UserCalendar"
 
 const routes = [
   { id: "personal", label: "Personal Info", icon: <User size={20} /> },
-  { id: "security", label: "Security", icon: <Shield size={20} /> },
+  { id: "usercalendar", label: "Calendar", icon: <Calendar size={20} /> },
   { id: "tickets", label: "Tickets", icon: <Ticket size={20} /> },
   { id: "logout", label: "Logout", icon: <LogOut size={20} /> },
 ];
@@ -36,6 +37,8 @@ const Profile: React.FC = () => {
         return <UserTicket />;
       case "logout":
         return <Logout />;
+      case "usercalendar":
+        return <UserCalendar />;
       default:
         return null;
     }
@@ -47,7 +50,6 @@ const Profile: React.FC = () => {
       {!isMobile && (
         <aside className="fixed top-0 left-0 h-full w-64 bg-primary text-white flex flex-col shadow-xl">
           <div className="px-6 py-6 flex justify-center items-center border-b-2 border-secondary gap-3">
-            <h1 className="text-xl font-bold">My Profile</h1>
             <Link
               to="/"
               className="px-2 rounded-xl transform transition-transform duration-300 hover:scale-105"

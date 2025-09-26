@@ -129,7 +129,8 @@ def get_my_tickets(current_user: models.User = Depends(get_current_user), db: Se
             event_title=t.event.title,
             quantity=t.quantity,
             price=t.price,
-            purchase_date=t.purchase_date
+            purchase_date=t.purchase_date,
+            venue = t.event.venue
         )
         for t in tickets
     ]
