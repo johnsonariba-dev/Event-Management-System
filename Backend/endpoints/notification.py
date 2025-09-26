@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
@@ -16,7 +17,6 @@ def post_update(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    # Ensure organizer owns the event
     event = db.query(models.Event).filter(
         models.Event.id == event_id,
         models.Event.organizer_id == current_user.id
@@ -25,9 +25,8 @@ def post_update(
     if not event:
         raise HTTPException(status_code=403, detail="Not authorized to update this event")
 
-    # 1️⃣ Save the update separately
     update = models.Notification(
-        user_id=current_user.id,        # Optional: organizer sees own update
+        user_id=current_user.id,       
         title=f"Update for {event.title}",
         message=request.message,
         event_id=event_id
@@ -36,19 +35,17 @@ def post_update(
     db.commit()
     db.refresh(update)
 
-    # 2️⃣ Notify attendees
     tickets = db.query(models.Ticket).filter(models.Ticket.event_id == event_id).all()
     for ticket in tickets:
-        # Directly use ticket.user_id to avoid None
+        
         notif = models.Notification(
-            user_id=ticket.user_id,           # ✅ always exists
-            title=f"Update for {event.title}", # ✅ title from event
+            user_id=ticket.user_id,         
+            title=f"Update for {event.title}", 
             message=request.message,
             event_id=event_id
         )
         db.add(notif)
 
-        # Send email asynchronously
         user = db.query(models.User).filter(models.User.id == ticket.user_id).first()
         if user:
             background_tasks.add_task(
@@ -61,3 +58,35 @@ def post_update(
     db.commit()
 
     return update
+
+
+from sqlalchemy.orm import joinedload
+from sqlalchemy import distinct
+
+@router.get("/notifications/my", response_model=List[UpdateOut])
+def get_my_updates(
+    db: Session = Depends(get_db),
+    get_current_user: models.User = Depends(get_current_user),
+):
+    events = db.query(models.Event).filter(
+        models.Event.organizer_id == get_current_user.id
+    ).all()
+    event_ids = [e.id for e in events]
+
+    updates = (
+        db.query(models.Notification)
+        .filter(models.Notification.event_id.in_(event_ids))
+        .order_by(models.Notification.created_at.desc())
+        .all()
+    )
+
+    seen = set()
+    unique_updates = []
+    for u in updates:
+        key = (u.message, u.event_id) 
+        if key not in seen:
+            seen.add(key)
+            unique_updates.append(u)
+
+    return unique_updates
+

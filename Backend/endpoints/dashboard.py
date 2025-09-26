@@ -226,7 +226,7 @@ def line_chart_data(db: Session = Depends(get_db)):
 
 
 @router.get("/ticket/line")
-def line_chart_data(db: Session = Depends(get_db)):
+def ticket_line_chart_data(db: Session = Depends(get_db)):
     today = datetime.today()
     months = []
     ticket_data = []
@@ -238,17 +238,17 @@ def line_chart_data(db: Session = Depends(get_db)):
             month += 12
             year -= 1
 
-        month_tickets = db.query(func.count(models.Event.id)).filter(
-            extract("month", models.Event.date) == month,
-            extract("year", models.Event.date) == year
+        month_tickets = db.query(func.count(models.Ticket.id)).filter(
+            extract("month", models.Ticket.created_at) == month,
+            extract("year", models.Ticket.created_at) == year
         ).scalar()
 
         months.append(datetime(year, month, 1).strftime("%b"))
         ticket_data.append(month_tickets)
 
     return {
-        "labels": Ticket,
-        "ticket": ticket_data,
+        "labels": months,
+        "tickets": ticket_data,
     }
 
 
