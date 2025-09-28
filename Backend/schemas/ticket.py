@@ -44,8 +44,10 @@ class TicketUserOut(BaseModel):
     event_title: str
     quantity: int
     price: float
-    venue: str
+    venue: Optional[str] = None
     purchase_date: datetime
+    organizer: Optional[str] = None 
+    username: Optional[str] = None 
 
     class Config:
         orm_mode = True

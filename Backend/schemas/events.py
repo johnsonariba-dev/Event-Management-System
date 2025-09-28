@@ -27,6 +27,7 @@ class EventOut(EventCreate):
     ticket_price: float
     capacity_max: Optional[int] = 0
     status: str
+    organizer: str
     image_url: Optional[str] = ""
     reviews: List[Review] = []
 

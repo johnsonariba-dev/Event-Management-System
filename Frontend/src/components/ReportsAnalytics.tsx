@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Line, Pie } from "react-chartjs-2";
 import {
-  FaDollarSign,
   FaStar,
   FaChartColumn,
   FaChartLine,
@@ -24,6 +23,7 @@ import {
   type ChartData,
 } from "chart.js";
 import { FaProjectDiagram } from "react-icons/fa";
+import { MdCurrencyFranc } from "react-icons/md";
 
 ChartJS.register(
   LineElement,
@@ -100,8 +100,8 @@ export const ReportsAnalytics = () => {
           },
           {
             title: "Total Revenue",
-            value: `$${Number(statsRes.data.total_revenue).toLocaleString()}`,
-            icon: <FaDollarSign size={30} />,
+            value: `${Number(statsRes.data.total_revenue).toLocaleString()}`,
+            icon: <MdCurrencyFranc size={30} />,
             change: "+18%",
             note: "from last month",
             changeColor: "text-green-500",

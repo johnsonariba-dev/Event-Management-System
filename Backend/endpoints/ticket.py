@@ -183,7 +183,7 @@ def create_ticket(ticket: TicketCreate, db: Session = Depends(get_db), current_u
     db.add(db_ticket)
     db.commit()
     db.refresh(db_ticket)
-
+    
     return TicketUserOut(
         id=db_ticket.id,
         event_id=event.id,
@@ -192,5 +192,6 @@ def create_ticket(ticket: TicketCreate, db: Session = Depends(get_db), current_u
         price=db_ticket.price,
         purchase_date=db_ticket.purchase_date,
         total=db_ticket.price * db_ticket.quantity,
-
+        organizer=event.organizer.username if event.organizer else None, 
+        username=current_user.username,
     )
