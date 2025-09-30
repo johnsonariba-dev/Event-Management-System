@@ -150,9 +150,9 @@ def get_events_by_city(city_name: str, db: Session = Depends(get_db)):
         db.query(models.Event)
         .filter(
             models.Event.status == "Approved",
-            models.Event.venue.ilike(f"%{city_name}%")   # case-insensitive
+            models.Event.venue.ilike(f"%{city_name}%")  
         )
-        .order_by(models.Event.created_at.desc())       # newest first
+        .order_by(models.Event.created_at.desc())   
         .all()
     )
     return events
@@ -300,10 +300,12 @@ def recommend_me(
 
     return {"user_id": current_user.id, "recommended": recs}
 
-# Organiser name
 @router.get("/events/{event_id}/organizer")
-def get_organizer_name(event_id: int, db: Session = Depends(get_db)):
+def get_organizer(event_id: int, db: Session = Depends(get_db)):
     event = db.query(models.Event).filter(models.Event.id == event_id).first()
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
-    return  event.organizer.username
+    return {
+        "username": event.organizer.username,
+        "email": event.organizer.email
+    }

@@ -15,7 +15,6 @@ import Chatbot from "./Pages/Chatbot";
 import BuyTicket from "./Pages/Ticket/BuyTicket";
 import TicketScan from "./Pages/Ticket/TicketScan";
 import ScrollToTop from "./components/ScrollTop";
-import UpdateEvent from "./Pages/Events/UpdateEvent";
 import Profile from "./Pages/Profile";
 import Attendees from "./components/reviews";
 import { EventApproval } from "./components/EventApproval";
@@ -111,14 +110,6 @@ function App() {
               element={
                 <ProtectedRoute roles={["organizer", "admin"]}>
                   <NewEvent />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/event/update/:id"
-              element={
-                <ProtectedRoute roles={["organizer", "admin"]}>
-                  <UpdateEvent />
                 </ProtectedRoute>
               }
             />

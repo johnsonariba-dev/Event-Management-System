@@ -7,7 +7,8 @@ import { IoMdContact } from "react-icons/io";
 import Button from "../../components/button";
 import images from "../../types/images";
 import { useAuth } from "../../Pages/Context/UseAuth";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
+import { useModalAlert } from "../../components/ModalContext";
 
 interface NavBarProps {
   items: NavBarItems[];
@@ -21,7 +22,7 @@ interface NavBarItems {
 const NavBar: React.FC<NavBarProps> = ({ items }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { token, role, logout } = useAuth();
-
+  const modal = useModalAlert();
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
 
@@ -34,10 +35,8 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
   const navigate = useNavigate();
     const handleProfile = () => {
       if (!token) {
-        toast.info("Please login to access your profile.", {
-          position: "top-center", // optional override
-        });
-        return;
+        modal.show("Please login to access your profile.", "close");
+        return navigate("/Login");
       }
 
       if (role === "organizer") {
@@ -45,9 +44,7 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
       } else if (role === "user") {
         navigate("/profile");
       } else {
-        toast.error("Unknown role. Please contact support.", {
-          position: "top-center", // optional override
-        });
+        modal.show("Unknown role. Please contact support.", "close");
       }
     };
  
