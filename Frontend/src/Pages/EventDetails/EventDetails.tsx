@@ -8,6 +8,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ShareButton from "../../components/ShareButton";
 import Like from "../../components/like";
+import { useModalAlert } from "../../components/ModalContext";
 
 // Types
 interface Reviews {
@@ -40,6 +41,7 @@ interface EventStats {
 }
 
 const EventDetails = () => {
+  const modal = useModalAlert();
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,7 +71,9 @@ const EventDetails = () => {
         const data = await res.json();
         console.log(data);
         setCount(data);
-      } catch (error) {}
+      } catch (error: unknown) {
+        console.error(error);
+      }
     };
     fetchCount();
   }, [id]);
@@ -125,28 +129,42 @@ const EventDetails = () => {
 
   // Bookmark event
   const handleBookClick = () => {
-    if (!token) return alert("You must be logged in to bookmark this event");
-    if (role !== "user") return alert("Only users can bookmark events");
+    if (!token) return modal.show("UnAuthorized","You must be logged in to bookmark this event", "Close");
+    if (role !== "user") return modal.show("Sorry","Only users can bookmark events", "Close");
 
     // toggle local state
     setBookC(!bookC);
 
     // Add to calendar only if not already bookmarked
+<<<<<<< HEAD
     if (!bookC && event) {
       
 
+=======
+    if (!bookC) {
+      fetch(`http://127.0.0.1:8000/bookmark/${event?.id}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+>>>>>>> 83b5992 (alert box)
     }
   };
 
   // Buy ticket
   const handleBuyTicket = () => {
     if (!token) {
-      alert("You must be logged in to buy a ticket");
+      modal.show(
+        "Not Authenticated",
+        "You must be logged in to edit a review.",
+        "Close"
+      );
       navigate("/Login");
       return;
     }
     if (role !== "user") {
-      alert("Only users can buy tickets");
+      modal.show("Unauthorized", "Only users can buy tickets.", "Close");
       return;
     }
     navigate(`/Payment/${event?.id}`);
@@ -165,7 +183,12 @@ const EventDetails = () => {
   };
   const handleUpdate = async () => {
     if (!editingComment.trim() || editingRating === 0) return;
-    if (!token) return alert("You must be logged in");
+    if (!token) return modal.show(
+        "Not Authenticated",
+        "You must be logged in to edit a review.",
+        "Close"
+      );
+
     try {
       const res = await fetch(
         `http://127.0.0.1:8000/review/${editingReviewId}`,
@@ -190,13 +213,27 @@ const EventDetails = () => {
       }
     } catch (e) {
       console.error(e);
+    }finally{
+      modal.show(
+        "Review Updated",
+        "Your review has been updated successfully.",
+        "Close"
+      );
     }
   };
 
   // Submit new review
   const handleSubmit = async () => {
-    if (!token) return alert("You must be logged in to leave a review");
-    if (role !== "user") return alert("Only users can leave reviews");
+    if (!token) return modal.show(
+        "Not Authenticated",
+        "You must be logged in to leave a review.",
+        "Close"
+      );
+    if (role !== "user") return modal.show(
+        "Unauthorized",
+        "Only users can leave reviews.",
+        "Close"
+      );
     if (!comment.trim() || currentRating === 0) return;
 
     const newReview = { comment, rating: currentRating };
@@ -216,6 +253,12 @@ const EventDetails = () => {
       setCurrentRating(0);
     } catch (error) {
       console.error(error);
+    }finally {
+      modal.show(
+        "Review Submitted",
+        "Your review has been submitted successfully.",
+        "Close"
+      );
     }
   };
   const getEventImageUrl = (url?: string) => {
@@ -296,9 +339,17 @@ const EventDetails = () => {
                 title="Contact Organizer"
                 onClick={() => {
                   if (!token)
-                    return alert("You must be logged in to contact organizer");
+                    return modal.show(
+                      "Not Authenticated",
+                      "You must be logged in to contact organizer.",
+                      "Close"
+                    );
                   if (role !== "user")
-                    return alert("Only users can contact organizer");
+                    return modal.show(
+                      "Unauthorized",
+                      "Only users can contact organizer.",
+                      "Close"
+                    );
                   alert(`Contacting organizer for ${event.title}`);
                 }}
                 className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105"

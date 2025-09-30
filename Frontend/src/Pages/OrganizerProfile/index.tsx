@@ -4,7 +4,8 @@ import { FaUpload } from "react-icons/fa";
 import { useAuth } from "../Context/UseAuth";
 import Button from "../../components/button";
 import { BsFillQuestionCircleFill } from "react-icons/bs";
-
+import { useNavigate } from "react-router-dom";
+import { useModalAlert } from "../../components/ModalContext";
 
 interface User {
   id: number;
@@ -22,10 +23,12 @@ const Personal: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [profilePic, setProfilePic] = useState("");
+  const navigate = useNavigate();
+  const modal = useModalAlert();
 
   useEffect(() => {
     const fetchUser = async () => {
-      if (!token) return;
+      if (!token) return modal.show("Not Authenticated", "You must be logged in to view your profile.", "Close"), navigate("/Login");
       try {
         const res = await axios.get("http://127.0.0.1:8000/user/me", {
           headers: { Authorization: `Bearer ${token}` },
@@ -66,7 +69,7 @@ const Personal: React.FC = () => {
     if (!user) return;
 
     if (!user.username || !user.email) {
-      alert("Username and email are required.");
+      modal.show("Error", "Username and email are required.", "Close");
       return;
     }
 
@@ -84,12 +87,18 @@ const Personal: React.FC = () => {
       });
 
       setEditMode(false);
-      alert("Profile updated successfully!");
+      modal.show("Success", "Profile updated successfully!", "Close");
     } catch (err) {
       console.error(err);
-      alert("Failed to update profile.");
+      modal.show("Error", "Failed to update profile.", "Close");
     }
   };
+
+  // const handleLogout = () => {
+  //   l
+  //   window.location.reload();
+  // };
+
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pt-40">

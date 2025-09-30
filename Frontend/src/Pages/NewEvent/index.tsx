@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { isAxiosError } from "axios";
 import {
   FaCalendar,
   FaClock,
@@ -8,6 +9,7 @@ import {
   FaCloudUploadAlt,
   FaTrash,
 } from "react-icons/fa";
+import { useModalAlert } from "../../components/ModalContext";
 
 interface EventFormData {
   title: string;
@@ -42,6 +44,7 @@ export default function NewEvent() {
     ticket_price: "",
   });
 
+  const modal = useModalAlert();
   const [flyer, setFlyer] = useState<MediaFile | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -93,7 +96,7 @@ export default function NewEvent() {
 
       console.log("Backend response:", response.data);
 
-      alert("Event created successfully!");
+      modal.show("Success", "Event created successfully!", "Close");
       navigate("/CreateEvent");
 
       // reset form
@@ -110,9 +113,16 @@ export default function NewEvent() {
         ticket_price: "",
       });
       setFlyer(null);
-    } catch (err: any) {
-      console.error("Error response:", err.response?.data || err);
-      alert("Failed to create event");
+    } catch (err: unknown) {
+      if (isAxiosError(err)) {
+        const msg =
+          (err.response?.data as { detail?: string })?.detail ?? err.message;
+        console.error("Error response:", msg);
+        modal.show("Error", `Failed to create event: ${msg}`, "Close");
+      } else {
+        console.error("Unexpected error:", err);
+        modal.show("Error", "Failed to create event", "Close");
+      }
     } finally {
       setLoading(false);
     }

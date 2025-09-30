@@ -3,12 +3,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import SideBar from "../../components/sideBar";
 import Button from "../../components/button";
 import axios from "axios";
-
+import { useModalAlert } from "../../components/ModalContext";
 const UpdateEvent = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
@@ -18,6 +17,8 @@ const UpdateEvent = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [message, setMessage] = useState("");
 
+
+  const modal = useModalAlert();
   useEffect(() => {
     if (!token) navigate("/login");
 
@@ -36,6 +37,8 @@ const UpdateEvent = () => {
         setImageUrl(e.image_url);
       } catch (err) {
         console.error(err);
+      }finally{
+       modal.show("Error", "Failed to fetch event details.", "Close");
       }
     };
     fetchEvent();
@@ -43,7 +46,7 @@ const UpdateEvent = () => {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) return;
+    if (!token) return modal.show("Not Authenticated", "You must be logged in to update an event.", "Close"), navigate("/Login");
 
     try {
       await axios.put(
