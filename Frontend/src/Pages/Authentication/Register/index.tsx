@@ -39,7 +39,8 @@ const Register: React.FC = () => {
 
       if (!response.ok) {
         const errData = await response.json();
-        throw new Error(errData.message || "Registration failed");
+        setError(typeof errData.detail === "string" ? errData.detail : "Registration failed");
+        return;
       }
 
       const data = await response.json();

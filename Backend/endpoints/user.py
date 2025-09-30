@@ -6,6 +6,7 @@ import models
 from database import get_db
 from schemas.users import CreateUser, UserLogin, UserOut, UserResponse, Token, UserUpdate
 from endpoints.auth import create_access_token, hash_password, verify_password, get_current_user, get_current_organizer, get_current_admin
+import re
 
 router = APIRouter()
 
@@ -46,6 +47,13 @@ def register(user: CreateUser, db: Session = Depends(get_db)):
     if existing_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already in use")
 
+# ---------- Validation du mot de passe ----------
+    pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+    if not re.match(pattern, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 8 characters long, contain an uppercase, a lowercase, a number, and a special character."
+        )
     hashed_password = hash_password(user.password)
     db_user = models.User(
         email=user.email,

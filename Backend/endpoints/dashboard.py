@@ -203,10 +203,8 @@ def line_chart_data(db: Session = Depends(get_db)):
     today = datetime.today()
     months = []
     events_data = []
-    tickets_data = []
-    revenue_data = []
 
-    for i in range(11, -1, -1):  # last 12 months
+    for i in range(11, -1, -1):
         month = today.month - i
         year = today.year
         if month <= 0:
@@ -218,26 +216,39 @@ def line_chart_data(db: Session = Depends(get_db)):
             extract("year", models.Event.date) == year
         ).scalar()
 
-        # month_tickets = db.query(func.sum(models.Ticket.quantity)).filter(
-        #     extract("month", models.Ticket.created_at) == month,
-        #     extract("year", models.Ticket.created_at) == year
-        # ).scalar() or 0
-
-        # month_revenue = db.query(func.sum(models.Ticket.price)).filter(
-        #     extract("month", models.Ticket.created_at) == month,
-        #     extract("year", models.Ticket.created_at) == year
-        # ).scalar() or 0
-
         months.append(datetime(year, month, 1).strftime("%b"))
         events_data.append(month_events)
-        # tickets_data.append(month_tickets)
-        # revenue_data.append(month_revenue)
 
     return {
         "labels": months,
         "events": events_data,
-        "tickets": tickets_data,
-        "revenue": revenue_data,
+    }
+
+
+@router.get("/ticket/line")
+def ticket_line_chart_data(db: Session = Depends(get_db)):
+    today = datetime.today()
+    months = []
+    ticket_data = []
+
+    for i in range(11, -1, -1):
+        month = today.month - i
+        year = today.year
+        if month <= 0:
+            month += 12
+            year -= 1
+
+        month_tickets = db.query(func.count(models.Ticket.id)).filter(
+            extract("month", models.Ticket.created_at) == month,
+            extract("year", models.Ticket.created_at) == year
+        ).scalar()
+
+        months.append(datetime(year, month, 1).strftime("%b"))
+        ticket_data.append(month_tickets)
+
+    return {
+        "labels": months,
+        "tickets": ticket_data,
     }
 
 

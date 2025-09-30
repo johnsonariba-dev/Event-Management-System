@@ -1,15 +1,12 @@
 import React from "react";
 import { QRCodeSVG } from "qrcode.react";
 
-// ...other imports
-
 interface TicketCardProps {
   eventTitle: string;
   location: string;
   date: string;
-  time: string;
   organizer: string;
-  userName: string;
+  username: string;
   price: number;
   imageUrl?: string;
   ticketId: string;
@@ -19,9 +16,8 @@ const TicketCard: React.FC<TicketCardProps> = ({
   eventTitle,
   location,
   date,
-  time,
   organizer,
-  userName,
+  username,
   price,
   imageUrl,
 }) => {
@@ -42,38 +38,35 @@ const TicketCard: React.FC<TicketCardProps> = ({
       <div className="flex  justify-between  w-full h-50 relative">
         <div className="flex flex-col justify-between pl-4">
           <h2 className="text-2xl font-bold text-purple-900">{eventTitle}</h2>
-          <div className="flex  justify-between w-full  ">
+          <div className="flex gap-15 justify-between w-full  ">
             <div className="flex flex-col gap-1">
               <div className="">
-                <p className="text-black ">{location}</p>
-                <p className="text-black ">
-                  {date} • {time}
+                <p className="text-black "><span className="font-bold">Venue:</span> {location}</p>
+                <p className="text-black "><span className="font-bold">Time: </span>
+                  {date} 
                 </p>
-                <p className="text-black  text-sm">
-                  Organized by {organizer}
+                <p className="text-black"><span className="font-bold">Organizer: </span>
+                  {organizer}
                 </p>
               </div>
               <div>
                 <p className="text-black font-semibold">
-                  Attendee: {userName}
+                  Attendee: {username}
                 </p>
-                <p className="text-black font-semibold ">Price: £{price}</p>
+                <p className="text-black font-semibold ">Price: {price}</p>
               </div>
             </div>
 
             {/* QR Code */}
             <div className="bg-white p-2 border border-purple-200 rounded-md">
               <QRCodeSVG
-                value={`ticket-${eventTitle}-${userName}-${date}`}
+                value={`ticket-${eventTitle}-${username}-${date}`}
                 size={120}
-                fgColor="#4c1d95" // purple color to match design
-                bgColor="#f3e8ff" // light purple background
+                fgColor="#000000ff" 
+                bgColor="#f3e8ff" 
               />
             </div>
           </div>
-        </div>
-        <div className="h-full p-2 bg-secondary">
-
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Button from "../../../components/button";
 import images from "../../../types/images";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
@@ -122,7 +122,6 @@ const AdminLogin: React.FC = () => {
               </div>
 
               {/* Submit */}
-              <Link to="/admindashboard">
                 <div className="flex justify-center pt-4">
                   <Button
                     type="submit"
@@ -130,7 +129,6 @@ const AdminLogin: React.FC = () => {
                     className="px-8 py-3 text-white rounded-md transition"
                   />
                 </div>
-              </Link>
             </form>
           </div>
         </div>

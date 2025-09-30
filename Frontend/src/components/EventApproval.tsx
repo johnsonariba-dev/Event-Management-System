@@ -29,7 +29,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder }) => {
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);
-          onSearch(e.target.value); // 🔑 mise à jour en temps réel
+          onSearch(e.target.value); // real-time search
         }}
         placeholder={placeholder || "Search events..."}
         className="border rounded-3xl h-8 p-2 text-xs w-full md:w-64"
@@ -41,13 +41,17 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder }) => {
 export const EventApproval: React.FC = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [filter, setFilter] = useState<string>("All");
-  const [searchQuery, setSearchQuery] = useState<string>(""); // ✅ query pour la recherche
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [stats, setStats] = useState<EventStats>({
     total: 0,
     pending: 0,
     approved: 0,
     rejected: 0,
   });
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const eventsPerPage = 5;
 
   const fetchEvents = async () => {
     try {
@@ -89,7 +93,6 @@ export const EventApproval: React.FC = () => {
     }
   };
 
- 
   const filteredEvents = events.filter((e) => {
     const matchStatus = filter === "All" || e.status === filter;
     const matchQuery =
@@ -99,6 +102,12 @@ export const EventApproval: React.FC = () => {
       e.venue.toLowerCase().includes(searchQuery.toLowerCase());
     return matchStatus && matchQuery;
   });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
+  const indexOfLast = currentPage * eventsPerPage;
+  const indexOfFirst = indexOfLast - eventsPerPage;
+  const currentEvents = filteredEvents.slice(indexOfFirst, indexOfLast);
 
   return (
     <div className="space-y-4 p-2 md:p-4">
@@ -118,11 +127,15 @@ export const EventApproval: React.FC = () => {
         </div>
         <div className="border rounded-lg p-4 flex flex-col ">
           <p className="text-sm">Approved</p>
-          <span className="font-bold text-xl md:text-2xl">{stats.approved}</span>
+          <span className="font-bold text-xl md:text-2xl">
+            {stats.approved}
+          </span>
         </div>
         <div className="border rounded-lg p-4 flex flex-col ">
           <p className="text-sm">Rejected</p>
-          <span className="font-bold text-xl md:text-2xl">{stats.rejected}</span>
+          <span className="font-bold text-xl md:text-2xl">
+            {stats.rejected}
+          </span>
         </div>
         <div className="border rounded-lg p-4 flex flex-col">
           <p className="text-sm">Total Events</p>
@@ -135,10 +148,12 @@ export const EventApproval: React.FC = () => {
         <div className="flex justify-between items-start md:items-center gap-2 md:gap-4">
           <div>
             <h2 className="font-bold text-xl">Events List</h2>
-            <p className="text-xs font-light">Review and manage event approvals</p>
+            <p className="text-xs font-light">
+              Review and manage event approvals
+            </p>
           </div>
           <div className="flex  items-start sm:items-center gap-2">
-            <SearchBar onSearch={setSearchQuery} /> {/* ✅ onSearch */}
+            <SearchBar onSearch={setSearchQuery} />
             <select
               className="border rounded-3xl text-xs p-2 w-full sm:w-auto"
               value={filter}
@@ -165,7 +180,7 @@ export const EventApproval: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredEvents.map((event) => (
+            {currentEvents.map((event) => (
               <tr key={event.id} className="border-t border-gray-300">
                 <td className="px-4 py-2">
                   {event.title} <br />
@@ -177,7 +192,19 @@ export const EventApproval: React.FC = () => {
                 </td>
                 <td className="px-4 py-2">{event.capacity_max}</td>
                 <td className="px-4 py-2">{event.ticket_price} FCFA</td>
-                <td className="px-4 py-2">{event.status}</td>
+                <td className="px-4 py-2">
+                  <span
+                    className={`px-2 py-1 rounded-full font-medium ${
+                      event.status?.trim().toLowerCase() === "pending"
+                        ? "bg-yellow-200 "
+                        : event.status?.trim().toLowerCase() === "approved"
+                        ? "bg-green-200 "
+                        : "bg-red-200 "
+                    }`}
+                  >
+                    {event.status}
+                  </span>
+                </td>
                 <td className="px-4 py-2 flex gap-2 md:gap-3">
                   <button
                     onClick={() => handleStatusUpdate(event.id, "Approved")}
@@ -195,7 +222,7 @@ export const EventApproval: React.FC = () => {
               </tr>
             ))}
 
-            {filteredEvents.length === 0 && (
+            {currentEvents.length === 0 && (
               <tr>
                 <td colSpan={7} className="text-center text-gray-500 py-4">
                   No matching events found.
@@ -204,6 +231,65 @@ export const EventApproval: React.FC = () => {
             )}
           </tbody>
         </table>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex justify-center gap-2 mt-6 items-center py-7">
+            {/* Previous */}
+            <button
+              className={`px-3 py-1 rounded-full border ${
+                currentPage === 1
+                  ? "text-gray-400 border-gray-300 cursor-not-allowed"
+                  : "border-purple-500 text-purple-500"
+              }`}
+              onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              &lt;
+            </button>
+
+            {/* Page numbers with ellipsis */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(
+                (page) =>
+                  page === 1 ||
+                  page === totalPages ||
+                  (page >= currentPage - 1 && page <= currentPage + 1)
+              )
+              .map((page, idx, arr) => (
+                <span key={page}>
+                  {idx > 0 && page - arr[idx - 1] > 1 && (
+                    <span className="px-2">...</span>
+                  )}
+                  <button
+                    className={`px-3 py-1 rounded-full border ${
+                      currentPage === page
+                        ? "bg-purple-500 text-white border-purple-500"
+                        : "text-purple-500 border-purple-500"
+                    }`}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </button>
+                </span>
+              ))}
+
+            {/* Next */}
+            <button
+              className={`px-3 py-1 rounded-full border ${
+                currentPage === totalPages
+                  ? "text-gray-400 border-gray-300 cursor-not-allowed"
+                  : "border-purple-500 text-purple-500"
+              }`}
+              onClick={() =>
+                currentPage < totalPages && setCurrentPage(currentPage + 1)
+              }
+              disabled={currentPage === totalPages}
+            >
+              &gt;
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

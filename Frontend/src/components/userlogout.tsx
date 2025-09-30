@@ -4,15 +4,14 @@ import { useAuth } from "../Pages/Context/UseAuth";
 
 const Logout: React.FC = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth(); // use the same logout from NavBar
-
+  const { logout } = useAuth(); 
   const handleLogout = () => {
-    logout(); // clear token/session etc.
-    navigate("/"); // redirect after logout
+    logout(); 
+    navigate("/"); 
   };
 
   const handleCancel = () => {
-    navigate(-1); // go back to previous page/profile
+    navigate(-1); 
   };
 
   return (

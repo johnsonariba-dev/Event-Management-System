@@ -19,6 +19,7 @@ import {
   Filler,
 } from "chart.js";
 import { Pie, Line } from "react-chartjs-2";
+import axios from "axios";
 
 ChartJS.register(
   LineElement,
@@ -144,15 +145,14 @@ export const HomeDashboard = () => {
         ]);
 
         // Fetch monthly line chart data
-        const lineRes = await fetch("http://127.0.0.1:8000/line-data");
-        const lineDataJson = await lineRes.json();
+        const lineRes = await axios.get("http://localhost:8000/reports/line");
 
         setLineData({
-          labels: lineDataJson.labels,
+          labels: lineRes.data.labels,
           datasets: [
             {
               label: "Events",
-              data: lineDataJson.data,
+              data: lineRes.data.events,
               borderColor: "#3b82f6",
               backgroundColor: "rgba(59, 130, 246, 0.2)",
               tension: 0.4,

@@ -17,7 +17,7 @@ async def websocket_status(websocket : WebSocket):
     token = websocket.query_params.get("token")
 
     if not token:
-        await websocket.close(code=1008)  # 1008 = Policy Violation
+        await websocket.close(code=1008) 
         return
     
     try:

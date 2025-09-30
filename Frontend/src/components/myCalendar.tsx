@@ -13,8 +13,8 @@ const initialEvents: EventInput[] = [
     start: "2025-09-10T10:00:00",
     end: "2025-09-10T18:00:00",
     description: "A full-day music festival.",
-    backgroundColor: "#7c3aed",
-    borderColor: "#7c3aed",
+    backgroundColor: "#47348A",
+    borderColor: "#47348A",
     textColor: "#fff",
   },
   {
@@ -23,8 +23,8 @@ const initialEvents: EventInput[] = [
     start: "2025-09-15T09:00:00",
     end: "2025-09-15T17:00:00",
     description: "Tech talks and networking.",
-    backgroundColor: "#7c3aed",
-    borderColor: "#7c3aed",
+    backgroundColor: "#47348A",
+    borderColor: "#47348A",
     textColor: "#fff",
   },
 ];
@@ -76,8 +76,8 @@ const CalendarWithSidebar: React.FC = () => {
             ? {
                 ...e,
                 ...newEvent,
-                backgroundColor: "#7c3aed",
-                borderColor: "#7c3aed",
+                backgroundColor: "#47348A",
+                borderColor: "#47348A",
                 textColor: "#fff",
               }
             : e
@@ -140,12 +140,12 @@ const CalendarWithSidebar: React.FC = () => {
 
       {/* Sidebar Form */}
       <div className="w-full md:w-1/3 bg-gray-50 p-6 rounded-md shadow-md md:sticky md:top-4 h-fit">
-        <h2 className="text-2xl font-bold mb-4 text-purple-700">
+        <h2 className="text-2xl font-bold mb-4 text-primary">
           {selectedEventId ? "Edit Event" : "Add Event"}
         </h2>
         <p className="mb-3 text-gray-700">
           Selected Date:{" "}
-          <span className="font-semibold text-purple-600">
+          <span className="font-semibold text-primary">
             {selectedDate || "None"}
           </span>
         </p>
@@ -181,7 +181,7 @@ const CalendarWithSidebar: React.FC = () => {
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={handleSaveEvent}
-            className="flex-1 bg-primary text-white p-3 rounded-lg font-semibold hover:bg-purple-700 transition"
+            className="flex-1 bg-primary text-white p-3 rounded-lg font-semibold hover:bg-secondary transition"
           >
             {selectedEventId ? "Update Event" : "Save Event"}
           </button>

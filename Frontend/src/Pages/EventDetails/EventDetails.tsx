@@ -15,6 +15,7 @@ interface Reviews {
   username: string;
   comment: string;
   rating: number;
+  reply?: string;
 }
 
 interface Event {
@@ -29,8 +30,13 @@ interface Event {
   ticket_price: number;
   reviews?: Reviews[];
   organizer: string;
-  total_likets?: number; // Add this optional
+  total_likets?: number;
   liked_by_user?: boolean;
+}
+
+interface EventStats {
+  total_tickets: number;
+  total_reviews: number;
 }
 
 const EventDetails = () => {
@@ -45,15 +51,31 @@ const EventDetails = () => {
   const [editingComment, setEditingComment] = useState("");
   const [editingRating, setEditingRating] = useState(0);
   const [showAllReviews, setShowAllReviews] = useState(false);
-  const [userInfo, setUserInfo] = useState()
-
+  const [userInfo, setUserInfo] = useState();
+  const [count, setCount] = useState<EventStats | null>(null);
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
 
-// fetch organiser name
-useEffect(() => {
+  // total attendees and reviews
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/eventStats/${id}`);
+
+        if (!res.ok) throw new Error("Informations incompleted");
+
+        const data = await res.json();
+        console.log(data);
+        setCount(data);
+      } catch (error) {}
+    };
+    fetchCount();
+  }, [id]);
+
+  // fetch organiser name
+  useEffect(() => {
     if (!id) return;
     const fetchOrganizer = async () => {
       try {
@@ -68,7 +90,6 @@ useEffect(() => {
     };
     fetchOrganizer();
   }, [id]);
-
 
   // Fetch event data
   useEffect(() => {
@@ -106,7 +127,15 @@ useEffect(() => {
   const handleBookClick = () => {
     if (!token) return alert("You must be logged in to bookmark this event");
     if (role !== "user") return alert("Only users can bookmark events");
+
+    // toggle local state
     setBookC(!bookC);
+
+    // Add to calendar only if not already bookmarked
+    if (!bookC && event) {
+     
+
+    }
   };
 
   // Buy ticket
@@ -207,7 +236,6 @@ useEffect(() => {
         Event not found
       </div>
     );
-    
 
   return (
     <div className="w-full flex flex-col items-center justify-center ">
@@ -243,7 +271,7 @@ useEffect(() => {
               <div className="flex gap-4 text-2xl">
                 <Like
                   event_id={event.id}
-                  total_like={event.total_likets || 0} // ✅ matches the type
+                  total_like={event.total_likets || 0}
                   liked_by_user={event.liked_by_user || false}
                 />
 
@@ -259,10 +287,9 @@ useEffect(() => {
             <p className="text-justify">{event.description}</p>
             <div className="w-full flex justify-between items-center max-sm:flex-col gap-4">
               <div className="flex flex-col gap-2">
-                <h1 className="text-lg font-semibold text-primary">
+                <h1 className="text-lg font-semi bold text-primary">
                   By {userInfo}
                 </h1>
-              
               </div>
               <Button
                 icon={<FiMessageCircle size={24} />}
@@ -333,7 +360,9 @@ useEffect(() => {
             </h1>
             <HiTicket size={44} className="text-primary" />
           </div>
-          <p className="text-white p-4">847 people registered</p>
+          <p className="text-white p-4">
+            {count?.total_tickets} people registered
+          </p>
           <div className="w-full flex bg-primary h-3 rounded-2xl m-4">
             <div className="bg-secondary h-3 rounded-2xl w-[70%]"></div>
           </div>
@@ -350,7 +379,10 @@ useEffect(() => {
             />
           </Link>
           <p className="text-white p-4 flex items-center gap-2">
-            <FaCheck className="rounded-full bg-primary p-1  text-white" size={23} />{" "}
+            <FaCheck
+              className="rounded-full bg-primary p-1  text-white"
+              size={23}
+            />{" "}
             <span>Instant confirmation</span>
           </p>
         </div>
@@ -368,7 +400,9 @@ useEffect(() => {
               ))}
             </div>
             <p>
-              <span className="text-primary">Based on 100 reviews</span>
+              <span className="text-primary">
+                Based on {count?.total_reviews} reviews
+              </span>
             </p>
           </div>
         </div>
@@ -453,7 +487,12 @@ useEffect(() => {
                 <div className="flex justify-between items-center">
                   <div>
                     <h1 className="text-gray-500">{rev.username}</h1>
-                    <p className="pt-5">{rev.comment}</p>
+                    <p className="pt-5 text-gray-800">{rev.comment}</p>
+                    {rev.reply && (
+                      <div className="ml-6 mt-2 p-2 border-l-2 border-gray-300 text-gray-600">
+                        <strong>{userInfo} reply:</strong> {rev.reply}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <div className="flex gap-1">
@@ -466,6 +505,7 @@ useEffect(() => {
                         />
                       ))}
                     </div>
+
                     <button
                       className="pl-20 pt-5"
                       onClick={() => startEditing(rev)}

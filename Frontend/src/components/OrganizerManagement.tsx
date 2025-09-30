@@ -220,7 +220,7 @@ export default function OrganizerManagement() {
                     <td className="px-4 py-2">
                       {user.events} events <br /> Last {user.date_event}
                     </td>
-                    <td className="px-4 py-2">${user.revenu}</td>
+                    <td className="px-4 py-2">{user.revenu} XAF</td>
                     <td className="px-4 py-2">
                       <span
                         className={

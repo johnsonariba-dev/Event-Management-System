@@ -4,6 +4,7 @@ import Button from "./button";
 import { FaUpload } from "react-icons/fa";
 import { useAuth } from "../Pages/Context/UseAuth";
 import question from "../assets/images/question-mark.png";
+import { User } from "lucide-react";
 
 interface User {
   id: number;
@@ -93,7 +94,8 @@ const Personal: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <h1 className="flex gap-1 font-bold text-2xl text-primary"><User size={30}/>My Profile</h1>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-8">
         <div className="flex items-center gap-6">

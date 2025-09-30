@@ -26,11 +26,10 @@ import OrganizerManagement from "./components/OrganizerManagement";
 import UserManagement from "./components/UserManagement";
 import Dashboard from "./components/dashboard";
 import { ProtectedRoute } from "./components/PotectedRoute";
-// import type { JSX } from "react/jsx-dev-runtime";
 import AdminLogin from "./Pages/Authentication/AdminLogin";
 import AuthProvider from "./Pages/Context/AuthProvider";
 import OrganizerProfile from "./Pages/OrganizerProfile";
-// import { useAuth } from "./Pages/Context/UseAuth";
+import CalendarWithSidebar from "./components/myCalendar";
 
 const NavBarItems = [
   { title: "Home", path: "/" },
@@ -38,158 +37,130 @@ const NavBarItems = [
   { title: "Events", path: "/events" },
 ];
 
-// 🔹 ProtectedRoute component (fixed role check)
-// const ProtectedRoute = ({
-//   children,
-//   roles,
-// }: {
-//   children: JSX.Element;
-//   roles?: string[];
-// }) => {
-//   const { token } = useAuth();
-//   const role = (localStorage.getItem("role") || "").toLowerCase();
-
-//   if (!token) {
-//     return <Navigate to="/login" replace />;
-//   }
-
-//   if (roles && !roles.map((r) => r.toLowerCase()).includes(role)) {
-//     return <Navigate to="/unauthorized" replace />;
-//   }
-
-//   return children;
-// };
-
 function App() {
   const location = useLocation();
 
-  // Fix: Use regex for dynamic routes
-const hideFooter = [
-  "/login",
-  "/register",
-  "/CreateEvent",
-  "/NewEvent",
-  "/admindashboard",
-  "/admindashboard/reports",
-  "/admindashboard/event-approval",
-  "/admindashboard/users",
-  "/admindashboard/organizers",
-  "/Profile",
-
-];
+  // Paths to hide navbar/footer
+  const hideFooter = [
+    "/login",
+    "/register",
+    "/CreateEvent",
+    "/NewEvent",
+    "/admindashboard",
+    "/admindashboard/reports",
+    "/admindashboard/event-approval",
+    "/admindashboard/users",
+    "/admindashboard/organizers",
+    "/Profile",
+  ];
   const hideNavbar = ["/CreateEvent","/Profile"];
   const currentPath = location.pathname;
-
-  const showfooter =
-  !hideFooter.includes(currentPath) && !currentPath.startsWith("/payment/");
+  const showFooter = !hideFooter.includes(currentPath) && !currentPath.startsWith("/payment/");
   const showNavbar = !hideNavbar.includes(currentPath);
 
   return (
     <AuthProvider>
-      <div>
-        {showNavbar && <NavBar items={NavBarItems} />}
-        <ScrollToTop />
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/AdminLogin" element={<AdminLogin />} />
-          <Route path="/Event/:id" element={<EventDetails />} />
-          <Route path="/cities/:id" element={<CityDetails />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/OrganizerProfile" element={<OrganizerProfile />} />
+        <div>
+          {showNavbar && <NavBar items={NavBarItems} />}
+          <ScrollToTop />
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/AdminLogin" element={<AdminLogin />} />
+            <Route path="/Event/:id" element={<EventDetails />} />
+            <Route path="/cities/:id" element={<CityDetails />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/OrganizerProfile" element={<OrganizerProfile />} />
+            <Route path="/calendar" element={<CalendarWithSidebar />} />
 
-        <Route path="/admindashboard" element={<AdminDashboard />}>
-          <Route index element={<HomeDashboard />} />
-          <Route path="event-approval" element={<EventApproval />} />
-          <Route path="users" element={<UserManagement />} />
-          <Route path="organizers" element={<OrganizerManagement />} />
-          <Route path="reports" element={<ReportsAnalytics/>} />
-        </Route>
-          {/* Protected Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute roles={["organizer", "admin"]}>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
+            {/* Admin Dashboard */}
+            <Route path="/admindashboard" element={<AdminDashboard />}>
+              <Route index element={<HomeDashboard />} />
+              <Route path="event-approval" element={<EventApproval />} />
+              <Route path="users" element={<UserManagement />} />
+              <Route path="organizers" element={<OrganizerManagement />} />
+              <Route path="reports" element={<ReportsAnalytics/>} />
+            </Route>
 
-          <Route
-            path="/CreateEvent"
-            element={
-              <ProtectedRoute roles={["organizer", "admin"]}>
-                <CreateEvent />
-              </ProtectedRoute>
-            }
-          />
+            {/* Protected Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute roles={["organizer", "admin"]}>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/CreateEvent"
+              element={
+                <ProtectedRoute roles={["organizer", "admin"]}>
+                  <CreateEvent />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/NewEvent"
+              element={
+                <ProtectedRoute roles={["organizer", "admin"]}>
+                  <NewEvent />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/event/update/:id"
+              element={
+                <ProtectedRoute roles={["organizer", "admin"]}>
+                  <UpdateEvent />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payment/:id"
+              element={
+                <ProtectedRoute>
+                  <Payment />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/buy-ticket/:eventId"
+              element={
+                <ProtectedRoute>
+                  <BuyTicket />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/attendees/:id"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <Attendees />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/scan"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <TicketScan />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/NewEvent"
-            element={
-              <ProtectedRoute roles={["organizer", "admin"]}>
-                <NewEvent />
-              </ProtectedRoute>
-            }
-          />
+            {/* Fallback */}
+            <Route path="*" element={<Home />} />
+          </Routes>
 
-          <Route
-            path="/event/update/:id"
-            element={
-              <ProtectedRoute roles={["organizer", "admin"]}>
-                <UpdateEvent />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/payment/:id"
-            element={
-              <ProtectedRoute>
-                <Payment />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/buy-ticket/:eventId"
-            element={
-              <ProtectedRoute>
-                <BuyTicket />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/attendees/:id"
-            element={
-              <ProtectedRoute roles={["admin"]}>
-                <Attendees />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/scan"
-            element={
-              <ProtectedRoute roles={["admin"]}>
-                <TicketScan />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Fallback */}
-          <Route path="*" element={<Home />} />
-        </Routes>
-        <Chatbot />
-        {showfooter && <Footer />}
-      </div>
+          <Chatbot />
+          {showFooter && <Footer />}
+        </div>
     </AuthProvider>
-  )
+  );
 }
 
 export default App;

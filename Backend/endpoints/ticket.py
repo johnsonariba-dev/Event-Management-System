@@ -129,7 +129,8 @@ def get_my_tickets(current_user: models.User = Depends(get_current_user), db: Se
             event_title=t.event.title,
             quantity=t.quantity,
             price=t.price,
-            purchase_date=t.purchase_date
+            purchase_date=t.purchase_date,
+            venue = t.event.venue
         )
         for t in tickets
     ]
@@ -165,7 +166,7 @@ def get_organizer_tickets(current_user: models.User = Depends(get_current_user),
     ]
 
 
-# ---------------- CREATE TICKET ----------------
+#  CREATE TICKET 
 @router.post("/tickets", response_model=TicketUserOut)
 def create_ticket(ticket: TicketCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     event = db.query(models.Event).filter(models.Event.id == ticket.event_id).first()
@@ -182,7 +183,7 @@ def create_ticket(ticket: TicketCreate, db: Session = Depends(get_db), current_u
     db.add(db_ticket)
     db.commit()
     db.refresh(db_ticket)
-
+    
     return TicketUserOut(
         id=db_ticket.id,
         event_id=event.id,
@@ -191,5 +192,6 @@ def create_ticket(ticket: TicketCreate, db: Session = Depends(get_db), current_u
         price=db_ticket.price,
         purchase_date=db_ticket.purchase_date,
         total=db_ticket.price * db_ticket.quantity,
-
+        organizer=event.organizer.username if event.organizer else None, 
+        username=current_user.username,
     )
