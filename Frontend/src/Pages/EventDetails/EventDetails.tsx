@@ -133,7 +133,7 @@ const EventDetails = () => {
 
     // Add to calendar only if not already bookmarked
     if (!bookC && event) {
-     
+      
 
     }
   };
