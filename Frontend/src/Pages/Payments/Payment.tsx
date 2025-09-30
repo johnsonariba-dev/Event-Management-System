@@ -32,11 +32,12 @@ function Payment() {
   const [count, setCount] = useState(1);
   const [amount, setAmount] = useState(0);
   const [ticketGenerated, setTicketGenerated] = useState(false);
-  const [phone, setPhone] = useState("");
+  const [phoneNumber, setPhone] = useState("");
   const [currency, setCurrency] = useState<"XAF" | "USD">("XAF");
   const [rate, setRate] = useState<number>(0);
   const ticketRef = useRef<HTMLDivElement>(null);
   const modal = useModalAlert();
+  const [username, setUsername] = useState<string>("");
 
   // Fetch event
   useEffect(() => {
@@ -60,7 +61,6 @@ function Payment() {
       try {
         const res = await fetch("https://open.er-api.com/v6/latest/XAF");
         const data = await res.json();
-        // Assuming USD is in data.rates.USD
         setRate(data.rates.USD);
       } catch (err) {
         console.error("Failed to fetch conversion rate:", err);
@@ -110,26 +110,33 @@ function Payment() {
 
   const handleFreeTicket = async () => {
     if (!event) return;
-    await createTicket(0); 
+    await createTicket(0);
     setTicketGenerated(true);
   };
 
+  // MTN & Orange payment using Nkwa API
   const handleMtnPayment = async () => {
-    if (!phone) return modal.show("Error", "Enter phone number", "Close");
+    if (!phoneNumber) return modal.show("Error", "Enter phone number", "Close");
 
     if (!event) return modal.show("Error", "Event not loaded", "Close");
 
     const totalAmount = event.ticket_price * count;
+    const reference = `txn_${Date.now()}`;
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/pay-mtn", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phone: phone, // user enters 9 digits
-          amount: totalAmount, // always integer in XAF
-        }),
-      });
+      const res = await fetch(
+        "https://chandra-unshifting-vocably.ngrok-free.dev/pay-mobile",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phoneNumber,
+            amount: totalAmount,
+            reference,
+            method, // "mtn" or "orange"
+          }),
+        }
+      );
 
       if (!res.ok) {
         const errText = await res.text();
@@ -150,6 +157,30 @@ function Payment() {
       console.error(err);
       alert("Payment failed");
     }
+  };
+
+  // Polling function to check payment status
+  const pollPaymentStatus = async (reference: string) => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(
+          `https://chandra-unshifting-vocably.ngrok-free.dev/mtn-status/${reference}`
+        );
+        if (!res.ok) return; // try next interval
+        const data = await res.json();
+
+        if (data.status === "success") {
+          alert("✅ Payment successful!");
+          setTicketGenerated(true);
+          clearInterval(interval);
+        } else if (data.status === "failed") {
+          alert("❌ Payment failed");
+          clearInterval(interval);
+        }
+      } catch (err) {
+        console.error("Polling failed:", err);
+      }
+    }, 5000); // every 5 seconds
   };
 
   const downloadTicket = async () => {
@@ -189,9 +220,14 @@ function Payment() {
     setPhone("");
   };
 
+  useEffect(() => {
+    const user = localStorage.getItem("username");
+    if (user) setUsername(user);
+  }, []);
+
   // Ticket view after generation
   if (ticketGenerated && event) {
-    const ticketId = `ticket-${event.id}-${Date.now()}`; // unique QR code
+    const ticketId = `ticket-${event.id}-${Date.now()}`;
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-white p-6">
         <div className="w-full md:w-1/2 flex flex-col items-center gap-6">
@@ -200,9 +236,8 @@ function Payment() {
               eventTitle={event.title}
               location={event.venue}
               date={event.date}
-              time={event.time}
               organizer={event.organizer}
-              userName="zounka"
+              username={username}
               price={event.ticket_price}
               imageUrl={event.image_url}
               ticketId={ticketId}
@@ -225,7 +260,7 @@ function Payment() {
     );
   }
 
-  // Regular payment page
+  // Regular payment page (same as before)
   return (
     <div className="flex flex-col items-center justify-center bg-purple-50">
       <div className="py-10 mt-25 mb-10 flex flex-col px-6 w-full md:w-200 justify-center bg-white rounded-lg shadow-lg">
@@ -394,7 +429,7 @@ function Payment() {
                     <label>Phone Number</label>
                     <input
                       type="text"
-                      value={phone}
+                      value={phoneNumber}
                       onChange={(e) => setPhone(e.target.value)}
                       className="w-full bg-gray-200 p-2 rounded-sm mb-3"
                       placeholder="Enter phone number"

@@ -27,7 +27,13 @@ const TicketCard: React.FC<TicketCardProps> = ({
       {imageUrl && (
         <div className="w-1/3">
           <img
-            src={imageUrl}
+            src={
+              imageUrl
+                ? imageUrl.startsWith("http")
+                  ? imageUrl
+                  : `http://127.0.0.1:8000${imageUrl}`
+                : "/placeholder.png"
+            }
             alt={eventTitle}
             className="h-full w-full object-cover"
           />
@@ -41,11 +47,15 @@ const TicketCard: React.FC<TicketCardProps> = ({
           <div className="flex gap-15 justify-between w-full  ">
             <div className="flex flex-col gap-1">
               <div className="">
-                <p className="text-black "><span className="font-bold">Venue:</span> {location}</p>
-                <p className="text-black "><span className="font-bold">Time: </span>
-                  {date} 
+                <p className="text-black ">
+                  <span className="font-bold">Venue:</span> {location}
                 </p>
-                <p className="text-black"><span className="font-bold">Organizer: </span>
+                <p className="text-black ">
+                  <span className="font-bold">Time: </span>
+                  {date}
+                </p>
+                <p className="text-black">
+                  <span className="font-bold">Organizer: </span>
                   {organizer}
                 </p>
               </div>
@@ -62,8 +72,8 @@ const TicketCard: React.FC<TicketCardProps> = ({
               <QRCodeSVG
                 value={`ticket-${eventTitle}-${username}-${date}`}
                 size={120}
-                fgColor="#000000ff" 
-                bgColor="#f3e8ff" 
+                fgColor="#000000ff"
+                bgColor="#f3e8ff"
               />
             </div>
           </div>

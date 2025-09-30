@@ -56,16 +56,13 @@ python recommender.py
 # qrcode
 pip install qrcode fpdf
 
-
 # for paypal payment
 npm install @paypal/react-paypal-js   (for the frontend)
 pip install python-dotenv  (for backend)
 python -m endpoints.faker_events [pour run]
 
-
 # for charts
 npm install chart.js react-chartjs-2
-
 
 # run app
 uvicorn main:app --reload

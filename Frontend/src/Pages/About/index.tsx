@@ -5,6 +5,7 @@ import { MdCall, MdEmail } from "react-icons/md";
 import { FaLocationDot, FaGlobe, FaEye } from "react-icons/fa6";
 import { FaRocket } from "react-icons/fa";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 const About = () => {
   const [totalEvents, setTotalEvents] = useState<string>("0");
@@ -212,8 +213,13 @@ const About = () => {
                   <MdEmail size={30} color="white" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold ">Email</h3>
-                  <p className="text-xl">planvibes1@gmail.com</p>
+                  <h3 className="text-2xl font-bold">Email</h3>
+                  <a
+                    href="mailto:planvibes1@gmail.com"
+                    className="text-blue-600 hover:underline"
+                  >
+                    planvibes1@gmail.com
+                  </a>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -222,7 +228,14 @@ const About = () => {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold">Phone</h3>
-                  <p className="text-xl">+237 652 173 171</p>
+                  <a
+                    href="https://wa.me/237652173171"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xl text-blue-500 hover:underline"
+                  >
+                    +237 652 173 171
+                  </a>
                 </div>
               </div>
             </motion.div>
@@ -241,7 +254,14 @@ const About = () => {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold">Address</h3>
-                  <p className="text-xl">Douala - Cameroun</p>
+                  <a
+                    href="https://www.google.com/maps?q=Douala+Akwa"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xl text-blue-600 hover:underline"
+                  >
+                    Douala - Cameroun
+                  </a>
                 </div>
               </div>
               <div className="flex items-center  gap-3">
@@ -262,4 +282,3 @@ const About = () => {
 };
 
 export default About;
-

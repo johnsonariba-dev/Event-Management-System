@@ -7,7 +7,7 @@ import { IoMdContact } from "react-icons/io";
 import Button from "../../components/button";
 import images from "../../types/images";
 import { useAuth } from "../../Pages/Context/UseAuth";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
 
 interface NavBarProps {
   items: NavBarItems[];
@@ -167,14 +167,7 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
                   </NavLink>
                 </>
               ) : (
-                <Button
-                  title="Logout"
-                  className="mt-6 px-20"
-                  onClick={() => {
-                    logout();
-                    closeMenu();
-                  }}
-                />
+                <></>
               )}
             </div>
           </div>

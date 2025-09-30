@@ -19,6 +19,11 @@ interface Reviews {
   reply?: string;
 }
 
+interface Organizer {
+  username: string;
+  email: string;
+}
+
 interface Event {
   id: number;
   image_url?: string;
@@ -53,14 +58,13 @@ const EventDetails = () => {
   const [editingComment, setEditingComment] = useState("");
   const [editingRating, setEditingRating] = useState(0);
   const [showAllReviews, setShowAllReviews] = useState(false);
-  const [userInfo, setUserInfo] = useState();
+  const [userInfo, setUserInfo] = useState<Organizer | null>(null);
   const [count, setCount] = useState<EventStats | null>(null);
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
 
-  // total attendees and reviews
   useEffect(() => {
     const fetchCount = async () => {
       try {
@@ -136,11 +140,9 @@ const EventDetails = () => {
     setBookC(!bookC);
 
     // Add to calendar only if not already bookmarked
-<<<<<<< HEAD
-    if (!bookC && event) {
-      
 
-=======
+    if (!bookC && event) {
+
     if (!bookC) {
       fetch(`http://127.0.0.1:8000/bookmark/${event?.id}`, {
         method: "POST",
@@ -148,7 +150,7 @@ const EventDetails = () => {
           Authorization: `Bearer ${token}`,
         },
       });
->>>>>>> 83b5992 (alert box)
+
     }
   };
 
@@ -331,7 +333,7 @@ const EventDetails = () => {
             <div className="w-full flex justify-between items-center max-sm:flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <h1 className="text-lg font-semi bold text-primary">
-                  By {userInfo}
+                  By {userInfo?.username}
                 </h1>
               </div>
               <Button
@@ -345,12 +347,22 @@ const EventDetails = () => {
                       "Close"
                     );
                   if (role !== "user")
+
                     return modal.show(
                       "Unauthorized",
                       "Only users can contact organizer.",
                       "Close"
                     );
                   alert(`Contacting organizer for ${event.title}`);
+
+                    return alert("Only users can contact organizer");
+
+                  if (userInfo?.email) {
+                    window.location.href = `mailto:${userInfo.email}?subject=Inquiry about ${event.title}`;
+                  } else {
+                    alert("Organizer email not available");
+                  }
+
                 }}
                 className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105"
               />
@@ -388,7 +400,7 @@ const EventDetails = () => {
                   <HiUserCircle size={24} className="text-primary" />
                   <div>
                     <h1 className="text-sm font-semibold">Organizer</h1>
-                    <p className="text-sm">{userInfo}</p>
+                    <p className="text-sm">{userInfo?.username}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 w-full justify-end py-4 px-1">
@@ -541,7 +553,7 @@ const EventDetails = () => {
                     <p className="pt-5 text-gray-800">{rev.comment}</p>
                     {rev.reply && (
                       <div className="ml-6 mt-2 p-2 border-l-2 border-gray-300 text-gray-600">
-                        <strong>{userInfo} reply:</strong> {rev.reply}
+                        <strong>{userInfo?.username} reply:</strong> {rev.reply}
                       </div>
                     )}
                   </div>
