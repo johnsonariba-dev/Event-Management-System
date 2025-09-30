@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FiMenu, FiX } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa6";
 import { IoMdContact } from "react-icons/io";
 import Button from "../../components/button";
 import images from "../../types/images";
 import { useAuth } from "../../Pages/Context/UseAuth";
+import { toast } from "react-toastify";
 
 interface NavBarProps {
   items: NavBarItems[];
@@ -27,6 +29,29 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
   const canCreateEvent =
     token &&
     (role?.toLowerCase() === "organizer" || role?.toLowerCase() === "admin");
+
+
+  const navigate = useNavigate();
+    const handleProfile = () => {
+      if (!token) {
+        toast.info("Please login to access your profile.", {
+          position: "top-center", // optional override
+        });
+        return;
+      }
+
+      if (role === "organizer") {
+        navigate("/organizerProfile");
+      } else if (role === "user") {
+        navigate("/profile");
+      } else {
+        toast.error("Unknown role. Please contact support.", {
+          position: "top-center", // optional override
+        });
+      }
+    };
+ 
+
 
   return (
     <div className="relative z-4">
@@ -72,10 +97,9 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
             </>
           ) : (
             // <Button title="profile" onClick={logout} />
-            <Link to="/Profile">
-              <IoMdContact size={40} className="text-primary"/>
-            </Link>
+              <IoMdContact size={40} className="text-primary" onClick={handleProfile} />
           )}
+             
         </div>
       </div>
 

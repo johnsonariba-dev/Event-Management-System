@@ -10,6 +10,7 @@ import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import TicketCard from "../Ticket/TicketCard";
 import * as htmlToImage from "html-to-image";
 import { jsPDF } from "jspdf";
+import { useModalAlert } from "../../components/ModalContext";
 
 interface Event {
   id: number;
@@ -35,6 +36,7 @@ function Payment() {
   const [currency, setCurrency] = useState<"XAF" | "USD">("XAF");
   const [rate, setRate] = useState<number>(0);
   const ticketRef = useRef<HTMLDivElement>(null);
+  const modal = useModalAlert();
 
   // Fetch event
   useEffect(() => {
@@ -101,6 +103,8 @@ function Payment() {
       return await res.json();
     } catch (err) {
       console.error(err);
+    }finally{
+      modal.show("Success", "Ticket(s) created successfully!", "Close");
     }
   };
 
@@ -111,9 +115,9 @@ function Payment() {
   };
 
   const handleMtnPayment = async () => {
-    if (!phone) return alert("Enter phone number");
+    if (!phone) return modal.show("Error", "Enter phone number", "Close");
 
-    if (!event) return alert("Event not loaded");
+    if (!event) return modal.show("Error", "Event not loaded", "Close");
 
     const totalAmount = event.ticket_price * count;
 
@@ -130,17 +134,17 @@ function Payment() {
       if (!res.ok) {
         const errText = await res.text();
         console.error("MTN Payment error:", res.status, errText);
-        return alert(`Payment failed: ${errText}`);
+        return modal.show("Error", `Payment failed: ${errText}`, "close");
       }
 
       const data = await res.json();
 
       if (data.id) {
-        alert(
-          `Transaction initiated: ${data.id}. Please approve on your phone.`
+        modal.show(
+          `Transaction initiated: ${data.id}. Please approve on your phone.`, "close"
         );
       } else {
-        alert("Failed to initiate MTN payment");
+        modal.show("Error", "Failed to initiate MTN payment", "close");
       }
     } catch (err) {
       console.error(err);
@@ -174,7 +178,7 @@ function Payment() {
       pdf.save(`${event?.title || "ticket"}-ticket.pdf`);
     } catch (err) {
       console.error("Download failed:", err);
-      alert("Something went wrong while generating the PDF");
+      modal.show("Sorry", "Something went wrong while generating the PDF", "Close");
     }
   };
 
