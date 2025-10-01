@@ -55,8 +55,8 @@ interface Totals {
 
 export default function OrganizerManagement() {
   const [organizers, setOrganizers] = useState<Organizer[]>([]);
-  const [searchQuery, setSearchQuery] = useState(""); // ✅ texte recherché
-  const [statusFilter, setStatusFilter] = useState("All"); // ✅ filtre
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
   const [totals, setTotals] = useState<Totals>({
     total_users: 0,
     active_count: 0,
@@ -114,17 +114,12 @@ export default function OrganizerManagement() {
     setOrganizers((prev) =>
       prev.map((org) =>
         org.id === updatedUser.id
-          ? {
-              ...org,
-              username: updatedUser.username,
-              email: updatedUser.email,
-            }
+          ? { ...org, username: updatedUser.username, email: updatedUser.email }
           : org
       )
     );
   };
 
-  // ✅ Filtrage combiné (recherche + statut)
   const filteredOrganizers = organizers.filter((org) => {
     const matchesSearch =
       org.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -135,7 +130,7 @@ export default function OrganizerManagement() {
       statusFilter === "All" ||
       (statusFilter === "Active" && org.is_active) ||
       (statusFilter === "Inactive" && !org.is_active) ||
-      (statusFilter === "Suspended" && org.is_active === undefined); // à adapter si vous avez un statut "Suspended"
+      (statusFilter === "Suspended" && org.is_active === undefined);
 
     return matchesSearch && matchesStatus;
   });
@@ -143,7 +138,7 @@ export default function OrganizerManagement() {
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
-    <div className="space-y-4 p-2 md:p-4">
+    <div className="space-y-4 p-2 md:p-4 min-w-0">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold">Organizer Management</h1>
@@ -167,7 +162,7 @@ export default function OrganizerManagement() {
 
       {/* Table */}
       <div className="shadow rounded-lg p-4 space-y-4 overflow-x-auto">
-        <div className="flex justify-between items-start md:items-center gap-2">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
           <div>
             <h2 className="font-bold text-xl flex items-center gap-2">
               <FaUser /> Organizers List
@@ -177,10 +172,8 @@ export default function OrganizerManagement() {
             </p>
           </div>
 
-          <div className="flex items-start sm:items-center gap-2">
-            {/* 🔍 Search */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
             <SearchBar onSearch={setSearchQuery} />
-            {/* ✅ Filtre */}
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -197,78 +190,71 @@ export default function OrganizerManagement() {
         {loading ? (
           <p className="text-center text-gray-500 p-6">Loading...</p>
         ) : (
-          <table className="w-full min-w-[700px] border border-gray-400 rounded text-xs md:text-sm">
-            <thead className="bg-gray-100">
-              <tr className="text-left font-medium">
-                <th className="px-4 py-2">Organizer's name</th>
-                <th className="px-4 py-2">Email</th>
-                <th className="px-4 py-2">Performance</th>
-                <th className="px-4 py-2">Revenue</th>
-                <th className="px-4 py-2">Status</th>
-                <th className="px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredOrganizers.length > 0 ? (
-                filteredOrganizers.map((user) => (
-                  <tr key={user.id} className="border-t border-gray-300">
-                    <td className="px-4 py-2">
-                      {user.username}
-                      <div className="text-xs font-light">ID: {user.id}</div>
-                    </td>
-                    <td className="px-4 py-2">{user.email}</td>
-                    <td className="px-4 py-2">
-                      {user.events} events <br /> Last {user.date_event}
-                    </td>
-                    <td className="px-4 py-2">{user.revenu} XAF</td>
-                    <td className="px-4 py-2">
-                      <span
-                        className={
-                          user.is_active ? "text-green-500" : "text-red-500"
-                        }
-                      >
-                        {user.is_active ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2 flex gap-2">
-                      <button
-                        onClick={() =>
-                          setSelectedUser({
-                            id: user.id,
-                            username: user.username,
-                            email: user.email,
-                            role: "organizer",
-                          })
-                        }
-                        className="text-xs px-2 py-1 rounded bg-yellow-200 hover:bg-yellow-300 transition-colors"
-                      >
-                        <FaEdit />
-                      </button>
-                      <DeleteUser
-                        user={{
-                          id: user.id,
-                          username: user.username,
-                          email: user.email,
-                          role: "organizer",
-                        }}
-                        onDeleted={(id) =>
-                          setOrganizers((prev) =>
-                            prev.filter((u) => u.id !== id)
-                          )
-                        }
-                      />
+          <div className="overflow-x-auto">
+            <table className="w-full border border-gray-400 rounded text-xs md:text-sm min-w-[600px]">
+              <thead className="bg-gray-100">
+                <tr className="text-left font-medium">
+                  <th className="px-4 py-2">Organizer's name</th>
+                  <th className="px-4 py-2">Email</th>
+                  <th className="px-4 py-2">Performance</th>
+                  <th className="px-4 py-2">Revenue</th>
+                  <th className="px-4 py-2">Status</th>
+                  <th className="px-4 py-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredOrganizers.length > 0 ? (
+                  filteredOrganizers.map((user) => (
+                    <tr key={user.id} className="border-t border-gray-300">
+                      <td className="px-4 py-2 break-words">
+                        {user.username}
+                        <div className="text-xs font-light">ID: {user.id}</div>
+                      </td>
+                      <td className="px-4 py-2 break-words">{user.email}</td>
+                      <td className="px-4 py-2 break-words">
+                        {user.events} events <br /> Last {user.date_event}
+                      </td>
+                      <td className="px-4 py-2 break-words">{user.revenu} XAF</td>
+                      <td className="px-4 py-2">
+                        <span
+                          className={user.is_active ? "text-green-500" : "text-red-500"}
+                        >
+                          {user.is_active ? "Active" : "Inactive"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2 flex gap-2 flex-wrap">
+                        <button
+                          onClick={() =>
+                            setSelectedUser({
+                              id: user.id,
+                              username: user.username,
+                              email: user.email,
+                              role: "organizer",
+                            })
+                          }
+                          className="text-xs px-2 py-1 rounded bg-yellow-200 hover:bg-yellow-300 transition-colors"
+                        >
+                          <FaEdit />
+                        </button>
+                        <DeleteUser
+                          user={{ id: user.id, username: user.username, email: user.email, role: "organizer" }}
+                          onDeleted={(id) =>
+                            setOrganizers((prev) => prev.filter((u) => u.id !== id))
+                          }
+                        />
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="text-center py-4 text-gray-500">
+                      No organizers match your search.
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={6} className="text-center py-4 text-gray-500">
-                    No organizers match your search.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
         )}
 
         {selectedUser && (
