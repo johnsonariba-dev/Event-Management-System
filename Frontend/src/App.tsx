@@ -30,10 +30,6 @@ import AuthProvider from "./Pages/Context/AuthProvider";
 import OrganizerProfile from "./Pages/OrganizerProfile";
 import CalendarWithSidebar from "./components/myCalendar";
 import { ModalAlertProvider } from "./components/Modal";
-<<<<<<< HEAD
-=======
-
->>>>>>> 1a59ffedf319ed7b3e1bb7994b0ad273be8a0678
 
 const NavBarItems = [
   { title: "Home", path: "/" },
