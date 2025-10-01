@@ -11,8 +11,9 @@ import {
 import { FaChartLine, FaPlus } from "react-icons/fa6";
 import Button from "../../components/button";
 import { cities } from "../EventDetails/CityLilst";
-
+import { useModalAlert } from "../../components/ModalContext";
 import { useAuth } from "../Context/UseAuth";
+import { motion } from "framer-motion";
 
 type EventItem = {
   id: number;
@@ -32,6 +33,7 @@ type CityItem = {
 };
 
 function Home() {
+  const modal = useModalAlert();
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -41,7 +43,8 @@ function Home() {
   const [showMore, setShowMore] = useState(false);
   const [totalEvents, setTotalEvents] = useState<string>("0");
   const [totalUsers, setTotalUsers] = useState<string>("No attendees");
-  const [totalorganizer, setTotalorganizer] = useState<string>("No organizations");
+  const [totalorganizer, setTotalorganizer] =
+    useState<string>("No organizations");
   const [percentRating, setPercentRating] = useState<string>("0");
 
   useEffect(() => {
@@ -94,12 +97,12 @@ function Home() {
 
   const handleViewEvent = (event: EventItem) => {
     if (!token) {
-      alert("You must be logged in to view event details");
+      modal.show("You must be logged in to view event details", "close");
       navigate("/Login");
       return;
     }
     if (role !== "user" && role !== "admin" && role !== "organizer") {
-      alert("Only users can view event details");
+      modal.show("Only users can view event details", "close");
       return;
     } else {
       navigate(`/event/${event.id}`);
@@ -108,14 +111,14 @@ function Home() {
 
   const handleCreateEvent = () => {
     if (!token) {
-      alert(
-        "You must be logged in as an organizer or admin to create an event"
+      modal.show(
+        "You must be logged in as an organizer or admin to create an event", "close"
       );
       navigate("/Login");
       return;
     }
     if (role !== "admin" && role !== "organizer") {
-      alert("Only admins and organizers can create events");
+      modal.show("Only admins and organizers can create events", "close");
       return;
     }
     navigate("/CreateEvent");
@@ -123,12 +126,12 @@ function Home() {
 
   const handleViewAll = () => {
     if (!token) {
-      alert("You must be logged in to see more events");
+      modal.show("You must be logged in to see more events", "close");
       navigate("/Login");
       return;
     }
     if (role !== "user" && role !== "admin" && role !== "organizer") {
-      alert("Only users can see more events");
+      modal.show("Only users can see more events", "close");
       return;
     }
     if (!showMore) {
@@ -140,12 +143,12 @@ function Home() {
 
   const handleViewCity = (cityItem: CityItem) => {
     if (!token) {
-      alert("You must be logged in to view city details");
+      modal.show("You must be logged in to view city details", "close");
       navigate("/Login");
       return;
     }
     if (role !== "user" && role !== "admin" && role !== "organizer") {
-      alert("Only users can view city details");
+      modal.show("Only users can view city details", "close");
       return;
     } else {
       navigate(`/Cities/${cityItem.id}`);
@@ -221,29 +224,36 @@ function Home() {
       <div className="relative w-full h-screen bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-600 overflow-hidden">
         <div className="absolute inset-0 bg-[url(/src/assets/images/hero.png)] bg-cover bg-center brightness-50 animate-fadeIn" />
         <div className="relative w-full h-full flex flex-col items-center justify-center text-center px-4">
-          <h1 className="text-[7vw] max-md:text-[10vw] font-extrabold text-white animate-slideInDown">
-            <span className="text-secondary">Connect</span> through
-            Unforgettable <span className="text-secondary">Events</span>
-          </h1>
-          <p className="text-[1.5vw] max-md:text-[3vw] text-white font-light mt-4 animate-slideInUp">
-            Discover, create, and attend events that matter to you.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 max-sm:items-center text-center mt-6 animate-fadeInDelay">
-            <Link to="/Events">
-              <Button
-                title="Explore Events"
-                icon={<HiArrowRight />}
-                className="hover:scale-105 transform transition-all duration-500"
-              />
-            </Link>
+          <motion.div
+            className="relative flex flex-col items-center text-center justify-center text-white p-8 sm:p-20 bottom-0 space-y-4"
+            initial={{ opacity: 0, y: 90 }}
+            animate={{ opacity: 1, y: 20 }}
+            transition={{ duration: 1 }}
+          >
+            <h1 className="text-[7vw] max-md:text-[10vw] font-extrabold text-white animate-slideInDown">
+              <span className="text-secondary">Connect</span> through
+              Unforgettable <span className="text-secondary">Events</span>
+            </h1>
+            <p className="text-[1.5vw] max-md:text-[3vw] text-white font-light mt-4 animate-slideInUp">
+              Discover, create, and attend events that matter to you.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 max-sm:items-center text-center mt-6 animate-fadeInDelay">
+              <Link to="/Events">
+                <Button
+                  title="Explore Events"
+                  icon={<HiArrowRight />}
+                  className="hover:scale-105 transform transition-all duration-500"
+                />
+              </Link>
 
-            <Button
-              icon={<FaPlus />}
-              title="Create Event"
-              onClick={handleCreateEvent}
-              className="hover:scale-110 transform transition-all duration-500"
-            />
-          </div>
+              <Button
+                icon={<FaPlus />}
+                title="Create Event"
+                onClick={handleCreateEvent}
+                className="hover:scale-110 transform transition-all duration-500"
+              />
+            </div>
+          </motion.div>
         </div>
       </div>
 
@@ -271,7 +281,13 @@ function Home() {
             >
               <div className="relative h-64">
                 <img
-                  src={event.image_url || "/images/placeholder.jpg"}
+                  src={
+                    event.image_url
+                      ? event.image_url.startsWith("http")
+                        ? event.image_url
+                        : `http://127.0.0.1:8000${event.image_url}`
+                      : "/placeholder.png"
+                  }
                   alt={event.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
@@ -405,7 +421,7 @@ function Home() {
           },
           {
             icon: <FaChartLine />,
-            value:  totalorganizer ,
+            value: totalorganizer,
             label: "Organizations",
           },
           {
@@ -464,4 +480,3 @@ function Home() {
 }
 
 export default Home;
-

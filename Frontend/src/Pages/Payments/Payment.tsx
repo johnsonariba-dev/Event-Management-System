@@ -10,6 +10,7 @@ import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import TicketCard from "../Ticket/TicketCard";
 import * as htmlToImage from "html-to-image";
 import { jsPDF } from "jspdf";
+import { useModalAlert } from "../../components/ModalContext";
 
 interface Event {
   id: number;
@@ -31,10 +32,12 @@ function Payment() {
   const [count, setCount] = useState(1);
   const [amount, setAmount] = useState(0);
   const [ticketGenerated, setTicketGenerated] = useState(false);
-  const [phone, setPhone] = useState("");
+  const [phoneNumber, setPhone] = useState("");
   const [currency, setCurrency] = useState<"XAF" | "USD">("XAF");
   const [rate, setRate] = useState<number>(0);
   const ticketRef = useRef<HTMLDivElement>(null);
+  const [username, setUsername] = useState<string>("");
+  const modal = useModalAlert();
 
   // Fetch event
   useEffect(() => {
@@ -58,7 +61,6 @@ function Payment() {
       try {
         const res = await fetch("https://open.er-api.com/v6/latest/XAF");
         const data = await res.json();
-        // Assuming USD is in data.rates.USD
         setRate(data.rates.USD);
       } catch (err) {
         console.error("Failed to fetch conversion rate:", err);
@@ -106,46 +108,75 @@ function Payment() {
 
   const handleFreeTicket = async () => {
     if (!event) return;
-    await createTicket(0); 
+    await createTicket(0);
     setTicketGenerated(true);
   };
 
+  // MTN & Orange payment using Nkwa API
   const handleMtnPayment = async () => {
-    if (!phone) return alert("Enter phone number");
-
-    if (!event) return alert("Event not loaded");
+    if (!phoneNumber) return modal.show("Enter phone number", "close");
+    if (!event) return modal.show("Event not loaded", "close");
 
     const totalAmount = event.ticket_price * count;
+    const reference = `txn_${Date.now()}`;
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/pay-mtn", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phone: phone, // user enters 9 digits
-          amount: totalAmount, // always integer in XAF
-        }),
-      });
+      const res = await fetch(
+        "https://chandra-unshifting-vocably.ngrok-free.dev/pay-mobile",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phoneNumber,
+            amount: totalAmount,
+            reference,
+            method, // "mtn" or "orange"
+          }),
+        }
+      );
 
       if (!res.ok) {
         const errText = await res.text();
-        console.error("MTN Payment error:", res.status, errText);
-        return alert(`Payment failed: ${errText}`);
+        console.error("Payment error:", res.status, errText);
+        return modal.show(`Payment failed: ${errText}`, "close");
       }
 
       const data = await res.json();
 
       if (data.id) {
-        alert(
-          `Transaction initiated: ${data.id}. Please approve on your phone.`
-        );
+        modal.show(`Transaction initiated: ${data.id}. Please approve on your phone.`, "close");
+        pollPaymentStatus(reference); // start polling
       } else {
-        alert("Failed to initiate MTN payment");
+        modal.show("Failed to initiate payment", "close");
       }
     } catch (err) {
       console.error(err);
-      alert("Payment failed");
+      modal.show("Payment failed", "close");
     }
+  };
+
+  // Polling function to check payment status
+  const pollPaymentStatus = async (reference: string) => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(
+          `https://chandra-unshifting-vocably.ngrok-free.dev/mtn-status/${reference}`
+        );
+        if (!res.ok) return; // try next interval
+        const data = await res.json();
+
+        if (data.status === "success") {
+          modal.show("✅ Payment successful!", "close");
+          setTicketGenerated(true);
+          clearInterval(interval);
+        } else if (data.status === "failed") {
+          modal.show("❌ Payment failed", "close");
+          clearInterval(interval);
+        }
+      } catch (err) {
+        console.error("Polling failed:", err);
+      }
+    }, 5000); // every 5 seconds
   };
 
   const downloadTicket = async () => {
@@ -174,7 +205,7 @@ function Payment() {
       pdf.save(`${event?.title || "ticket"}-ticket.pdf`);
     } catch (err) {
       console.error("Download failed:", err);
-      alert("Something went wrong while generating the PDF");
+      modal.show("Something went wrong while generating the PDF", "close");
     }
   };
 
@@ -185,9 +216,14 @@ function Payment() {
     setPhone("");
   };
 
+  useEffect(() => {
+    const user = localStorage.getItem("username");
+    if (user) setUsername(user);
+  }, []);
+
   // Ticket view after generation
   if (ticketGenerated && event) {
-    const ticketId = `ticket-${event.id}-${Date.now()}`; // unique QR code
+    const ticketId = `ticket-${event.id}-${Date.now()}`;
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-white p-6">
         <div className="w-full md:w-1/2 flex flex-col items-center gap-6">
@@ -196,9 +232,8 @@ function Payment() {
               eventTitle={event.title}
               location={event.venue}
               date={event.date}
-              time={event.time}
               organizer={event.organizer}
-              userName="zounka"
+              username={username}
               price={event.ticket_price}
               imageUrl={event.image_url}
               ticketId={ticketId}
@@ -221,7 +256,7 @@ function Payment() {
     );
   }
 
-  // Regular payment page
+  // Regular payment page (same as before)
   return (
     <div className="flex flex-col items-center justify-center bg-purple-50">
       <div className="py-10 mt-25 mb-10 flex flex-col px-6 w-full md:w-200 justify-center bg-white rounded-lg shadow-lg">
@@ -390,7 +425,7 @@ function Payment() {
                     <label>Phone Number</label>
                     <input
                       type="text"
-                      value={phone}
+                      value={phoneNumber}
                       onChange={(e) => setPhone(e.target.value)}
                       className="w-full bg-gray-200 p-2 rounded-sm mb-3"
                       placeholder="Enter phone number"
@@ -437,10 +472,10 @@ function Payment() {
                             { method: "POST" }
                           );
                           const details = await res.json();
-                          alert(
+                          modal.show(
                             "Transaction completed by " +
                               details.payer.name.given_name
-                          );
+                          , "close");
                           setTicketGenerated(true);
                         }}
                       />

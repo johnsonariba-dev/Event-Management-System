@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { FaUpload } from "react-icons/fa";
-import { useAuth } from "../Context/UseAuth";
-import Button from "../../components/button";
-import { BsFillQuestionCircleFill } from "react-icons/bs";
 
+import { FaUpload } from "react-icons/fa";
+
+import { User } from "lucide-react";
+import Button from "../../components/button";
+import { useModalAlert } from "../../components/ModalContext";
+import { useAuth } from "../Context/UseAuth";
 
 interface User {
   id: number;
@@ -18,11 +20,48 @@ interface User {
 
 const Personal: React.FC = () => {
   const { token } = useAuth();
+  const modal = useModalAlert();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [profilePic, setProfilePic] = useState("");
 
+  type profile_picProps = {
+    src?: string;
+    alt?: string;
+    name: string;
+  };
+
+  const ProfilePic: React.FC<profile_picProps> = ({ src, alt = "Profile", name }) => {
+  const getInitials = (name: string) => {
+    return name
+      .trim()
+      .split(/\s+/)
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase();
+  };
+
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt={alt}
+        className="w-full h-full rounded-full border-4 border-primary-500 object-cover shadow-lg"
+      />
+    );
+  }
+
+  // Fallback initials avatar
+  return (
+    <div className="w-full h-full rounded-full bg-purple-50 flex items-center justify-center shadow-lg">
+      <span className="text-4xl font-bold text-primary">{getInitials(name)}</span>
+    </div>
+  );
+};
+
+
+  // Fetch user data
   useEffect(() => {
     const fetchUser = async () => {
       if (!token) return;
@@ -31,10 +70,8 @@ const Personal: React.FC = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(res.data);
-        setProfilePic(
-          res.data.profile_pic ||
-           BsFillQuestionCircleFill
-        );
+        // Default to question mark if no profile_pic
+        setProfilePic(res.data.profile_pic);
       } catch (err) {
         console.error("Failed to fetch user:", err);
       } finally {
@@ -66,7 +103,7 @@ const Personal: React.FC = () => {
     if (!user) return;
 
     if (!user.username || !user.email) {
-      alert("Username and email are required.");
+      modal.show("Username and email are required.", "close");
       return;
     }
 
@@ -84,38 +121,40 @@ const Personal: React.FC = () => {
       });
 
       setEditMode(false);
-      alert("Profile updated successfully!");
+      modal.show("Profile updated successfully!", "close");
     } catch (err) {
       console.error(err);
-      alert("Failed to update profile.");
+      modal.show("Failed to update profile.", "close");
     }
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pt-40">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 pt-30">
+      <h1 className="flex gap-1 font-bold text-2xl text-primary">
+        <User size={30} />
+        My Profile
+      </h1>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-8">
         <div className="flex items-center gap-6">
           <label className="relative group cursor-pointer w-28 h-28 sm:w-32 sm:h-32">
-            <img
-              src={profilePic}
-              alt="Profile"
-              className="w-full h-full rounded-full border-4 border-primary-500 object-cover shadow-lg bg-gray-100 flex items-center justify-center"
-            />
-            {editMode && (
-              <>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleProfilePicUpload}
-                  className="absolute inset-0 opacity-0 cursor-pointer rounded-full"
-                />
-                <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                  <FaUpload className="text-white text-xl sm:text-2xl" />
-                </div>
-              </>
-            )}
-          </label>
+  <ProfilePic src={profilePic} name={user.username} />
+  {editMode && (
+    <>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleProfilePicUpload}
+        className="absolute inset-0 opacity-0 cursor-pointer rounded-full"
+      />
+      <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+        <FaUpload className="text-white text-xl sm:text-2xl" />
+      </div>
+    </>
+  )}
+</label>
+
+
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-primary-700">
               {user.username}
@@ -129,7 +168,6 @@ const Personal: React.FC = () => {
           onClick={editMode ? handleSaveProfile : () => setEditMode(true)}
         />
       </div>
-
       {/* Personal Info */}
       <section className="mb-12 bg-white shadow rounded-xl p-6">
         <h2 className="text-lg sm:text-xl font-semibold mb-6 text-primary-700">

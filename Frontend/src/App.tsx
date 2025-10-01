@@ -15,7 +15,6 @@ import Chatbot from "./Pages/Chatbot";
 import BuyTicket from "./Pages/Ticket/BuyTicket";
 import TicketScan from "./Pages/Ticket/TicketScan";
 import ScrollToTop from "./components/ScrollTop";
-import UpdateEvent from "./Pages/Events/UpdateEvent";
 import Profile from "./Pages/Profile";
 import Attendees from "./components/reviews";
 import { EventApproval } from "./components/EventApproval";
@@ -30,6 +29,7 @@ import AdminLogin from "./Pages/Authentication/AdminLogin";
 import AuthProvider from "./Pages/Context/AuthProvider";
 import OrganizerProfile from "./Pages/OrganizerProfile";
 import CalendarWithSidebar from "./components/myCalendar";
+import { ModalAlertProvider } from "./components/Modal";
 
 const NavBarItems = [
   { title: "Home", path: "/" },
@@ -52,6 +52,7 @@ function App() {
     "/admindashboard/users",
     "/admindashboard/organizers",
     "/Profile",
+    "/organizerProfile"
   ];
   const hideNavbar = ["/CreateEvent","/Profile"];
   const currentPath = location.pathname;
@@ -59,6 +60,7 @@ function App() {
   const showNavbar = !hideNavbar.includes(currentPath);
 
   return (
+    <ModalAlertProvider>
     <AuthProvider>
         <div>
           {showNavbar && <NavBar items={NavBarItems} />}
@@ -74,7 +76,7 @@ function App() {
             <Route path="/Event/:id" element={<EventDetails />} />
             <Route path="/cities/:id" element={<CityDetails />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/OrganizerProfile" element={<OrganizerProfile />} />
+            <Route path="/organizerProfile" element={<OrganizerProfile />} />
             <Route path="/calendar" element={<CalendarWithSidebar />} />
 
             {/* Admin Dashboard */}
@@ -108,14 +110,6 @@ function App() {
               element={
                 <ProtectedRoute roles={["organizer", "admin"]}>
                   <NewEvent />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/event/update/:id"
-              element={
-                <ProtectedRoute roles={["organizer", "admin"]}>
-                  <UpdateEvent />
                 </ProtectedRoute>
               }
             />
@@ -160,6 +154,7 @@ function App() {
           {showFooter && <Footer />}
         </div>
     </AuthProvider>
+    </ModalAlertProvider>
   );
 }
 

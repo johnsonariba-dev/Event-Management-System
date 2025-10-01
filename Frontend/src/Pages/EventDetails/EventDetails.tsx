@@ -8,6 +8,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ShareButton from "../../components/ShareButton";
 import Like from "../../components/like";
+import { useModalAlert } from "../../components/ModalContext";
 
 // Types
 interface Reviews {
@@ -16,6 +17,11 @@ interface Reviews {
   comment: string;
   rating: number;
   reply?: string;
+}
+
+interface Organizer {
+  username: string;
+  email: string;
 }
 
 interface Event {
@@ -40,6 +46,7 @@ interface EventStats {
 }
 
 const EventDetails = () => {
+  const modal = useModalAlert();
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,14 +58,13 @@ const EventDetails = () => {
   const [editingComment, setEditingComment] = useState("");
   const [editingRating, setEditingRating] = useState(0);
   const [showAllReviews, setShowAllReviews] = useState(false);
-  const [userInfo, setUserInfo] = useState();
+  const [userInfo, setUserInfo] = useState<Organizer | null>(null);
   const [count, setCount] = useState<EventStats | null>(null);
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
 
-  // total attendees and reviews
   useEffect(() => {
     const fetchCount = async () => {
       try {
@@ -125,28 +131,26 @@ const EventDetails = () => {
 
   // Bookmark event
   const handleBookClick = () => {
-    if (!token) return alert("You must be logged in to bookmark this event");
-    if (role !== "user") return alert("Only users can bookmark events");
+    if (!token) return modal.show("You must be logged in to bookmark this event", "close");
+    if (role !== "user") return modal.show("Only users can bookmark events", "close");
 
     // toggle local state
     setBookC(!bookC);
 
     // Add to calendar only if not already bookmarked
     if (!bookC && event) {
-     
-
     }
   };
 
   // Buy ticket
   const handleBuyTicket = () => {
     if (!token) {
-      alert("You must be logged in to buy a ticket");
+      modal.show("You must be logged in to buy a ticket", "close");
       navigate("/Login");
       return;
     }
     if (role !== "user") {
-      alert("Only users can buy tickets");
+      modal.show("Only users can buy tickets","close");
       return;
     }
     navigate(`/Payment/${event?.id}`);
@@ -165,7 +169,7 @@ const EventDetails = () => {
   };
   const handleUpdate = async () => {
     if (!editingComment.trim() || editingRating === 0) return;
-    if (!token) return alert("You must be logged in");
+    if (!token) return modal.show("You must be logged in", "close");
     try {
       const res = await fetch(
         `http://127.0.0.1:8000/review/${editingReviewId}`,
@@ -195,8 +199,8 @@ const EventDetails = () => {
 
   // Submit new review
   const handleSubmit = async () => {
-    if (!token) return alert("You must be logged in to leave a review");
-    if (role !== "user") return alert("Only users can leave reviews");
+    if (!token) return modal.show("You must be logged in to leave a review", "close");
+    if (role !== "user") return modal.show("Only users can leave reviews", "close");
     if (!comment.trim() || currentRating === 0) return;
 
     const newReview = { comment, rating: currentRating };
@@ -288,7 +292,7 @@ const EventDetails = () => {
             <div className="w-full flex justify-between items-center max-sm:flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <h1 className="text-lg font-semi bold text-primary">
-                  By {userInfo}
+                  By {userInfo?.username}
                 </h1>
               </div>
               <Button
@@ -296,10 +300,15 @@ const EventDetails = () => {
                 title="Contact Organizer"
                 onClick={() => {
                   if (!token)
-                    return alert("You must be logged in to contact organizer");
+                    return modal.show("You must be logged in to contact organizer", "close");
                   if (role !== "user")
-                    return alert("Only users can contact organizer");
-                  alert(`Contacting organizer for ${event.title}`);
+                    return modal.show("Only users can contact organizer", "close");
+
+                  if (userInfo?.email) {
+                    window.location.href = `mailto:${userInfo.email}?subject=Inquiry about ${event.title}`;
+                  } else {
+                    modal.show("Organizer email not available", "close");
+                  }
                 }}
                 className="bg-secondary hover:bg-primary transition-transform duration-300 hover:scale-105"
               />
@@ -337,7 +346,7 @@ const EventDetails = () => {
                   <HiUserCircle size={24} className="text-primary" />
                   <div>
                     <h1 className="text-sm font-semibold">Organizer</h1>
-                    <p className="text-sm">{userInfo}</p>
+                    <p className="text-sm">{userInfo?.username}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 w-full justify-end py-4 px-1">
@@ -490,7 +499,7 @@ const EventDetails = () => {
                     <p className="pt-5 text-gray-800">{rev.comment}</p>
                     {rev.reply && (
                       <div className="ml-6 mt-2 p-2 border-l-2 border-gray-300 text-gray-600">
-                        <strong>{userInfo} reply:</strong> {rev.reply}
+                        <strong>{userInfo?.username} reply:</strong> {rev.reply}
                       </div>
                     )}
                   </div>

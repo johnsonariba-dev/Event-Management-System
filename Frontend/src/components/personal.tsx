@@ -5,6 +5,7 @@ import { FaUpload } from "react-icons/fa";
 import { useAuth } from "../Pages/Context/UseAuth";
 import question from "../assets/images/question-mark.png";
 import { User } from "lucide-react";
+import { useModalAlert } from "./ModalContext";
 
 interface User {
   id: number;
@@ -18,6 +19,7 @@ interface User {
 
 const Personal: React.FC = () => {
   const { token } = useAuth();
+  const modal = useModalAlert();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
@@ -53,7 +55,7 @@ const Personal: React.FC = () => {
     setUser((prev) => prev && { ...prev, [field]: value });
   };
 
-  const handleProfilePicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+   const handleProfilePicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -68,7 +70,7 @@ const Personal: React.FC = () => {
     if (!user) return;
 
     if (!user.username || !user.email) {
-      alert("Username and email are required.");
+      modal.show("Username and email are required.", "close");
       return;
     }
 
@@ -86,10 +88,10 @@ const Personal: React.FC = () => {
       });
 
       setEditMode(false);
-      alert("Profile updated successfully!");
+      modal.show("Profile updated successfully!", "close");
     } catch (err) {
       console.error(err);
-      alert("Failed to update profile.");
+      modal.show("Failed to update profile.", "close");
     }
   };
 
@@ -132,7 +134,6 @@ const Personal: React.FC = () => {
           onClick={editMode ? handleSaveProfile : () => setEditMode(true)}
         />
       </div>
-
       {/* Personal Info */}
       <section className="mb-12 bg-white shadow rounded-xl p-6">
         <h2 className="text-lg sm:text-xl font-semibold mb-6 text-primary-700">
