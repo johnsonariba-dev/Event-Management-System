@@ -19,7 +19,7 @@ interface NavBarItems {
 
 const NavBar: React.FC<NavBarProps> = ({ items }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { token, role } = useAuth();
+  const { token, role, logout } = useAuth();
   const modal = useModalAlert();
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
@@ -93,6 +93,7 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
               onClick={handleProfile}
             />
           )}
+             
         </div>
       </div>
 

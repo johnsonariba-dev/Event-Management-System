@@ -32,8 +32,12 @@ const DeleteUser: React.FC<Props> = ({ user, onDeleted }) => {
       if (!response) throw new Error("Error to deleting");
       onDeleted(user.id);
       setShowConfirm(false);
-    } catch (error: any) {
-        console.error(`error, ${error.message}`)
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error(`error, ${error.message}`)
+        } else {
+            console.error("Unknown error", error)
+        }
     }finally{
         setLoading(false)
     }

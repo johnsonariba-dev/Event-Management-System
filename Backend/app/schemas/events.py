@@ -1,9 +1,10 @@
-from typing import Optional, List
+from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel, validator
 from .review import Review
 
 
+# ---------- CREATE ----------
 class EventCreate(BaseModel):
     title: str
     description: str
@@ -14,9 +15,10 @@ class EventCreate(BaseModel):
     image_url: str
     capacity_max: Optional[int] = 0
     organizer_id: int
-    status: Optional[str] = "Pending"
+    status: str = "Pending"   # <- unified type (was Optional[str])
 
 
+# ---------- OUT / READ ----------
 class EventOut(EventCreate):
     id: int
     title: str
@@ -30,28 +32,44 @@ class EventOut(EventCreate):
     organizer: str
     image_url: Optional[str] = ""
     reviews: List[Review] = []
+    image_urls: list[str] = []        # multiple images
+    reviews: list[Review] = []
 
-   
-    @validator("image_url", pre=True, always=True)
-    def normalize_image_url(cls, v):
-            if not v or v.strip() == "":
-                return "https://via.placeholder.com/600x400?text=No+Image"
-            v = v.strip()
-            if v.startswith("http"):
-                return v
-            if v.startswith("/uploads/events/"):
-                return f"http://localhost:8000{v}"
-            return f"http://localhost:8000/uploads/events/{v.lstrip('/')}"
+    @validator("image_urls", pre=True, always=True)
+    def normalize_image_urls(cls, v):
+        """
+        Ensure every image has a full URL or fallback placeholder.
+        Accepts either a single string or a list.
+        """
+        placeholder = "https://via.placeholder.com/600x400?text=No+Image"
 
+        if not v:
+            return [placeholder]
+
+        # If a single string was passed, wrap in list
+        if isinstance(v, str):
+            v = [v]
+
+        def fix(u: str) -> str:
+            u = u.strip()
+            if not u:
+                return placeholder
+            if u.startswith("http"):
+                return u
+            if u.startswith("/uploads/events/"):
+                return f"http://localhost:8000{u}"
+            return f"http://localhost:8000/uploads/events/{u.lstrip('/')}"
+
+        return [fix(u) for u in v]
 
     class Config:
         orm_mode = True
 
 
 class OrganizerOut(BaseModel):
-    id: int | None = None
+    id: Optional[int] = None
     username: str
-    email: str | None = None
+    email: Optional[str] = None
 
     class Config:
         orm_mode = True
@@ -68,23 +86,26 @@ class AdminEventOut(BaseModel):
     capacity_max: Optional[int] = 0
     status: str
     image_url: Optional[str] = ""
-    reviews: List[Review] = []
+    reviews: list[Review] = []
     organizer: OrganizerOut
 
     @validator("image_url", pre=True, always=True)
     def normalize_image_url(cls, v):
+        placeholder = "https://via.placeholder.com/600x400?text=No+Image"
         if not v:
-            return "https://via.placeholder.com/600x400?text=No+Image"
+            return placeholder
+        v = v.strip()
         if v.startswith("http"):
             return v
         if v.startswith("/uploads/events/"):
             return f"http://localhost:8000{v}"
-        return f"http://localhost:8000/uploads/events/{v}"
+        return f"http://localhost:8000/uploads/events/{v.lstrip('/')}"
 
     class Config:
         orm_mode = True
 
 
+# ---------- UPDATE ----------
 class EventUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
@@ -97,6 +118,7 @@ class EventUpdate(BaseModel):
     status: Optional[str] = None
 
 
+# ---------- BASE / GENERIC ----------
 class EventBase(BaseModel):
     title: str
     category: str
@@ -110,14 +132,15 @@ class EventBase(BaseModel):
 
 class EventResponse(EventBase):
     id: int
-    image_url: Optional[str]
+    image_urls: Optional[list[str]] = None
 
     class Config:
         orm_mode = True
 
 
+# ---------- MISC ----------
 class UserInterests(BaseModel):
-    interests: List[str]
+    interests: list[str]
 
 
 class LineChartData(BaseModel):

@@ -103,6 +103,8 @@ function Payment() {
       return await res.json();
     } catch (err) {
       console.error(err);
+    }finally{
+      modal.show("Success", "Ticket(s) created successfully!", "Close");
     }
   };
 

@@ -30,6 +30,10 @@ import AuthProvider from "./Pages/Context/AuthProvider";
 import OrganizerProfile from "./Pages/OrganizerProfile";
 import CalendarWithSidebar from "./components/myCalendar";
 import { ModalAlertProvider } from "./components/Modal";
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1a59ffedf319ed7b3e1bb7994b0ad273be8a0678
 
 const NavBarItems = [
   { title: "Home", path: "/" },
@@ -61,7 +65,7 @@ function App() {
 
   return (
     <ModalAlertProvider>
-    <AuthProvider>
+      <AuthProvider>
         <div>
           {showNavbar && <NavBar items={NavBarItems} />}
           <ScrollToTop />
@@ -85,7 +89,7 @@ function App() {
               <Route path="event-approval" element={<EventApproval />} />
               <Route path="users" element={<UserManagement />} />
               <Route path="organizers" element={<OrganizerManagement />} />
-              <Route path="reports" element={<ReportsAnalytics/>} />
+              <Route path="reports" element={<ReportsAnalytics />} />
             </Route>
 
             {/* Protected Routes */}
@@ -149,7 +153,6 @@ function App() {
             {/* Fallback */}
             <Route path="*" element={<Home />} />
           </Routes>
-
           <Chatbot />
           {showFooter && <Footer />}
         </div>
