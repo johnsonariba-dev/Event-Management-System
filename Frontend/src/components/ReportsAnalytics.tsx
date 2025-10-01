@@ -10,6 +10,7 @@ import {
   FaUser,
   FaCalendar,
 } from "react-icons/fa6";
+import { MdCurrencyFranc } from "react-icons/md";
 import {
   Chart as ChartJS,
   LineElement,
@@ -23,7 +24,6 @@ import {
   type ChartData,
 } from "chart.js";
 import { FaProjectDiagram } from "react-icons/fa";
-import { MdCurrencyFranc } from "react-icons/md";
 
 ChartJS.register(
   LineElement,
@@ -58,30 +58,22 @@ interface PopularRow {
 
 export const ReportsAnalytics = () => {
   const [stats, setStats] = useState<Stat[]>([]);
-  const [lineData, setLineData] = useState<ChartData<"line">>({
-    labels: [],
-    datasets: [],
-  });
-  const [donutData, setDonutData] = useState<ChartData<"pie">>({
-    labels: [],
-    datasets: [],
-  });
+  const [lineData, setLineData] = useState<ChartData<"line">>({ labels: [], datasets: [] });
+  const [donutData, setDonutData] = useState<ChartData<"pie">>({ labels: [], datasets: [] });
   const [popularEvents, setPopularEvents] = useState<PopularRow[]>([]);
   const [topOrganizers, setTopOrganizers] = useState<PopularRow[]>([]);
 
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const [statsRes, lineRes, pieRes, popularRes, topOrgRes] =
-          await Promise.all([
-            axios.get("http://localhost:8000/reports/stats"),
-            axios.get("http://localhost:8000/reports/line"),
-            axios.get("http://localhost:8000/reports/categories"),
-            axios.get("http://localhost:8000/reports/popular-events"),
-            axios.get("http://localhost:8000/reports/top-organizers"),
-          ]);
+        const [statsRes, lineRes, pieRes, popularRes, topOrgRes] = await Promise.all([
+          axios.get("http://localhost:8000/reports/stats"),
+          axios.get("http://localhost:8000/reports/line"),
+          axios.get("http://localhost:8000/reports/categories"),
+          axios.get("http://localhost:8000/reports/popular-events"),
+          axios.get("http://localhost:8000/reports/top-organizers"),
+        ]);
 
-        // Stats cards
         setStats([
           {
             title: "Events Created",
@@ -117,8 +109,6 @@ export const ReportsAnalytics = () => {
           },
         ]);
 
-        // // Line chart
-        axios.get("http://localhost:8000/ticket/line"),
         setLineData({
           labels: lineRes.data.labels,
           datasets: [
@@ -129,12 +119,11 @@ export const ReportsAnalytics = () => {
               backgroundColor: "rgba(16, 185, 129, 0.2)",
               tension: 0.4,
               fill: true,
-              pointRadius: 5
+              pointRadius: 5,
             },
           ],
         });
 
-        // Pie chart
         setDonutData({
           labels: pieRes.data.labels,
           datasets: [
@@ -162,6 +151,7 @@ export const ReportsAnalytics = () => {
 
     fetchReports();
   }, []);
+
   const downloadReport = () => {
     const link = document.createElement("a");
     link.href = "http://localhost:8000/export-pdf";
@@ -174,16 +164,12 @@ export const ReportsAnalytics = () => {
   return (
     <div className="space-y-5 p-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        {/* Left */}
+      <div className="flex flex-col sm:flex-row justify-between pt-12 items-start sm:items-center gap-4">
         <div>
           <h1 className="font-bold text-2xl">Reports & Analytics</h1>
-          <p className="font-light text-sm">
-            Comprehensive insights into platform performance
-          </p>
+          <p className="font-light text-sm">Comprehensive insights into platform performance</p>
         </div>
 
-        {/* Right */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
           <select className="bg-transparent border border-secondary rounded-md h-8 px-2 w-full sm:w-auto">
             <option>Last week</option>
@@ -213,17 +199,12 @@ export const ReportsAnalytics = () => {
               <span className="text-gray-500">{stat.icon}</span>
             </div>
             <div className="mt-2">
-              <p
-                className={`text-2xl font-bold ${
-                  stat.highlight ? stat.highlight : "text-black"
-                }`}
-              >
+              <p className={`text-2xl font-bold ${stat.highlight || "text-black"}`}>
                 {stat.value}
               </p>
               {stat.change ? (
                 <p className={`text-xs ${stat.changeColor}`}>
-                  {stat.change}{" "}
-                  <span className="text-gray-500">{stat.note}</span>
+                  {stat.change} <span className="text-gray-500">{stat.note}</span>
                 </p>
               ) : (
                 <p className="text-xs text-gray-500">{stat.note}</p>
@@ -235,30 +216,21 @@ export const ReportsAnalytics = () => {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
-        {/* Line Chart */}
-        <div className="bg-white rounded-lg shadow p-6 lg:col-span-2">
+        <div className="bg-white rounded-lg shadow p-6 lg:col-span-2 h-[350px] sm:h-[450px]">
           <h2 className="font-semibold text-xl flex items-center gap-2">
             <FaChartLine /> Revenue & Ticket Sales Trends
           </h2>
-          <p className="text-xs font-light">
-            Monthly performance over the last 12 months
-          </p>
-          <div className="h-80">
-            {lineData.datasets.length > 0 && (
-              <Line
-                data={lineData}
-                options={{ maintainAspectRatio: false, responsive: true }}
-              />
-            )}
-          </div>
+          <p className="text-xs font-light mb-2">Monthly performance over the last 12 months</p>
+          {lineData.datasets.length > 0 && (
+            <Line data={lineData} options={{ maintainAspectRatio: false, responsive: true }} />
+          )}
         </div>
 
-        {/* Pie Chart */}
-        <div className="bg-white rounded-lg shadow p-6 h-[450px]">
+        <div className="bg-white rounded-lg shadow p-6 h-[350px] sm:h-[450px]">
           <h2 className="font-semibold text-xl flex items-center gap-2">
             <FaChartColumn /> Event Categories
           </h2>
-          <p className="text-xs font-light">Distribution by event type</p>
+          <p className="text-xs font-light mb-2">Distribution by event type</p>
           <div className="w-full h-full flex items-center justify-center">
             {donutData.datasets.length > 0 && (
               <Pie
@@ -267,10 +239,7 @@ export const ReportsAnalytics = () => {
                   maintainAspectRatio: false,
                   responsive: true,
                   plugins: {
-                    legend: {
-                      position: "bottom",
-                      labels: { usePointStyle: true, padding: 15 },
-                    },
+                    legend: { position: "bottom", labels: { usePointStyle: true, padding: 15 } },
                   },
                   layout: { padding: { bottom: 20 } },
                 }}
@@ -282,53 +251,37 @@ export const ReportsAnalytics = () => {
 
       {/* Popular Events & Top Organizers */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        {/* Popular Events */}
-        <div className="bg-white rounded-lg p-6 shadow space-y-4">
+        <div className="bg-white rounded-lg p-6 shadow space-y-4 overflow-x-auto">
           <h2 className="font-semibold text-xl flex items-center gap-2">
             <FaProjectDiagram /> Most Popular Events
           </h2>
-          <p className="text-xs font-light">
-            Top performing events by ticket sales
-          </p>
+          <p className="text-xs font-light">Top performing events by ticket sales</p>
           {popularEvents.map((p) => (
-            <div
-              key={p.id}
-              className="border rounded-md p-4 flex justify-between bg-white"
-            >
+            <div key={p.id} className="border rounded-md p-4 flex flex-col sm:flex-row justify-between bg-white gap-2">
               <div>
-                <p className="text-sm font-semibold">{p.name}</p>
-                <p className="text-xs text-gray-600">by {p.organization}</p>
+                <p className="text-sm font-semibold break-words">{p.name}</p>
+                <p className="text-xs text-gray-600 break-words">by {p.organization}</p>
               </div>
               <div>
                 <p className="text-sm font-semibold">{p.tickets} tickets</p>
-                <p className="text-xs text-gray-600">
-                  {p.revenue?.toLocaleString()} FCFA
-                </p>
+                <p className="text-xs text-gray-600">{p.revenue?.toLocaleString()} FCFA</p>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Top Organizers */}
-        <div className="bg-white shadow rounded-lg p-6 space-y-4">
+        <div className="bg-white shadow rounded-lg p-6 space-y-4 overflow-x-auto">
           <h2 className="font-bold text-xl flex items-center gap-2">
             <FaUser /> Most Active Organizers
           </h2>
-          <p className="font-light text-xs">
-            Top performers by events and revenue
-          </p>
+          <p className="font-light text-xs">Top performers by events and revenue</p>
           {topOrganizers.map((o) => (
-            <div
-              key={o.id}
-              className="border rounded-md p-4 flex justify-between bg-white"
-            >
-              <div className="text-sm font-semibold">
+            <div key={o.id} className="border rounded-md p-4 flex flex-col sm:flex-row justify-between bg-white gap-2">
+              <div className="text-sm font-semibold break-words">
                 <p>{o.organization}</p>
-                <div className="flex gap-2 text-gray-600 text-xs">
+                <div className="flex gap-2 text-gray-600 text-xs flex-wrap">
                   <p>{o.events} events</p>
-                  <p className="flex items-center gap-1">
-                    <FaStar size={10} /> {o.rating}
-                  </p>
+                  <p className="flex items-center gap-1"><FaStar size={10} /> {o.rating}</p>
                 </div>
               </div>
               <p>{o.revenue?.toLocaleString()} FCFA</p>

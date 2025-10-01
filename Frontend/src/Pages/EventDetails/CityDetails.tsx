@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { cities } from "./CityLilst";
 import { FaLocationDot } from "react-icons/fa6";
 import Button from "../../components/button";
+import Pagination from "../../components/pagination"; // ✅ import pagination
 
 interface Event {
   id: number;
@@ -19,7 +20,10 @@ function CityDetails() {
   const [city, setCity] = useState<(typeof cities)[0] | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const [visibleCount, setVisibleCount] = useState(5);
+
+  // ✅ pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const eventsPerPage = 6;
 
   useEffect(() => {
     const foundCity = cities.find((c) => c.id === Number(id));
@@ -43,6 +47,7 @@ function CityDetails() {
       }
       const data = await response.json();
       setEvents(data);
+      setCurrentPage(1); // reset to first page
     } catch (err) {
       console.error("Error fetching events:", err);
       setEvents([]);
@@ -52,6 +57,13 @@ function CityDetails() {
   };
 
   if (!city) return <div>City not found</div>;
+
+  // ✅ Pagination logic
+  const totalPages = Math.ceil(events.length / eventsPerPage);
+  const currentEvents = events.slice(
+    (currentPage - 1) * eventsPerPage,
+    currentPage * eventsPerPage
+  );
 
   return (
     <div className="w-full flex flex-col items-center justify-center pb-10">
@@ -65,7 +77,8 @@ function CityDetails() {
         {/* City Intro */}
         <div className="md:w-[50%] h-full flex flex-col gap-5 justify-center items-center max-md:pt-27 md:py-20 md:pr-20 text-center md:text-left">
           <p className="md:text-7xl text-4xl font-bold pb-5">
-            {city.name}, <span className="md:text-7xl text-4xl">{city.region}</span>
+            {city.name},{" "}
+            <span className="md:text-7xl text-4xl">{city.region}</span>
           </p>
           <p className="md:text-lg text-sm">{city.desc}</p>
         </div>
@@ -88,7 +101,7 @@ function CityDetails() {
             <p className="md:text-lg text-sm">Loading events...</p>
           ) : events.length > 0 ? (
             <>
-              {events.slice(0, visibleCount).map((event) => (
+              {currentEvents.map((event) => (
                 <div
                   key={event.id}
                   className="bg-white shadow-lg rounded-xl overflow-hidden hover:scale-105 transition-transform sm:w-[48%] md:w-[30%] lg:w-[25%] max-md:w-full"
@@ -99,7 +112,9 @@ function CityDetails() {
                     className="h-40 w-full object-cover"
                   />
                   <div className="p-4">
-                    <h3 className="font-bold md:text-lg text-base">{event.title}</h3>
+                    <h3 className="font-bold md:text-lg text-base">
+                      {event.title}
+                    </h3>
                     <p className="text-gray-600 md:text-sm text-xs mt-1 line-clamp-2">
                       {event.description}
                     </p>
@@ -123,17 +138,16 @@ function CityDetails() {
                 </div>
               ))}
 
-              {/* Show More button */}
-              {visibleCount < events.length && (
-                <div className="w-full flex justify-center mt-5">
-                  <button
-                    onClick={() => setVisibleCount((prev) => prev + 5)}
-                    className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-secondary transition-colors md:text-base text-sm"
-                  >
-                    Show More
-                  </button>
-                </div>
-              )}
+              {/* ✅ Use shared Pagination component */}
+              <div className="w-full flex justify-center mt-8">
+                {totalPages > 1 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                  />
+                )}
+              </div>
             </>
           ) : (
             <p className="md:text-base text-sm">No events found for this city.</p>

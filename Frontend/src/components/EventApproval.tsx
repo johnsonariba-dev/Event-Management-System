@@ -29,10 +29,10 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder }) => {
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);
-          onSearch(e.target.value); // real-time search
+          onSearch(e.target.value);
         }}
         placeholder={placeholder || "Search events..."}
-        className="border rounded-3xl h-8 p-2 text-xs w-full md:w-64"
+        className="border rounded-3xl h-9 px-3 text-sm w-full md:w-64"
       />
     </form>
   );
@@ -49,7 +49,6 @@ export const EventApproval: React.FC = () => {
     rejected: 0,
   });
 
-  // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 5;
 
@@ -103,7 +102,6 @@ export const EventApproval: React.FC = () => {
     return matchStatus && matchQuery;
   });
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
   const indexOfLast = currentPage * eventsPerPage;
   const indexOfFirst = indexOfLast - eventsPerPage;
@@ -112,47 +110,37 @@ export const EventApproval: React.FC = () => {
   return (
     <div className="space-y-4 p-2 md:p-4">
       {/* Header */}
-      <div className="pl-2 md:pl-4">
-        <h1 className="text-2xl font-bold">Event Management</h1>
+      <div>
+        <h1 className="text-xl md:text-2xl font-bold">Event Management</h1>
         <p className="font-light text-sm">
           Review and approve events before they go live
         </p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-2 md:p-4">
-        <div className="border rounded-lg p-4 flex flex-col">
-          <p className="text-sm">Pending</p>
-          <span className="font-bold text-xl md:text-2xl">{stats.pending}</span>
-        </div>
-        <div className="border rounded-lg p-4 flex flex-col ">
-          <p className="text-sm">Approved</p>
-          <span className="font-bold text-xl md:text-2xl">
-            {stats.approved}
-          </span>
-        </div>
-        <div className="border rounded-lg p-4 flex flex-col ">
-          <p className="text-sm">Rejected</p>
-          <span className="font-bold text-xl md:text-2xl">
-            {stats.rejected}
-          </span>
-        </div>
-        <div className="border rounded-lg p-4 flex flex-col">
-          <p className="text-sm">Total Events</p>
-          <span className="font-bold text-xl md:text-2xl">{stats.total}</span>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        {["pending", "approved", "rejected", "total"].map((key) => (
+          <div key={key} className="border rounded-lg p-3 md:p-4 flex flex-col">
+            <p className="text-xs md:text-sm capitalize">
+              {key === "total" ? "Total Events" : key}
+            </p>
+            <span className="font-bold text-lg md:text-2xl">
+              {stats[key as keyof EventStats]}
+            </span>
+          </div>
+        ))}
       </div>
 
       {/* Event List Table */}
-      <div className="shadow bg-white rounded-lg p-4 md:p-6 space-y-4 overflow-x-auto">
-        <div className="flex justify-between items-start md:items-center gap-2 md:gap-4">
+      <div className="shadow bg-white rounded-lg p-3 md:p-6 space-y-4 overflow-x-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 md:gap-4 flex-wrap">
           <div>
-            <h2 className="font-bold text-xl">Events List</h2>
+            <h2 className="font-bold text-lg md:text-xl">Events List</h2>
             <p className="text-xs font-light">
               Review and manage event approvals
             </p>
           </div>
-          <div className="flex  items-start sm:items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto flex-wrap">
             <SearchBar onSearch={setSearchQuery} />
             <select
               className="border rounded-3xl text-xs p-2 w-full sm:w-auto"
@@ -167,88 +155,94 @@ export const EventApproval: React.FC = () => {
           </div>
         </div>
 
-        <table className="w-full min-w-[700px] border border-gray-400 rounded-lg text-xs md:text-sm">
-          <thead className="bg-gray-100">
-            <tr className="text-left font-medium">
-              <th className="px-4 py-2">Event details</th>
-              <th className="px-4 py-2">Organizer</th>
-              <th className="px-4 py-2">Date & Location</th>
-              <th className="px-4 py-2">Attendees</th>
-              <th className="px-4 py-2">Price</th>
-              <th className="px-4 py-2">Status</th>
-              <th className="px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentEvents.map((event) => (
-              <tr key={event.id} className="border-t border-gray-300">
-                <td className="px-4 py-2">
-                  {event.title} <br />
-                  <div className="text-xs font-light">{event.category}</div>
-                </td>
-                <td className="px-4 py-2">{event.organizer.username}</td>
-                <td className="px-4 py-2">
-                  {event.date} <br /> {event.venue}
-                </td>
-                <td className="px-4 py-2">{event.capacity_max}</td>
-                <td className="px-4 py-2">{event.ticket_price} FCFA</td>
-                <td className="px-4 py-2">
-                  <span
-                    className={`px-2 py-1 rounded-full font-medium ${
-                      event.status?.trim().toLowerCase() === "pending"
-                        ? "bg-yellow-200 "
-                        : event.status?.trim().toLowerCase() === "approved"
-                        ? "bg-green-200 "
-                        : "bg-red-200 "
-                    }`}
-                  >
-                    {event.status}
-                  </span>
-                </td>
-                <td className="px-4 py-2 flex gap-2 md:gap-3">
-                  <button
-                    onClick={() => handleStatusUpdate(event.id, "Approved")}
-                    className="p-2 rounded-full bg-green-200 hover:bg-green-300 transition-colors"
-                  >
-                    <FaCheck size={18} />
-                  </button>
-                  <button
-                    onClick={() => handleStatusUpdate(event.id, "Rejected")}
-                    className="p-2 rounded-full bg-red-200 hover:bg-red-300 transition-colors"
-                  >
-                    <ImCross size={16} />
-                  </button>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[600px] sm:min-w-[700px] md:min-w-[800px] border border-gray-300 rounded-lg text-xs md:text-sm table-auto">
+            <thead className="bg-gray-100">
+              <tr className="text-left font-medium">
+                <th className="px-3 md:px-4 py-2">Event details</th>
+                <th className="px-3 md:px-4 py-2">Organizer</th>
+                <th className="px-3 md:px-4 py-2">Date & Location</th>
+                <th className="px-3 md:px-4 py-2">Attendees</th>
+                <th className="px-3 md:px-4 py-2">Price</th>
+                <th className="px-3 md:px-4 py-2">Status</th>
+                <th className="px-3 md:px-4 py-2">Actions</th>
               </tr>
-            ))}
+            </thead>
+            <tbody>
+              {currentEvents.map((event) => (
+                <tr key={event.id} className="border-t border-gray-200">
+                  <td className="px-3 md:px-4 py-2">
+                    <div className="flex flex-col">
+                      <span>{event.title}</span>
+                      <span className="text-xs font-light">{event.category}</span>
+                    </div>
+                  </td>
+                  <td className="px-3 md:px-4 py-2">{event.organizer.username}</td>
+                  <td className="px-3 md:px-4 py-2">
+                    <div className="flex flex-col">
+                      <span>{event.date}</span>
+                      <span className="text-xs font-light">{event.venue}</span>
+                    </div>
+                  </td>
+                  <td className="px-3 md:px-4 py-2">{event.capacity_max}</td>
+                  <td className="px-3 md:px-4 py-2">{event.ticket_price} FCFA</td>
+                  <td className="px-3 md:px-4 py-2">
+                    <span
+                      className={`px-2 py-1 rounded-full font-medium ${
+                        event.status?.trim().toLowerCase() === "pending"
+                          ? "bg-yellow-200"
+                          : event.status?.trim().toLowerCase() === "approved"
+                          ? "bg-green-200"
+                          : "bg-red-200"
+                      }`}
+                    >
+                      {event.status}
+                    </span>
+                  </td>
+                  <td className="px-3 md:px-4 py-2 flex gap-2 md:gap-3 flex-wrap">
+                    <button
+                      onClick={() => handleStatusUpdate(event.id, "Approved")}
+                      className="p-2 rounded-full bg-green-200 hover:bg-green-300 transition-colors"
+                    >
+                      <FaCheck size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleStatusUpdate(event.id, "Rejected")}
+                      className="p-2 rounded-full bg-red-200 hover:bg-red-300 transition-colors"
+                    >
+                      <ImCross size={14} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {currentEvents.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="text-center text-gray-500 py-4">
+                    No matching events found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-            {currentEvents.length === 0 && (
-              <tr>
-                <td colSpan={7} className="text-center text-gray-500 py-4">
-                  No matching events found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-
-        {/* Pagination Controls */}
+        {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-6 items-center py-7">
-            {/* Previous */}
+          <div className="flex flex-wrap justify-center gap-2 mt-6 items-center py-5">
             <button
-              className={`px-3 py-1 rounded-full border ${
+              className={`px-2 md:px-3 py-1 rounded-full border text-xs md:text-sm ${
                 currentPage === 1
                   ? "text-gray-400 border-gray-300 cursor-not-allowed"
                   : "border-purple-500 text-purple-500"
               }`}
-              onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+              onClick={() =>
+                currentPage > 1 && setCurrentPage(currentPage - 1)
+              }
               disabled={currentPage === 1}
             >
               &lt;
             </button>
 
-            {/* Page numbers with ellipsis */}
             {Array.from({ length: totalPages }, (_, i) => i + 1)
               .filter(
                 (page) =>
@@ -259,10 +253,10 @@ export const EventApproval: React.FC = () => {
               .map((page, idx, arr) => (
                 <span key={page}>
                   {idx > 0 && page - arr[idx - 1] > 1 && (
-                    <span className="px-2">...</span>
+                    <span className="px-1 md:px-2">...</span>
                   )}
                   <button
-                    className={`px-3 py-1 rounded-full border ${
+                    className={`px-2 md:px-3 py-1 rounded-full border text-xs md:text-sm ${
                       currentPage === page
                         ? "bg-purple-500 text-white border-purple-500"
                         : "text-purple-500 border-purple-500"
@@ -274,9 +268,8 @@ export const EventApproval: React.FC = () => {
                 </span>
               ))}
 
-            {/* Next */}
             <button
-              className={`px-3 py-1 rounded-full border ${
+              className={`px-2 md:px-3 py-1 rounded-full border text-xs md:text-sm ${
                 currentPage === totalPages
                   ? "text-gray-400 border-gray-300 cursor-not-allowed"
                   : "border-purple-500 text-purple-500"
