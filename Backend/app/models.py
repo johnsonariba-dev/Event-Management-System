@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy import (
-    Column, Integer, LargeBinary, String, Float, ForeignKey, Text, DateTime, UniqueConstraint,func
+    Column, Integer, LargeBinary, String, Float, ForeignKey, Text, DateTime, UniqueConstraint, func
 )
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from database import Base
@@ -10,17 +10,17 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
-    username: Mapped[str] = mapped_column(String, index=True, nullable=False)
-    role: Mapped[str] = mapped_column(String, default="user", nullable=False, index=True)
-    hashed_password: Mapped[str] = mapped_column(String, nullable=False)
+    email: Mapped[str] = mapped_column(String(150), unique=True, index=True, nullable=False)
+    username: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
+    role: Mapped[str] = mapped_column(String(50), default="user", nullable=False, index=True)
+    hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
 
     # Extra profile fields
-    phone: Mapped[str | None] = mapped_column(String, nullable=True)
-    location: Mapped[str | None] = mapped_column(String, nullable=True)
-    profile_pic: Mapped[str | None] = mapped_column(String, nullable=True)
+    phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    location: Mapped[str | None] = mapped_column(String(150), nullable=True)
+    profile_pic: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
-    # ✅ Relationships (always plural for collections)
+    # ✅ Relationships
     events = relationship("Event", back_populates="organizer", cascade="all, delete-orphan")
     tickets = relationship("Ticket", back_populates="user", cascade="all, delete-orphan")
     reviews = relationship("Review", back_populates="user", cascade="all, delete-orphan")
@@ -41,10 +41,9 @@ class Event(Base):
     ticket_price: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
     category: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
     capacity_max: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    image_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="Pending", nullable=False, index=True)
     organizer_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
-    status: Mapped[str] = mapped_column(String(20), default="Pending", nullable=False, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # ✅ Relationships
@@ -53,8 +52,6 @@ class Event(Base):
     reviews = relationship("Review", back_populates="event", cascade="all, delete-orphan")
     likes = relationship("Like", back_populates="event", cascade="all, delete-orphan")
     notifications = relationship("Notification", back_populates="event", cascade="all, delete-orphan")
-
-
 
 
 # -------------------- TICKET --------------------
@@ -82,8 +79,9 @@ class Review(Base):
     event_id: Mapped[int] = mapped_column(Integer, ForeignKey("events.id"))
     comment: Mapped[str] = mapped_column(Text)
     rating: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    reply: Mapped[str | None] = mapped_column(String, nullable=True)
-    time = Column(DateTime, default=datetime.utcnow) 
+    reply: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    time: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
     # ✅ Relationships
     user = relationship("User", back_populates="reviews")
     event = relationship("Event", back_populates="reviews")
@@ -110,16 +108,14 @@ class Notification(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
-    title: Mapped[str] = mapped_column(String, index=True)
+    title: Mapped[str] = mapped_column(String(150), index=True)
     message: Mapped[str] = mapped_column(Text, index=True)
     event_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("events.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 
-
     # ✅ Relationship
     user = relationship("User", back_populates="notifications")
     event = relationship("Event", back_populates="notifications")
-
 
 
 # -------------------- USER PREFERENCE --------------------
@@ -128,9 +124,8 @@ class UserPreference(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
-    preference: Mapped[str] = mapped_column(String, index=True)
+    preference: Mapped[str] = mapped_column(String(100), index=True)
     last_activity: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
-    # Relations
+    # ✅ Relationship
     user = relationship("User", back_populates="preferences")
-

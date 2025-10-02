@@ -31,7 +31,6 @@ import OrganizerProfile from "./Pages/OrganizerProfile";
 import CalendarWithSidebar from "./components/myCalendar";
 import { ModalAlertProvider } from "./components/Modal";
 
-
 const NavBarItems = [
   { title: "Home", path: "/" },
   { title: "About", path: "/about" },
@@ -53,6 +52,7 @@ function App() {
     "/admindashboard/users",
     "/admindashboard/organizers",
     "/Profile",
+    "/organizerProfile"
   ];
   const hideNavbar = ["/CreateEvent","/Profile"];
   const currentPath = location.pathname;
@@ -61,7 +61,7 @@ function App() {
 
   return (
     <ModalAlertProvider>
-      <AuthProvider>
+    <AuthProvider>
         <div>
           {showNavbar && <NavBar items={NavBarItems} />}
           <ScrollToTop />
@@ -76,7 +76,7 @@ function App() {
             <Route path="/Event/:id" element={<EventDetails />} />
             <Route path="/cities/:id" element={<CityDetails />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/OrganizerProfile" element={<OrganizerProfile />} />
+            <Route path="/organizerProfile" element={<OrganizerProfile />} />
             <Route path="/calendar" element={<CalendarWithSidebar />} />
 
             {/* Admin Dashboard */}
@@ -152,7 +152,7 @@ function App() {
           <Chatbot />
           {showFooter && <Footer />}
         </div>
-      </AuthProvider>
+    </AuthProvider>
     </ModalAlertProvider>
   );
 }

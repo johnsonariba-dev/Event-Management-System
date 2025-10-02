@@ -36,8 +36,8 @@ function Payment() {
   const [currency, setCurrency] = useState<"XAF" | "USD">("XAF");
   const [rate, setRate] = useState<number>(0);
   const ticketRef = useRef<HTMLDivElement>(null);
-  const modal = useModalAlert();
   const [username, setUsername] = useState<string>("");
+  const modal = useModalAlert();
 
   // Fetch event
   useEffect(() => {
@@ -116,9 +116,8 @@ function Payment() {
 
   // MTN & Orange payment using Nkwa API
   const handleMtnPayment = async () => {
-    if (!phoneNumber) return modal.show("Error", "Enter phone number", "Close");
-
-    if (!event) return modal.show("Error", "Event not loaded", "Close");
+    if (!phoneNumber) return modal.show("Enter phone number", "close");
+    if (!event) return modal.show("Event not loaded", "close");
 
     const totalAmount = event.ticket_price * count;
     const reference = `txn_${Date.now()}`;
@@ -140,22 +139,21 @@ function Payment() {
 
       if (!res.ok) {
         const errText = await res.text();
-        console.error("MTN Payment error:", res.status, errText);
-        return modal.show("Error", `Payment failed: ${errText}`, "close");
+        console.error("Payment error:", res.status, errText);
+        return modal.show(`Payment failed: ${errText}`, "close");
       }
 
       const data = await res.json();
 
       if (data.id) {
-        modal.show(
-          `Transaction initiated: ${data.id}. Please approve on your phone.`, "close"
-        );
+        modal.show(`Transaction initiated: ${data.id}. Please approve on your phone.`, "close");
+        pollPaymentStatus(reference); // start polling
       } else {
-        modal.show("Error", "Failed to initiate MTN payment", "close");
+        modal.show("Failed to initiate payment", "close");
       }
     } catch (err) {
       console.error(err);
-      alert("Payment failed");
+      modal.show("Payment failed", "close");
     }
   };
 
@@ -170,11 +168,11 @@ function Payment() {
         const data = await res.json();
 
         if (data.status === "success") {
-          alert("✅ Payment successful!");
+          modal.show("✅ Payment successful!", "close");
           setTicketGenerated(true);
           clearInterval(interval);
         } else if (data.status === "failed") {
-          alert("❌ Payment failed");
+          modal.show("❌ Payment failed", "close");
           clearInterval(interval);
         }
       } catch (err) {
@@ -209,7 +207,7 @@ function Payment() {
       pdf.save(`${event?.title || "ticket"}-ticket.pdf`);
     } catch (err) {
       console.error("Download failed:", err);
-      modal.show("Sorry", "Something went wrong while generating the PDF", "Close");
+      modal.show("Something went wrong while generating the PDF", "close");
     }
   };
 
@@ -476,10 +474,10 @@ function Payment() {
                             { method: "POST" }
                           );
                           const details = await res.json();
-                          alert(
+                          modal.show(
                             "Transaction completed by " +
                               details.payer.name.given_name
-                          );
+                          , "close");
                           setTicketGenerated(true);
                         }}
                       />

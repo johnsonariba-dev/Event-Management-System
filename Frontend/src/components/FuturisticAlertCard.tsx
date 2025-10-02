@@ -1,5 +1,3 @@
-import React from "react";
-
 interface FuturisticAlertCardProps {
   title: string;
   message: string;
@@ -15,9 +13,9 @@ export default function FuturisticAlertCard({
 }: FuturisticAlertCardProps) {
   return (
     <div
-      className={`pointer-events-auto bg-gradient-to-r 
-        p-6 rounded-3xl text-center text-white max-w-sm w-full
-        shadow-[0_0_30px_rgba(255,0,255,0.6)]
+      className={`pointer-events-auto bg-white 
+        p-6 rounded-3xl text-center text-black max-w-sm w-full
+        shadow-[0_0_20px_]
         transform transition-all duration-500
         ${
           open
@@ -25,11 +23,11 @@ export default function FuturisticAlertCard({
             : "opacity-0 scale-90 -translate-y-10"
         }`}
     >
-      <h2 className="text-2xl font-bold mb-3 tracking-wide">{title}</h2>
-      <p className="mb-6 text-white/90">{message}</p>
+      <h2 className="text-2xl font-bold mb-3 text-primary tracking-wide">{title}</h2>
+      <p className="mb-6 text-black/90">{message}</p>
       <button
         onClick={onClose}
-        className="px-6 py-2 bg-white/20 hover:bg-white/30 rounded-xl text-white font-semibold
+        className="px-6 py-2 bg-black/20 hover:bg-black/30 rounded-xl text-white font-semibold
         transition-all duration-300 shadow-[0_0_10px_rgba(255,255,255,0.5)]"
       >
         OK

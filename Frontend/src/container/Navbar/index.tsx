@@ -1,13 +1,11 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FiMenu, FiX } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa6";
 import { IoMdContact } from "react-icons/io";
 import Button from "../../components/button";
 import images from "../../types/images";
 import { useAuth } from "../../Pages/Context/UseAuth";
-// import { toast } from "react-toastify";
 import { useModalAlert } from "../../components/ModalContext";
 
 interface NavBarProps {
@@ -26,29 +24,25 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
 
-  // Helper to check if the user is organizer/admin
   const canCreateEvent =
     token &&
     (role?.toLowerCase() === "organizer" || role?.toLowerCase() === "admin");
 
-
   const navigate = useNavigate();
-    const handleProfile = () => {
-      if (!token) {
-        modal.show("Please login to access your profile.", "close");
-        return navigate("/Login");
-      }
+  const handleProfile = () => {
+    if (!token) {
+      modal.show("Please login to access your profile.", "close");
+      return navigate("/Login");
+    }
 
-      if (role === "organizer") {
-        navigate("/organizerProfile");
-      } else if (role === "user") {
-        navigate("/profile");
-      } else {
-        modal.show("Unknown role. Please contact support.", "close");
-      }
-    };
- 
-
+    if (role === "organizer") {
+      navigate("/organizerProfile");
+    } else if (role === "user") {
+      navigate("/profile");
+    } else {
+      modal.show("Unknown role. Please contact support.", "close");
+    }
+  };
 
   return (
     <div className="relative z-4">
@@ -93,8 +87,11 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
               </NavLink>
             </>
           ) : (
-            // <Button title="profile" onClick={logout} />
-              <IoMdContact size={40} className="text-primary" onClick={handleProfile} />
+            <IoMdContact
+              size={40}
+              className="text-primary"
+              onClick={handleProfile}
+            />
           )}
              
         </div>
@@ -109,7 +106,18 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
           {isOpen ? (
             <FiX size={24} className="fixed" />
           ) : (
-            <FiMenu size={24} className="fixed" />
+            <div className="flex space-x-12">
+              <div className="">
+                <IoMdContact
+                  size={40}
+                  className="text-primary fixed"
+                  onClick={handleProfile}
+                />
+              </div>
+              <div>
+                <FiMenu size={24} className="fixed" />
+              </div>
+            </div>
           )}
         </div>
 
@@ -164,14 +172,7 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
                   </NavLink>
                 </>
               ) : (
-                <Button
-                  title="Logout"
-                  className="mt-6 px-20"
-                  onClick={() => {
-                    logout();
-                    closeMenu();
-                  }}
-                />
+                <></>
               )}
             </div>
           </div>

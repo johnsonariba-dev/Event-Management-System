@@ -13,6 +13,8 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from endpoints.auth_routes import router as auth_router 
 from endpoints.auth import require_role, get_current_user 
+import os
+import uvicorn
 
 app = FastAPI(title="Event Management System", version="1.0.0")
 Base.metadata.create_all(bind=engine)
@@ -76,3 +78,8 @@ def create_default_admin():
             print("ℹ️ Default admin already exists")
     finally:
         db.close()
+
+if __name__ == "_main_":
+    port = int(os.environ.get("PORT", 8000))
+    print("hello")
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=True)

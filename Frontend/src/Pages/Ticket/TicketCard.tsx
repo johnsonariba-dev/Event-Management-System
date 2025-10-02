@@ -60,10 +60,8 @@ const TicketCard: React.FC<TicketCardProps> = ({
                 </p>
               </div>
               <div>
-                <p className="text-black font-semibold">
-                  Attendee: {username}
-                </p>
-                <p className="text-black font-semibold ">Price: FCFA{price}</p>
+                <p className="text-black font-semibold">Attendee: {username}</p>
+                <p className="text-black font-semibold ">Price: {price}</p>
               </div>
             </div>
 

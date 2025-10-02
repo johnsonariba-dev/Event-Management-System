@@ -10,6 +10,8 @@ import {
 import Button from "./button";
 import { useAuth } from "../Pages/Context/UseAuth";
 import { useNavigate } from "react-router-dom";
+import { useModalAlert } from "./ModalContext";
+
 
 interface Ticket {
   id: string;
@@ -23,6 +25,7 @@ interface Ticket {
 
 const UserTicket: React.FC = () => {
   const navigate = useNavigate();
+  const modal = useModalAlert();
   const { token } = useAuth();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
@@ -140,7 +143,7 @@ const UserTicket: React.FC = () => {
                   title="Download"
                   icon={<FaDownload />}
                   className="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-secondary/90 transition flex-1"
-                  onClick={() => alert(`Downloading ticket ${ticket.id}`)}
+                  onClick={() => modal.show(`Downloading ticket ${ticket.id}` , "close")}
                 />
               )}
             </div>

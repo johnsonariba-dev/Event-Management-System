@@ -43,6 +43,7 @@ pip install fastapi
 pip install uvicorn
 pip install pydantic
 pip install sqlalchemy
+pip install pymysql
 pip install "python-jose[cryptography]"
 
 pip install "pydantic[email]"
@@ -69,3 +70,4 @@ uvicorn main:app --reload
 
 # notifications
 pip install sendgrid
+mysql+pymysql://${{MYSQLUSER}}:${{MYSQL_ROOT_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:3306/${{MYSQL_DATABASE}}

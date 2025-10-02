@@ -11,7 +11,7 @@ import {
 import { FaChartLine, FaPlus } from "react-icons/fa6";
 import Button from "../../components/button";
 import { cities } from "../EventDetails/CityLilst";
-
+import { useModalAlert } from "../../components/ModalContext";
 import { useAuth } from "../Context/UseAuth";
 import { motion } from "framer-motion";
 
@@ -33,6 +33,7 @@ type CityItem = {
 };
 
 function Home() {
+  const modal = useModalAlert();
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -96,12 +97,12 @@ function Home() {
 
   const handleViewEvent = (event: EventItem) => {
     if (!token) {
-      alert("You must be logged in to view event details");
+      modal.show("You must be logged in to view event details", "close");
       navigate("/Login");
       return;
     }
     if (role !== "user" && role !== "admin" && role !== "organizer") {
-      alert("Only users can view event details");
+      modal.show("Only users can view event details", "close");
       return;
     } else {
       navigate(`/event/${event.id}`);
@@ -110,14 +111,14 @@ function Home() {
 
   const handleCreateEvent = () => {
     if (!token) {
-      alert(
-        "You must be logged in as an organizer or admin to create an event"
+      modal.show(
+        "You must be logged in as an organizer or admin to create an event", "close"
       );
       navigate("/Login");
       return;
     }
     if (role !== "admin" && role !== "organizer") {
-      alert("Only admins and organizers can create events");
+      modal.show("Only admins and organizers can create events", "close");
       return;
     }
     navigate("/CreateEvent");
@@ -125,12 +126,12 @@ function Home() {
 
   const handleViewAll = () => {
     if (!token) {
-      alert("You must be logged in to see more events");
+      modal.show("You must be logged in to see more events", "close");
       navigate("/Login");
       return;
     }
     if (role !== "user" && role !== "admin" && role !== "organizer") {
-      alert("Only users can see more events");
+      modal.show("Only users can see more events", "close");
       return;
     }
     if (!showMore) {
@@ -142,12 +143,12 @@ function Home() {
 
   const handleViewCity = (cityItem: CityItem) => {
     if (!token) {
-      alert("You must be logged in to view city details");
+      modal.show("You must be logged in to view city details", "close");
       navigate("/Login");
       return;
     }
     if (role !== "user" && role !== "admin" && role !== "organizer") {
-      alert("Only users can view city details");
+      modal.show("Only users can view city details", "close");
       return;
     } else {
       navigate(`/Cities/${cityItem.id}`);

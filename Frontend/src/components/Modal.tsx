@@ -43,7 +43,7 @@ export function ModalAlertProvider({ children }: ModalAlertProviderProps) {
       {children}
 
       {open && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-md">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-xm">
           <FuturisticAlertCard
             title={title}
             message={message}

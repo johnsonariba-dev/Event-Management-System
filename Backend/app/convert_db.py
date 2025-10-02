@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Default to SQLite
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./app.db")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Path to save CSV
 CSV_PATH = "events_for_recommender.csv"
