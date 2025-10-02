@@ -61,7 +61,7 @@ function App() {
 
   return (
     <ModalAlertProvider>
-      <AuthProvider>
+    <AuthProvider>
         <div>
           {showNavbar && <NavBar items={NavBarItems} />}
           <ScrollToTop />

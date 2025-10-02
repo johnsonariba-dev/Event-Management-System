@@ -5,10 +5,8 @@ import { FaUpload } from "react-icons/fa";
 
 import { User } from "lucide-react";
 import Button from "../../components/button";
-import { useAuth } from "../Context/UseAuth";
-import { BsFillQuestionCircleFill } from "react-icons/bs";
-import { useNavigate } from "react-router-dom";
 import { useModalAlert } from "../../components/ModalContext";
+import { useAuth } from "../Context/UseAuth";
 
 interface User {
   id: number;
@@ -27,8 +25,6 @@ const Personal: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [profilePic, setProfilePic] = useState("");
-  const navigate = useNavigate();
-  const modal = useModalAlert();
 
   type profile_picProps = {
     src?: string;
@@ -36,39 +32,43 @@ const Personal: React.FC = () => {
     name: string;
   };
 
-  const ProfilePic: React.FC<profile_picProps> = ({ src, alt = "Profile", name }) => {
-  const getInitials = (name: string) => {
-    return name
-      .trim()
-      .split(/\s+/)
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase();
-  };
+  const ProfilePic: React.FC<profile_picProps> = ({
+    src,
+    alt = "Profile",
+    name,
+  }) => {
+    const getInitials = (name: string) => {
+      return name
+        .trim()
+        .split(/\s+/)
+        .map((word) => word[0])
+        .join("")
+        .toUpperCase();
+    };
 
-  if (src) {
+    if (src) {
+      return (
+        <img
+          src={src}
+          alt={alt}
+          className="w-full h-full rounded-full border-4 border-primary-500 object-cover shadow-lg"
+        />
+      );
+    }
+
     return (
-      <img
-        src={src}
-        alt={alt}
-        className="w-full h-full rounded-full border-4 border-primary-500 object-cover shadow-lg"
-      />
+      <div className="rounded-full bg-gray-200 flex items-center justify-center shadow-lg">
+        <span className="text-xl font-bold text-gray-700">
+          {getInitials(name)}
+        </span>
+      </div>
     );
-  }
-
-  // Fallback initials avatar
-  return (
-    <div className="w-full h-full rounded-full bg-purple-50 flex items-center justify-center shadow-lg">
-      <span className="text-4xl font-bold text-primary">{getInitials(name)}</span>
-    </div>
-  );
-};
-
+  };
 
   // Fetch user data
   useEffect(() => {
     const fetchUser = async () => {
-      if (!token) return modal.show("Not Authenticated", "You must be logged in to view your profile.", "Close"), navigate("/Login");
+      if (!token) return;
       try {
         const res = await axios.get("http://127.0.0.1:8000/user/me", {
           headers: { Authorization: `Bearer ${token}` },
@@ -132,12 +132,6 @@ const Personal: React.FC = () => {
     }
   };
 
-  // const handleLogout = () => {
-  //   l
-  //   window.location.reload();
-  // };
-
-
   return (
     <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 pt-30">
       <h1 className="flex gap-1 font-bold text-2xl text-primary">
@@ -148,22 +142,23 @@ const Personal: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-8">
         <div className="flex items-center gap-6">
           <label className="relative group cursor-pointer w-28 h-28 sm:w-32 sm:h-32">
-  <ProfilePic src={profilePic} name={user.username} />
-  {editMode && (
-    <>
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleProfilePicUpload}
-        className="absolute inset-0 opacity-0 cursor-pointer rounded-full"
-      />
-      <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-        <FaUpload className="text-white text-xl sm:text-2xl" />
-      </div>
-    </>
-  )}
-</label>
-
+            <div className="">
+              <ProfilePic src={profilePic} name={user.username} />
+            </div>
+            {editMode && (
+              <>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProfilePicUpload}
+                  className="absolute inset-0 opacity-0 cursor-pointer rounded-full"
+                />
+                <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                  <FaUpload className="text-white text-xl sm:text-2xl" />
+                </div>
+              </>
+            )}
+          </label>
 
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-primary-700">
