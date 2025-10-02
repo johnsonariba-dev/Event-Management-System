@@ -120,6 +120,7 @@ async def get_current_admin(current_user: models.User = Depends(get_current_user
 def get_user_id_from_token(token: str) -> int:
     try:
         payload = jwt.decode(token, ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM)
-        return int (payload.get(["sub"]["id"]))
+        return int(payload.get("sub", {}).get("id"))
+
     except:
         raise HTTPException(status_code=401, detail="Token invalid")
