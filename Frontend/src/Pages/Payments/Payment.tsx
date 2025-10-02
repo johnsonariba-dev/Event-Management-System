@@ -77,7 +77,7 @@ function Payment() {
     const displayAmount =
       currency === "USD" ? Number((baseAmount * rate).toFixed(2)) : baseAmount;
     setAmount(displayAmount);
-  }, [event?.ticket_price, count, currency, rate]);
+  }, [event, count, currency, rate]);
 
   const decrement = () => {
     if (count > 1) setCount(count - 1);
@@ -103,7 +103,7 @@ function Payment() {
       return await res.json();
     } catch (err) {
       console.error(err);
-    }finally{
+    } finally {
       modal.show("Success", "Ticket(s) created successfully!", "Close");
     }
   };
@@ -146,7 +146,10 @@ function Payment() {
       const data = await res.json();
 
       if (data.id) {
-        modal.show(`Transaction initiated: ${data.id}. Please approve on your phone.`, "close");
+        modal.show(
+          `Transaction initiated: ${data.id}. Please approve on your phone.`,
+          "close"
+        );
         pollPaymentStatus(reference); // start polling
       } else {
         modal.show("Failed to initiate payment", "close");
@@ -258,7 +261,7 @@ function Payment() {
     );
   }
 
-  // Regular payment page (same as before)
+  // Regular payment page
   return (
     <div className="flex flex-col items-center justify-center bg-purple-50">
       <div className="py-10 mt-25 mb-10 flex flex-col px-6 w-full md:w-200 justify-center bg-white rounded-lg shadow-lg">
@@ -468,17 +471,33 @@ function Payment() {
                           const data = await res.json();
                           return data.id;
                         }}
-                        onApprove={async (data) => {
+                        onApprove={async (data, actions) => {
+                          // Ensure approval in PayPal popup
+                          await actions.order?.capture();
+
+                          // Then finalize on backend
                           const res = await fetch(
                             `http://127.0.0.1:8000/capture-order/${data.orderID}`,
                             { method: "POST" }
                           );
                           const details = await res.json();
+
                           modal.show(
-                            "Transaction completed by " +
-                              details.payer.name.given_name
-                          , "close");
+                            "✅ Transaction completed by " +
+                              details.payer.name.given_name,
+                            "close"
+                          );
+
+                          // Generate ticket
+                          await createTicket(amount);
                           setTicketGenerated(true);
+                        }}
+                        onCancel={() => {
+                          modal.show("❌ Payment cancelled by user", "close");
+                        }}
+                        onError={(err) => {
+                          console.error("PayPal error:", err);
+                          modal.show("❌ Payment failed", "close");
                         }}
                       />
                     </PayPalScriptProvider>

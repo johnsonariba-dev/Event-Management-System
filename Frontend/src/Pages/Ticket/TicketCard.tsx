@@ -16,7 +16,7 @@ const TicketCard: React.FC<TicketCardProps> = ({
   eventTitle,
   location,
   date,
-  organizer,
+  
   username,
   price,
   imageUrl,
@@ -54,13 +54,13 @@ const TicketCard: React.FC<TicketCardProps> = ({
                   <span className="font-bold">Time: </span>
                   {date}
                 </p>
-                <p className="text-black">
+                {/* <p className="text-black">
                   <span className="font-bold">Organizer: </span>
                   {organizer}
-                </p>
+                </p> */}
               </div>
               <div>
-                <p className="text-black font-semibold">Attendee: {username}</p>
+                {/* <p className="text-black font-semibold">Attendee: {username}</p> */}
                 <p className="text-black font-semibold ">Price: {price}</p>
               </div>
             </div>
