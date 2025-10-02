@@ -125,7 +125,7 @@ export default function UserManagement() {
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
-    <div className="space-y-4 p-2 md:p-4 min-w-0">
+    <div className="space-y-4 p-2 pt-15 md:p-4 min-w-0">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold">User Management</h1>
