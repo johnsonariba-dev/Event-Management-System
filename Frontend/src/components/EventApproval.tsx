@@ -108,7 +108,7 @@ export const EventApproval: React.FC = () => {
   const currentEvents = filteredEvents.slice(indexOfFirst, indexOfLast);
 
   return (
-    <div className="space-y-4 p-2 md:p-4">
+    <div className="space-y-4 p-2 max-md:pt-15 md:p-4">
       {/* Header */}
       <div>
         <h1 className="text-xl md:text-2xl font-bold">Event Management</h1>
