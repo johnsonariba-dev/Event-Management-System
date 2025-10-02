@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { FiMenu, FiX } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa6";
@@ -19,7 +19,7 @@ interface NavBarItems {
 
 const NavBar: React.FC<NavBarProps> = ({ items }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { token, role, logout } = useAuth();
+  const { token, role } = useAuth();
   const modal = useModalAlert();
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { ReactNode } from "react";
 import ModalContext from "./ModalContext";
 import FuturisticAlertCard from "./FuturisticAlertCard";

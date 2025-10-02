@@ -5,7 +5,6 @@ import { MdCall, MdEmail } from "react-icons/md";
 import { FaLocationDot, FaGlobe, FaEye } from "react-icons/fa6";
 import { FaRocket } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 
 const About = () => {
   const [totalEvents, setTotalEvents] = useState<string>("0");
