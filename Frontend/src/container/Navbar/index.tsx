@@ -45,7 +45,7 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
   };
 
   return (
-    <div className="relative z-4">
+    <div className="relative z-4 flex flex-col w-full items-center">
       <div className="flex justify-between items-center fixed bg-white w-full px-6">
         <NavLink to={"/"} className="w-20 object-cover">
           <img src={images.logo} alt="" className="w-full" />
@@ -101,19 +101,21 @@ const NavBar: React.FC<NavBarProps> = ({ items }) => {
       <div>
         <div
           onClick={toggleMenu}
-          className="hidden max-lg:block absolute top-8 right-12 cursor-pointer z-10"
+          className="hidden max-lg:block absolute top-6 right-12 cursor-pointer z-10 flex items-center justify-center"
         >
           {isOpen ? (
             <FiX size={24} className="fixed" />
           ) : (
-            <div className="flex space-x-12">
-              <div className="">
+            <div className="flex space-x-12 items-center ">
+             {token && (role?.toLowerCase() === "organizer" || role?.toLowerCase() === "user")  &&(
+               <div className="mb-2">
                 <IoMdContact
                   size={40}
                   className="text-primary fixed"
                   onClick={handleProfile}
                 />
               </div>
+             ) }
               <div>
                 <FiMenu size={24} className="fixed" />
               </div>
