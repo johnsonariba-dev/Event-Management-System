@@ -1,34 +1,41 @@
-from models import User
-from dotenv import load_dotenv
-from pathlib import Path
+# backend/app/main.py
+
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 
-# Load local .env
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import uvicorn
+from passlib.context import CryptContext
+
+# ---------------- Load Environment ----------------
 env_path = Path(__file__).parent / ".env"
-load_dotenv(dotenv_path=env_path)
+load_dotenv(dotenv_path=env_path, override=False)  # fallback if env vars not set in Railway
 
+# ---------------- Import App Modules ----------------
+from models import User
+from database import Base, SessionLocal, engine
+from endpoints.auth_routes import router as auth_router
 from endpoints import (
     event, user, ticket, like, paypal, review, exportPDF,
     adminLogin, count, notification, mtn, dashboard, activityUser
 )
-from database import Base, SessionLocal, engine
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from endpoints.auth_routes import router as auth_router
-from passlib.context import CryptContext
-import uvicorn
 
 # ---------------- App Initialization ----------------
 app = FastAPI(title="Event Management System", version="1.0.0")
 
-# Create tables (dev only; replace with Alembic in production)
+# Create database tables (development only)
 Base.metadata.create_all(bind=engine)
 
 # ---------------- Middleware ----------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://event-management-system-oeu5.vercel.app"],  # frontend URL
+    allow_origins=[
+        "https://event-management-system-oeu5.vercel.app",  # production frontend
+        "http://localhost:5173",                            # local frontend
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -53,9 +60,9 @@ app.include_router(adminLogin.router, tags=["adminLogin"])
 app.include_router(activityUser.router, tags=["activityUser"])
 
 # ---------------- Static Files ----------------
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.mount("/uploads", StaticFiles(directory=Path(__file__).parent.parent / "uploads"), name="uploads")
 
-# ---------------- Root ----------------
+# ---------------- Root Endpoint ----------------
 @app.get("/")
 def root():
     return {"message": "Welcome to the Event Management System API!"}
@@ -63,11 +70,10 @@ def root():
 # ---------------- Password Context ----------------
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Default admin credentials
+# ---------------- Default Admin ----------------
 DEFAULT_ADMIN_EMAIL = "planvibes@gmail.com"
 DEFAULT_ADMIN_PASSWORD = "planvibes237"
 
-# ---------------- Startup Event ----------------
 @app.on_event("startup")
 def create_default_admin():
     """Ensure default admin exists when app starts"""
@@ -94,4 +100,4 @@ def create_default_admin():
 # ---------------- Run Locally ----------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("app.main:app", host="0.0.0.0", port=port)
+    uvicorn.run("backend.app.main:app", host="0.0.0.0", port=port, reload=True)
