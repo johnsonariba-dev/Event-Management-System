@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from endpoints.auth import get_current_user
 from schemas.ticket import TicketCreate, TicketOrganizerOut, TicketUserOut
+import PIL
 
 app = FastAPI()
 
